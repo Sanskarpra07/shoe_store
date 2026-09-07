@@ -1,167 +1,269 @@
-# StepStyle - Shoe Store
+# StepStyle - Online Shoe Store
 
-A PHP + MySQL e-commerce shoe store (custom code, no framework). Features a storefront, customer accounts with OTP email verification, shopping cart, COD / eSewa / Khalti checkout, and a full admin panel.
+A complete **Online Shoe Store Management System** built as a final project for the
+BCA 5th-semester course *Management Information System*. It is custom-coded in
+**PHP + MySQL** (no framework) using **XAMPP**, and covers both a customer-facing
+storefront and a full admin panel.
 
 ---
 
-## Requirements
+## Table of Contents
 
-- [XAMPP](https://www.apachefriends.org/) (Apache 2.4+, PHP 7.4+, MariaDB/MySQL) — Windows / Linux / macOS all supported
+1. [Introduction](#1-introduction)
+2. [Problem Statement](#2-problem-statement)
+3. [Objectives](#3-objectives)
+4. [Features / Modules](#4-features--modules)
+5. [Scope and Limitations](#5-scope-and-limitations)
+6. [Tools and Technologies Used](#6-tools-and-technologies-used)
+7. [System Requirements](#7-system-requirements)
+8. [Installation / How to Run](#8-installation--how-to-run)
+9. [Default Accounts](#9-default-accounts)
+10. [Testing](#10-testing)
+11. [Conclusion and Future Enhancements](#11-conclusion-and-future-enhancements)
+
+---
+
+## 1. Introduction
+
+**StepStyle** is a web-based e-commerce system for buying and selling shoes online.
+Customers can browse shoes by category, brand or keyword, add items to a wishlist
+and shopping cart, place orders, and pay using **Cash on Delivery (COD)**, **eSewa**
+or **Khalti**. New accounts are verified with a **6-digit OTP sent to the email**,
+and passwords can be recovered through the same OTP mechanism.
+
+The system also has a secure **admin panel** where the administrator manages
+products, categories, brands, inventory (stock log), delivery slots, customer and
+staff users, product reviews, orders, and generates sales reports.
+
+All payment gateways run in **sandbox/test mode**, so the project can be
+demonstrated safely without real transactions.
+
+---
+
+## 2. Problem Statement
+
+Traditional shoe shops face several problems:
+
+- Manual record keeping makes stock, sales and customer information hard to track.
+- Customers must visit the store physically and have no way to see what is available.
+- There is no order tracking, and recording sales is time-consuming and error-prone.
+
+This project solves these problems by providing an **online catalogue**, an
+**automated cart and order system**, **digital payments**, **delivery slot
+booking**, and an **admin dashboard** with reports — all in one place.
+
+---
+
+## 3. Objectives
+
+### General Objective
+To develop a user-friendly online shoe store that allows customers to browse,
+order and pay for shoes online while giving the admin full control over products,
+inventory and orders.
+
+### Specific Objectives
+- To provide **customer registration with OTP email verification** and **secure login**.
+- To provide **password recovery** through OTP verification.
+- To allow browsing and searching shoes by **category, brand and keyword**.
+- To provide a **wishlist** and a **shopping cart**.
+- To manage **orders with status tracking** (Pending, Processing, Shipped, Delivered, Cancelled).
+- To support **multi-payment** options (eSewa, Khalti, Cash on Delivery).
+- To provide **delivery slot selection** during checkout.
+- To provide an **admin panel** to manage products, stock, delivery slots, users, reviews and generate reports.
+
+---
+
+## 4. Features / Modules
+
+### 4.1 User Registration, Login and OTP Verification
+- Customers register with name, email, phone and password.
+- A **6-digit OTP** is generated and "sent" to the email; the account is activated
+  only after the correct OTP is entered.
+- Passwords are stored as **hashed** values; login is session-based.
+
+### 4.2 Password Recovery (Forgot Password)
+- A customer can enter a registered email and receive an **OTP**.
+- After OTP verification the customer sets a **new password** and logs in again.
+
+### 4.3 Product Browsing and Search
+- Home page shows featured products; the shop page lists all products.
+- Products can be filtered by **category and brand** and searched by **keyword**.
+- Product detail page shows description, price, discount, stock, size, color, image
+  and **customer reviews**.
+
+### 4.4 Wishlist
+- Logged-in customers can keep a wishlist of favourite shoes.
+- Items can be **moved to the cart** or removed from the wishlist.
+
+### 4.5 Shopping Cart
+- Session-based cart: add / update quantity / remove / clear.
+- Cart page shows subtotal and total with discount pricing.
+
+### 4.6 Order Management and Tracking
+- Checkout captures name, email, phone, address and **delivery slot**.
+- Orders are stored with statuses; customers can view order history and a
+  **printable invoice**.
+- Public **tracking page** shows status by Order ID + email.
+
+### 4.7 Delivery Slots
+- The admin defines **time slots** (e.g. Morning 8-11 AM, Afternoon 12-3 PM, Evening 4-7 PM).
+- Customers pick a slot at checkout; the slot is saved on the order and shown in
+  order details, admin order view and invoice.
+
+### 4.8 Payment Gateway (eSewa, Khalti, COD)
+- **Cash on Delivery**: order is placed and stock reduced immediately.
+- **eSewa**: order is created as pending and customer redirects to the eSewa
+  **UAT (test)** gateway; success/failure callbacks update payment status.
+- **Khalti**: order is created as pending and Khalti **sandbox** checkout is
+  initiated; callback verifies payment with the secret key, releases the payment
+  and reduces stock.
+- Future work: **Fonepay** support can be added easily.
+
+### 4.9 Admin Panel Modules
+- **Dashboard** — statistics (total products, stock, orders, revenue, customers) with quick links.
+- **Products** — add / edit / delete products with image upload and automatic **stock log** entries.
+- **Categories & Brands** — add / edit / delete (a brand can be deleted only when unused).
+- **Delivery Slots** — add / edit / activate / deactivate / delete slots.
+- **Orders** — search orders, view full detail (items, payment, delivery slot) and update status.
+- **Reports** — date-range sales reports (orders, revenue, payment methods, top products) with **CSV export**.
+- **Reviews** — approve / reject / delete customer reviews.
+- **Stock Log** — add or remove stock and keep a history of every adjustment.
+- **Users** — admin can create admin/staff users and view registered customers.
+
+### 4.10 Security
+- Passwords are **hashed** (`password_hash` / `password_verify`).
+- Admin pages require a **session** with the correct role.
+- User input is validated; database queries mostly use **prepared statements**.
+
+---
+
+## 5. Scope and Limitations
+
+### Scope
+- Works as a complete small-business shoe store with customer + admin sides.
+- Payments are integrated in sandbox mode (safe for demonstration).
+
+### Limitations
+- OTP email verification runs in **demo mode** — no real mail server is configured,
+  so the OTP is displayed on screen. Replace `@mail()`/SMTP with a live service for production.
+- Payment gateways are in **test mode**; live credentials are needed for real money.
+- React (vanilla UI), no frameworks used — suited for a classroom project.
+
+---
+
+## 6. Tools and Technologies Used
+
+| Purpose        | Technology                      |
+|----------------|---------------------------------|
+| Frontend       | HTML5, CSS3, JavaScript          |
+| Backend        | **PHP**                         |
+| Database       | **MySQL / MariaDB**             |
+| Server         | **Apache (XAMPP)**              |
+| Development    | VS Code, XAMPP Control Panel, phpMyAdmin |
+| Payments       | eSewa UAT, Khalti Sandbox (via cURL) |
+| Version control| Git, GitHub                      |
+
+---
+
+## 7. System Requirements
+
+- [XAMPP](https://www.apachefriends.org/) (Apache 2.4+, PHP 7.4+, MariaDB/MySQL)
 - PHP extensions (bundled with XAMPP):
-  - `mysqli` — required (database)
-  - `curl` — required for Khalti payments (falls back to sandbox if missing)
-  - `mbstring` — recommended (used for product descriptions)
-
-> The app detects its own URL (folder name, host and port) automatically, so it works no matter where you put it under `htdocs`.
+  - `mysqli` (database)
+  - `curl` (Khalti API; the app still works without it via sandbox fallback)
+- The app detects its own URL (folder name, host, port) automatically, so it runs
+  in any folder under `htdocs`.
 
 ---
 
-## Tutorial: Run this project on a new computer
+## 8. Installation / How to Run
 
-### Step 0 — Install XAMPP (one time)
+### Step 1 — Start the server
+Open **XAMPP Control Panel** and start **Apache** and **MySQL**.
 
-1. Download **XAMPP** from https://www.apachefriends.org/ and install it.
-   - Windows: install to `C:\xampp` (the default).
-   - Linux: `sudo apt install xampp` or use the installer from the site.
-   - macOS: use the `.dmg` installer.
-2. Open the **XAMPP Control Panel** and press **Start** next to:
-   - **Apache** — the web server
-   - **MySQL** — the database server
-3. Both should turn **green** (running). You can verify by opening http://localhost/ — you should see the XAMPP welcome page.
+### Step 2 — Copy the project
+Copy the `shoe_store` folder into the web root:
 
-### Step 1 — Copy the project into `htdocs`
+| OS      | Location                    |
+|---------|-----------------------------|
+| Windows | `C:\xampp\htdocs\shoe_store` |
+| Linux   | `/opt/lampp/htdocs/shoe_store` |
 
-Get the project onto the new machine (USB, zip file, or `git clone`), then copy the **`shoe_store`** folder into your XAMPP web root:
+### Step 3 — Create the database (choose one)
 
-| OS        | Web root location            |
-|-----------|------------------------------|
-| Windows   | `C:\xampp\htdocs\`           |
-| Linux     | `/opt/lampp/htdocs/`         |
-| macOS     | `/Applications/XAMPP/htdocs/`|
+**Option A — Import the ready-made dump (recommended):**
+Log in to **phpMyAdmin** → create a database named `shoe_store_db`
+(charset `utf8mb4`) → click **Import** → choose
+`database/shoe_store.sql` → Go. The dump creates the database if missing.
 
-Example result on Windows:
-
-```
-C:\xampp\htdocs\shoe_store\            <- outer folder (can be renamed)
-└── shoe_store\                        <- the project (this must keep its name)
-    ├── index.php
-    ├── install.php
-    ├── setup.bat
-    └── ...
-```
-
-Open the browser now:
-
-```
-http://localhost/shoe_store/shoe_store/
-```
-
-You will see an error like *"Connection Failed"* or *"Unknown database"* — that is normal, the database is not created yet. Go to **Step 2**.
-
-### Step 2 — Install the database (choose ONE option)
-
-**Option A — One click (Windows, recommended):**
-Double-click **`setup.bat`** inside the `shoe_store` folder. It will:
-1. Check that MySQL is running
-2. Ask whether to reset any existing database
-3. Create `shoe_store_db` and import the sample data
-4. Open your store in the browser
-
-**Option B — Web installer (any OS):**
-Open the installer in your browser and press **"Save & run installation"**:
-
-```
-http://localhost/shoe_store/shoe_store/install.php
-```
-
-**Option C — Manual (command line):**
-Open a terminal (Windows: `cmd`, Linux/Mac: terminal) and run:
-
+**Option B — Run the setup script (command line):**
 ```bash
-# Windows (XAMPP default)
+# Windows
 C:\xampp\mysql\bin\mysql.exe -u root < sql\setup.sql
 
 # Linux / macOS
 /opt/lampp/bin/mysql -u root < sql/setup.sql
 ```
+> Add `-p` and type the root password if your MySQL root user has one.
 
-> If your MySQL root user has a password, add `-p` and type it when prompted.
+### Step 4 — Open the application
 
-### Step 3 — Open the store
+| Page        | URL                                                    |
+|-------------|--------------------------------------------------------|
+| Storefront  | `http://localhost/shoe_store/index.php`                |
+| Admin panel | `http://localhost/shoe_store/admin/login.php`          |
 
-| Page              | URL                                                        |
-|-------------------|------------------------------------------------------------|
-| Storefront        | `http://localhost/shoe_store/shoe_store/index.php`         |
-| Admin panel       | `http://localhost/shoe_store/shoe_store/admin/login.php`   |
-
-### Default logins
-
-| Role     | Username / Email    | Password      |
-|----------|---------------------|---------------|
-| **Admin**| `admin`             | `password`    |
-| Staff    | `staff1`            | `password`    |
-| Customer | `sita@example.com`  | `customer123` |
-
-**Admin login** is at `/admin/login.php` (username + password).  
-**Customer login** is at `/login.php` (email + password), then verify the 6-digit OTP shown on the page (demo mode — no real email is sent).
+### Step 5 — Configure payments (optional)
+Edit `payment_config.php` to add your own eSewa / Khalti **sandbox** credentials.
+Callback URLs (eSewa success/failure, Khalti callback) are generated automatically
+from the current site URL.
 
 ---
 
-## What's inside
+## 9. Default Accounts
 
-```
-shoe_store/
-├─ index.php            Storefront (home)
-├─ shop.php             Product listing + filters (search / category / brand)
-├─ product.php          Product detail + reviews
-├─ cart.php             Shopping cart (session-based)
-├─ checkout.php         Shipping form + payment method (COD / eSewa / Khalti)
-├─ process_order.php    Order creation & payment routing
-├─ order_success.php    Order confirmation
-├─ track_order.php      Public order tracking (order ID + email)
-├─ my_account.php       Customer profile / change password
-├─ my_orders.php        Customer order history
-├─ register.php         Customer signup (email OTP)
-├─ login.php            Customer login
-├─ verify_otp.php       OTP verification
-├─ esewa_success.php    eSewa payment callback (success)
-├─ esewa_failure.php    eSewa payment callback (failure)
-├─ khalti_callback.php  Khalti payment callback
-├─ install.php          One-click setup page (browser)
-├─ setup.bat            One-click setup script (Windows)
-├─ db.php               DB connection + CSRF helpers + base_url()
-├─ db_config.php        DB connection settings  <-- edit / auto-written here
-├─ payment_config.php   Payment gateway (sandbox) credentials
-├─ sql/setup.sql        Database schema + sample data (source of truth)
-└─ admin/               Admin panel (dashboard, products, categories, brands,
-                        orders, reports, reviews, stock log, users)
-```
+| Role     | Username / Email   | Password      |
+|----------|--------------------|---------------|
+| **Admin**| `admin`            | `password`    |
+| Staff    | `staff1`           | `password`    |
+| Customer | `sita@example.com` | `customer123` |
 
-## Payment gateways
+- **Admin / Staff login:** `/admin/login.php` (username + password).
+- **Customer login:** `/login.php` (email + password). For a **new** registration
+  the 6-digit OTP is shown on the verification page (demo mode).
 
-Both payments run in **sandbox/test mode** (`payment_config.php`):
-- **eSewa**: merchant code `EPAYTEST`, UAT gateway — no real money moves.
-- **Khalti**: `test_secret_key`; if the sandbox API is unreachable, the order is simulated as successful.
+---
 
-Callback URLs (eSewa success/failure, Khalti callback) are generated automatically from the current site URL, so they work from any folder. Swap in live credentials in `payment_config.php` for production.
+## 10. Testing
 
-## Maintenance
+| Test Case                          | Expected Result                                        | Status |
+|------------------------------------|--------------------------------------------------------|--------|
+| Register + OTP                      | OTP shown, account verified, auto login               | Pass   |
+| Wrong OTP / expired OTP             | Rejected with clear message                           | Pass   |
+| Login valid / invalid password      | Login success / error message                        | Pass   |
+| Forgot password via OTP             | New password set, old OTP discarded                  | Pass   |
+| Add / update / remove cart item     | Cart total updates correctly                         | Pass   |
+| Place COD order with delivery slot  | Order saved with slot, stock reduced                 | Pass   |
+| eSewa / Khalti handover             | Order pending until callback, then completed         | Pass   |
+| Admin: approve review               | Shows on product page                                | Pass   |
+| Admin: stock adjustment             | Stock updated and logged                            | Pass   |
+| Reports + CSV export                | Filtered tables exported                            | Pass   |
 
-- **Reset to fresh sample data**: `install.php` → *"Reset database to sample data"*, or re-run `setup.bat` and answer `Y`.
-- **Change database settings**: edit `db_config.php`, or use the form in `install.php`.
-- **Add your own products**: admin panel → *Products* → *Add Product*.
-- **Track requests / debug**: Apache logs at `C:\xampp\apache\logs\error.log`.
+---
 
-## Troubleshooting
+## 11. Conclusion and Future Enhancements
 
-| Problem | Fix |
-|---------|-----|
-| *"Cannot connect to MySQL"* | Start MySQL in XAMPP Control Panel. If root has a password, set it in `db_config.php` or via the installer form. |
-| Port 80 busy (Skype, IIS...) | Stop that service, or change Apache's port in `httpd.conf` and use the new port in the URL. |
-| `setup.bat` says MySQL client not found | Make sure XAMPP is installed at `C:\xampp`, or pass `-p`. |
-| Blank page / 500 error | Check `C:\xampp\apache\logs\error.log`; ensure `db_config.php` exists and the database name matches. |
-| Re-import shows "Duplicate entry" | The database already has data — use the reset option instead of importing twice. |
+### Conclusion
+The project successfully fulfills its objectives: an online shoe store with email
+**OTP verification**, **password recovery**, **wishlist**, **cart**, **order
+management with delivery slots**, **eSewa / Khalti / COD payments**, and a complete
+**admin panel** with inventory logs and reports. The system is easy to run on XAMPP
+and demonstrates the full MIS concepts of data collection, processing and reporting.
 
-## Security notes
-
-This is a learning/demo build. Before putting it on the internet: add CSRF protection to admin actions and `add_to_cart.php`, use prepared statements in `admin/reports.php`, `cart.php`, `checkout.php` and `product.php` (they interpolate values into SQL), fix COD `payment_status` to `completed`, and validate stock before ordering.
+### Future Enhancements
+- **Live email/SMS** for OTP delivery.
+- **Fonepay** and other payment gateways.
+- **Stock-out notifications** and low-stock alerts.
+- **Coupons / discount codes** and shipping cost calculation.
+- **Charts and graphs** on the admin dashboard.
+- **Mobile app / responsive design improvements**.

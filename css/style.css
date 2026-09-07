@@ -1,76 +1,293 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-body{
-    font-family: Arial, Helvetica, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #dfdfdf;
-}
-.login-form{                 
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    width: 400px;
-}
-.login-header{
-    margin: 20px 0px 40px 0px; 
-    text-align: center;
-    font-weight: bold;
-    font-size: large;
-}
-.login-header header{
-    font-size: 30px;
-    font-weight: 600;
-}
-.input-box .input-field{
-    width: 100%;
-    height: 50px;
-    font-size: 18px;
-    font-family: sans-serif;
-    padding: 8px;
-    margin-bottom: 20px;
-    border-radius: 20px;
-    border: none;
-}
-.remember{
-    display: flex;
-    font-size:14px;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-a{                                
-    text-decoration: none;
+/* =========================================================
+   StepStyle - Online Shoe Store
+   Simple CSS used by both the store front and admin panel
+   ========================================================= */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: Verdana, Tahoma, Arial, sans-serif;
     font-size: 14px;
-    margin-bottom: 30px;
+    color: #333333;
+    background-color: #eeeeee;
 }
-a:hover{
-    text-decoration: underline;
+
+a { color: #1a237e; }
+a:hover { color: #c62828; }
+
+img { border: 0; }
+
+/* ---------- Layout wrapper ---------- */
+.site-wrap {
+    width: 980px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    min-height: 600px;
+    border-left: 1px solid #cccccc;
+    border-right: 1px solid #cccccc;
 }
-.login-button{
+
+/* ---------- Header ---------- */
+.header {
+    background-color: #1a237e;
+    color: #ffffff;
+    padding: 18px 20px;
+}
+.header .brand {
+    font-size: 30px;
+    font-weight: bold;
+}
+.header .tagline {
+    font-size: 13px;
+    color: #c5cae9;
+    margin-top: 4px;
+}
+
+/* ---------- Announcement marquee ---------- */
+.announce {
+    background-color: #fff8e1;
+    color: #795548;
+    border-bottom: 1px solid #ffe082;
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+/* ---------- Navigation bar ---------- */
+.nav {
+    background-color: #283593;
+    overflow: hidden;
+    padding: 0 5px;
+}
+.nav a {
+    display: inline-block;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 11px 14px;
+    font-size: 14px;
+}
+.nav a:hover { background-color: #1a237e; }
+.nav a.active { background-color: #c62828; }
+.nav .nav-right { float: right; }
+
+/* ---------- Main content ---------- */
+.content {
+    padding: 20px;
+    min-height: 480px;
+}
+
+h2.page-title {
+    color: #1a237e;
+    border-bottom: 2px solid #1a237e;
+    padding-bottom: 6px;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+h3.section-title {
+    color: #1a237e;
+    margin: 20px 0 10px 0;
+    font-size: 17px;
+}
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-muted { color: #666666; }
+.small { font-size: 12px; }
+.mt-20 { margin-top: 20px; }
+.mb-20 { margin-bottom: 20px; }
+
+/* ---------- Product box grid ---------- */
+.product-row { margin: 0 -8px; }
+.product-row:after { content: ""; display: table; clear: both; }
+.product-box {
+    float: left;
+    width: 225px;
+    margin: 8px;
+    border: 1px solid #dddddd;
+    padding: 10px;
     text-align: center;
+    background: #fafafa;
 }
-#submit{
-    width: 60%;
-    height: 50px;
-    background-color: aqua;
-    border-radius: 35px;
+.product-box .p-img {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.product-box .p-img img { max-width: 100%; max-height: 150px; }
+.product-box .p-name { font-weight: bold; margin: 8px 0 2px 0; font-size: 13px; }
+.product-box .p-cat { color: #666666; font-size: 11px; }
+.product-box .p-price { color: #c62828; font-weight: bold; margin: 5px 0; }
+.product-box .p-old { color: #999999; text-decoration: line-through; margin-right: 5px; font-weight: normal; }
+.product-box .p-stock { font-size: 11px; margin-bottom: 8px; }
+
+/* ---------- Table ---------- */
+.table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+.table th, .table td { border: 1px solid #cccccc; padding: 8px; text-align: left; }
+.table th { background-color: #283593; color: #ffffff; text-align: center; }
+.table tr:nth-child(even) td { background-color: #f5f5f5; }
+.table .row-num, .table .center { text-align: center; }
+
+/* ---------- Buttons ---------- */
+.btn {
+    display: inline-block;
+    background-color: #283593;
+    color: #ffffff;
+    padding: 7px 14px;
+    margin: 2px;
+    text-decoration: none;
     border: none;
-    font-size: large;
     cursor: pointer;
+    font-size: 13px;
 }
-#checkbox{
-    margin-right: 5px;  
+.btn:hover { background-color: #1a237e; color: #ffffff; }
+.btn-red { background-color: #c62828; }
+.btn-red:hover { background-color: #b71c1c; }
+.btn-green { background-color: #2e7d32; }
+.btn-green:hover { background-color: #1b5e20; }
+.btn-gray { background-color: #616161; }
+.btn-gray:hover { background-color: #424242; }
+.btn-small { padding: 4px 9px; font-size: 12px; }
+
+/* ---------- Forms ---------- */
+.form-box {
+    width: 450px;
+    margin: 0 auto;
+    border: 1px solid #cccccc;
+    background: #fafafa;
+    padding: 20px;
 }
-.input-box{
-    position: relative;
+.form-box h3 {
+    text-align: center;
+    color: #1a237e;
+    margin-bottom: 15px;
 }
-.input-box label{
-    font-size: larger;
-    margin-left: 10px;
-    margin-bottom: 10px;
+.form-group { margin-bottom: 14px; }
+.form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bold;
+    font-size: 13px;
 }
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #bbbbbb;
+    font-family: inherit;
+    font-size: 14px;
+}
+.form-group textarea { resize: vertical; }
+.form-box .btn { width: 100%; padding: 10px; margin-top: 6px; }
+
+/* ---------- Messages ---------- */
+.msg-success, .msg-error, .msg-info {
+    padding: 10px;
+    margin: 12px 0;
+    border: 1px solid;
+    font-size: 13px;
+}
+.msg-success { background: #e8f5e9; border-color: #81c784; color: #1b5e20; }
+.msg-error { background: #fdecea; border-color: #e57373; color: #b71c1c; }
+.msg-info { background: #e3f2fd; border-color: #64b5f6; color: #0d47a1; }
+ul.error-list { margin: 0 0 0 18px; }
+ul.error-list li { margin-bottom: 2px; }
+
+/* ---------- Checkout summary ---------- */
+.summary { border: 1px solid #cccccc; background: #fafafa; padding: 14px; }
+.summary .line { display: flex; justify-content: space-between; padding: 3px 0; }
+.summary .total { font-weight: bold; font-size: 16px; border-top: 1px solid #cccccc; margin-top: 6px; padding-top: 6px; }
+
+/* ---------- Footer ---------- */
+.footer {
+    background-color: #1a237e;
+    color: #c5cae9;
+    text-align: center;
+    padding: 14px;
+    font-size: 12px;
+}
+.footer a { color: #ffeb3b; }
+.footer a:hover { color: #ffffff; }
+
+/* ---------- Admin panel ---------- */
+.admin-wrap {
+    width: 1100px;
+    margin: 20px auto;
+    border: 1px solid #cccccc;
+    background: #ffffff;
+    display: flex;
+}
+.sidebar {
+    width: 210px;
+    background-color: #1a237e;
+    color: #ffffff;
+    min-height: 550px;
+    flex-shrink: 0;
+}
+.sidebar .side-brand {
+    padding: 18px 15px;
+    font-size: 17px;
+    font-weight: bold;
+    border-bottom: 1px solid #3949ab;
+}
+.sidebar a {
+    display: block;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 11px 15px;
+    font-size: 13px;
+    border-bottom: 1px solid #283593;
+}
+.sidebar a:hover { background-color: #283593; }
+.sidebar a.active { background-color: #c62828; }
+.sidebar .side-user {
+    padding: 14px 15px;
+    font-size: 12px;
+    border-top: 1px solid #3949ab;
+    color: #c5cae9;
+}
+.sidebar .side-user a { padding: 0; border: none; display: inline; color: #ffeb3b; }
+
+.admin-main {
+    flex: 1;
+    padding: 20px;
+    min-height: 550px;
+}
+.admin-main h2 {
+    color: #1a237e;
+    border-bottom: 2px solid #1a237e;
+    padding-bottom: 6px;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+/* ---------- Login (store front + admin) ---------- */
+.login-page {
+    background: #eeeeee;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.login-box {
+    width: 380px;
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 25px;
+}
+.login-box h2 {
+    text-align: center;
+    color: #1a237e;
+    margin-bottom: 18px;
+}
+.login-box .link-row {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+/* ---------- Payment gateway ---------- */
+.pay-box { width: 500px; margin: 40px auto; }

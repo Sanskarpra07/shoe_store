@@ -1,18 +1,13 @@
 <?php
 session_start();
-
-if(!isset($_SESSION['username'])){
-    header("Location: ../admin/login.php");
-    exit();
-}
-
-require_once '../db.php';
+$page_title = 'Brands';
+$current_page = 'brands';
+require_once 'includes/header.php';
 
 $errors = [];
 
 if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id'])) {
-    if (!csrf_check()) { die('Invalid request'); }
-    $id = (int) $_POST['id'];
+    $id = (int)$_POST['id'];
     $check = mysqli_fetch_assoc(
         mysqli_query($conn, "SELECT COUNT(*) AS c FROM products WHERE brand_id = $id")
     );
@@ -29,7 +24,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!csrf_check()) { die('Invalid request'); }
     $name        = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
 
@@ -50,148 +44,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$brands = mysqli_query($conn, "
-    SELECT b.*, COUNT(p.id) AS product_count
-    FROM brands b
-    LEFT JOIN products p ON p.brand_id = b.id
-    GROUP BY b.id
-    ORDER BY b.created_at DESC
-");
+$brands = mysqli_query($conn,
+    "SELECT b.*, COUNT(p.id) AS product_count
+     FROM brands b
+     LEFT JOIN products p ON p.brand_id = b.id
+     GROUP BY b.id
+     ORDER BY b.created_at DESC"
+);
 
-$current_page = 'brands';
+$success = $_SESSION['success'] ?? '';
+$error   = $_SESSION['error'] ?? '';
+unset($_SESSION['success'], $_SESSION['error']);
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brands - Shoe Store Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <style> body { background-color: #f0f2f5; } </style>
-</head>
-<body>
+<h2>Brands</h2>
+<p><a class="btn" href="brands.php">+ Add Brand</a></p>
 
-<div class="container-fluid">
-    <div class="row flex-nowrap">
+<?php if ($success): ?>
+    <div class="msg-success"><?= htmlspecialchars($success) ?></div>
+<?php endif; ?>
+<?php if ($error): ?>
+    <div class="msg-error"><?= htmlspecialchars($error) ?></div>
+<?php endif; ?>
+<?php if (!empty($errors)): ?>
+    <div class="msg-error">
+        <?php foreach ($errors as $e) echo htmlspecialchars($e) . '<br>'; ?>
+    </div>
+<?php endif; ?>
 
-        <?php require_once 'includes/sidebar.php'; ?>
-
-        <div class="col py-4 px-4">
-
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <h4 class="fw-bold mb-0">
-                <i class="bi bi-award me-2 text-secondary"></i>Brands
-            </h4>
-        </div>
-
-            <?php if (!empty($_SESSION['success'])): ?>
-                <div class="alert alert-success alert-dismissible fade show">
-                    <?= htmlspecialchars($_SESSION['success']) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <?php unset($_SESSION['success']); ?>
-            <?php endif; ?>
-            <?php if (!empty($_SESSION['error'])): ?>
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <?= htmlspecialchars($_SESSION['error']) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <?php unset($_SESSION['error']); ?>
-            <?php endif; ?>
-
-            <?php if (!empty($errors)): ?>
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        <?php foreach ($errors as $e): ?>
-                            <li><?= htmlspecialchars($e) ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
-
-            <div class="row g-4">
-                <div class="col-lg-4">
-                    <div class="card shadow-sm border-0 rounded-3">
-                        <div class="card-header bg-white fw-semibold py-3">
-                            <i class="bi bi-plus-circle me-2 text-secondary"></i>Add New Brand
-                        </div>
-                        <div class="card-body">
-                            <form method="POST" action="brands.php">
-                                <?= csrf_field() ?>
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Brand Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="name" class="form-control" placeholder="e.g. Nike" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Description</label>
-                                    <textarea name="description" class="form-control" rows="2" placeholder="About this brand..."></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-secondary w-100 text-white">
-                                    <i class="bi bi-plus-circle me-1"></i>Add Brand
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-8">
-                    <div class="card shadow-sm border-0 rounded-3">
-                        <div class="card-body p-0">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th class="ps-4">#</th>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th class="text-center">Products</th>
-                                        <th class="text-center">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                <?php
-                                $sno = 1;
-                                while ($row = mysqli_fetch_assoc($brands)):
-                                ?>
-                                    <tr>
-                                        <td class="ps-4 text-muted"><?= $sno++ ?></td>
-                                        <td class="fw-semibold"><?= htmlspecialchars($row['name']) ?></td>
-                                        <td class="text-muted small"><?= htmlspecialchars($row['description'] ?? '—') ?></td>
-                                        <td class="text-center">
-                                            <span class="badge bg-primary rounded-pill"><?= $row['product_count'] ?></span>
-                                        </td>
-                                        <td class="text-center">
-                                            <form method="POST" action="brands.php" class="d-inline" onsubmit="return confirm('Delete this brand?')">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+<div style="float:left; width:260px; margin-right:20px;">
+    <div class="form-box" style="width:100%;">
+        <h3>Add New Brand</h3>
+        <form method="POST" action="brands.php">
+            <div class="form-group">
+                <label>Brand Name *</label>
+                <input type="text" name="name" placeholder="e.g. Nike" required>
             </div>
-
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="2" placeholder="About this brand..."></textarea>
             </div>
-         </div>
+            <button type="submit" class="btn">Add Brand</button>
+        </form>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                window.location.replace('../admin/login.php');
-            }
-        });
-    </script>
-</body>
-</html>
+<div style="float:left; width:720px;">
+    <table class="table">
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Products</th>
+            <th>Action</th>
+        </tr>
+        <?php $sno = 1; while ($row = mysqli_fetch_assoc($brands)): ?>
+        <tr>
+            <td class="center"><?= $sno++ ?></td>
+            <td><strong><?= htmlspecialchars($row['name']) ?></strong></td>
+            <td><?= htmlspecialchars($row['description'] ?? '-') ?></td>
+            <td class="center"><?= $row['product_count'] ?></td>
+            <td class="center">
+                <form method="POST" action="brands.php" onsubmit="return confirm('Delete this brand?')">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                    <button type="submit" class="btn btn-red btn-small">Delete</button>
+                </form>
+            </td>
+        </tr>
+        <?php endwhile; ?>
+    </table>
+</div>
+<div style="clear:both;"></div>
+
+<?php require_once 'includes/footer.php'; ?>

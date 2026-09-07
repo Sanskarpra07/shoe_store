@@ -1,18 +1,12 @@
 <?php
 session_start();
-
-if (!isset($_SESSION['username'])) {
-    header("Location: ../admin/login.php");
-    exit();
-}
-
-require_once '../db.php';
+$page_title = 'Orders';
+$current_page = 'orders';
+require_once 'includes/header.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!csrf_check()) { die('Invalid request'); }
-
-    if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id'])) {
-        $id = (int) $_POST['id'];
+    if (($_POST['action'] ?? '') === 'delete' && isset($_POST['id'])) {
+        $id = (int)$_POST['id'];
         $stmt = mysqli_prepare($conn, "UPDATE orders SET status = 'cancelled' WHERE id = ?");
         mysqli_stmt_bind_param($stmt, "i", $id);
         mysqli_stmt_execute($stmt);
@@ -21,8 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    if (isset($_POST['action']) && $_POST['action'] === 'update_status' && isset($_POST['id']) && isset($_POST['status'])) {
-        $id     = (int) $_POST['id'];
+    if (($_POST['action'] ?? '') === 'update_status' && isset($_POST['id']) && isset($_POST['status'])) {
+        $id     = (int)$_POST['id'];
         $status = $_POST['status'];
         $valid  = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
         if (in_array($status, $valid)) {
@@ -36,12 +30,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Order detail view
+$view_order_id = isset($_GET['view']) ? (int)$_GET['view'] : 0;
+$order_detail  = null;
+$order_items   = [];
+
+if ($view_order_id > 0) {
+    $stmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $view_order_id);
+    mysqli_stmt_execute($stmt);
+    $order_detail = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+
+    if ($order_detail) {
+        $oi = mysqli_query($conn,
+            "SELECT oi.*, p.product_name, p.size, p.color
+             FROM order_items oi
+             LEFT JOIN products p ON oi.product_id = p.id
+             WHERE oi.order_id = $view_order_id"
+        );
+        while ($r = mysqli_fetch_assoc($oi)) { $order_items[] = $r; }
+    }
+}
+
 $search = trim($_GET['search'] ?? '');
 
 if (!empty($search)) {
     $stmt = mysqli_prepare($conn,
-        "SELECT * FROM orders WHERE customer_name LIKE ? OR customer_email LIKE ? OR id LIKE ? ORDER BY created_at DESC"
-    );
+        "SELECT * FROM orders WHERE customer_name LIKE ? OR customer_email LIKE ? OR id LIKE ? ORDER BY created_at DESC");
     $like = "%$search%";
     mysqli_stmt_bind_param($stmt, "sss", $like, $like, $like);
     mysqli_stmt_execute($stmt);
@@ -50,131 +65,113 @@ if (!empty($search)) {
     $orders = mysqli_query($conn, "SELECT * FROM orders ORDER BY created_at DESC");
 }
 
-$current_page = 'orders';
+$success = $_SESSION['success'] ?? '';
+unset($_SESSION['success']);
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders - Shoe Store Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <style> body { background-color: #f0f2f5; } </style>
-</head>
-<body>
+<h2>Orders</h2>
 
-<div class="container-fluid">
-    <div class="row flex-nowrap">
+<?php if ($success): ?>
+    <div class="msg-success"><?= htmlspecialchars($success) ?></div>
+<?php endif; ?>
 
-        <?php require_once 'includes/sidebar.php'; ?>
+<?php if ($order_detail): ?>
+    <p><a href="orders.php">&laquo; Back to Orders</a></p>
+    <h3 class="section-title">Order #<?= $order_detail['id'] ?> Details</h3>
+    <table class="table" style="width:600px;">
+        <tr><th style="width:180px;">Customer</th><td><?= htmlspecialchars($order_detail['customer_name']) ?></td></tr>
+        <tr><th>Email</th><td><?= htmlspecialchars($order_detail['customer_email']) ?></td></tr>
+        <tr><th>Phone</th><td><?= htmlspecialchars($order_detail['customer_phone'] ?? '-') ?></td></tr>
+        <tr><th>Address</th><td><?= htmlspecialchars($order_detail['customer_address']) ?></td></tr>
+        <tr><th>Delivery Slot</th><td><?= htmlspecialchars($order_detail['delivery_slot'] ?: '-') ?></td></tr>
+        <tr><th>Payment Method</th><td><?= strtoupper($order_detail['payment_method']) ?></td></tr>
+        <tr><th>Payment Status</th><td><?= ucfirst($order_detail['payment_status']) ?></td></tr>
+        <?php if ($order_detail['transaction_id']): ?>
+        <tr><th>Transaction ID</th><td><?= htmlspecialchars($order_detail['transaction_id']) ?></td></tr>
+        <?php endif; ?>
+        <tr><th>Order Date</th><td><?= date('d M Y, h:i A', strtotime($order_detail['created_at'])) ?></td></tr>
+    </table>
 
-        <div class="col py-4 px-4">
+    <table class="table">
+        <tr>
+            <th>Product</th>
+            <th>Size</th>
+            <th>Color</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+        </tr>
+        <?php foreach ($order_items as $item): ?>
+        <tr>
+            <td><?= htmlspecialchars($item['product_name']) ?></td>
+            <td class="center"><?= htmlspecialchars($item['size'] ?? '-') ?></td>
+            <td class="center"><?= htmlspecialchars($item['color'] ?? '-') ?></td>
+            <td class="center"><?= $item['quantity'] ?></td>
+            <td class="center">$<?= number_format($item['price'], 2) ?></td>
+            <td class="center">$<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+        </tr>
+        <?php endforeach; ?>
+        <tr>
+            <td colspan="5" class="text-right"><strong>Order Total</strong></td>
+            <td class="center"><strong>$<?= number_format($order_detail['total_amount'], 2) ?></strong></td>
+        </tr>
+    </table>
 
-            <div class="d-flex align-items-center justify-content-between mb-4">
-                <h4 class="fw-bold mb-0"><i class="bi bi-cart me-2 text-danger"></i>Orders</h4>
+    <h3 class="section-title">Update Status</h3>
+    <div class="form-box" style="width:400px;">
+        <form method="POST" action="orders.php">
+            <input type="hidden" name="action" value="update_status">
+            <input type="hidden" name="id" value="<?= $order_detail['id'] ?>">
+            <div class="form-group">
+                <label>Order Status</label>
+                <select name="status">
+                    <?php foreach (['pending', 'processing', 'shipped', 'delivered', 'cancelled'] as $s): ?>
+                        <option value="<?= $s ?>" <?= $order_detail['status'] === $s ? 'selected' : '' ?>><?= ucfirst($s) ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
-
-            <form method="GET" action="orders.php" class="mb-4">
-                <div class="input-group" style="max-width: 400px;">
-                    <input type="text" name="search" class="form-control"
-                        placeholder="Search by customer name, email or order #..."
-                        value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-                    <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
-                    <?php if (!empty($_GET['search'])): ?>
-                        <a href="orders.php" class="btn btn-outline-danger"><i class="bi bi-x"></i></a>
-                    <?php endif; ?>
-                </div>
-            </form>
-
-            <?php if (!empty($_SESSION['success'])): ?>
-                <div class="alert alert-success alert-dismissible fade show">
-                    <?= htmlspecialchars($_SESSION['success']) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <?php unset($_SESSION['success']); ?>
-            <?php endif; ?>
-
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-dark">
-                            <tr>
-                                <th class="ps-4">#</th>
-                                <th>Customer</th>
-                                <th>Email</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php $sno = 1; while ($row = mysqli_fetch_assoc($orders)): ?>
-                        <tr>
-                            <td class="ps-4 fw-semibold">#<?= $row['id'] ?></td>
-                            <td><?= htmlspecialchars($row['customer_name']) ?></td>
-                            <td class="small"><?= htmlspecialchars($row['customer_email']) ?></td>
-                            <td>$<?= number_format($row['total_amount'], 2) ?></td>
-                            <td>
-                                <span class="badge order-status-<?= $row['status'] ?>">
-                                    <?= ucfirst($row['status']) ?>
-                                </span>
-                            </td>
-                            <td class="text-muted small"><?= date('d M Y, h:i A', strtotime($row['created_at'])) ?></td>
-                            <td class="text-center">
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                        Status
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <?php foreach (['pending' => 'Pending', 'processing' => 'Processing', 'shipped' => 'Shipped', 'delivered' => 'Delivered'] as $val => $label): ?>
-                                            <li>
-                                                <form method="POST" action="orders.php" class="m-0">
-                                                    <?= csrf_field() ?>
-                                                    <input type="hidden" name="action" value="update_status">
-                                                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                                    <input type="hidden" name="status" value="<?= $val ?>">
-                                                    <button type="submit" class="dropdown-item"><?= $label ?></button>
-                                                </form>
-                                            </li>
-                                        <?php endforeach; ?>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <form method="POST" action="orders.php" class="m-0" onsubmit="return confirm('Cancel this order?')">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                                <button type="submit" class="dropdown-item text-danger">Cancel</button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                        <?php if (mysqli_num_rows($orders) === 0): ?>
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-4">No orders found.</td>
-                            </tr>
-                        <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
+            <button type="submit" class="btn btn-green">Update Status</button>
+        </form>
     </div>
-</div>
+<?php else: ?>
+    <form method="GET" action="orders.php" style="margin-bottom:10px;">
+        <input type="text" name="search" placeholder="Search by customer name, email or order #..."
+               value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" style="padding:7px; width:300px;">
+        <button type="submit" class="btn btn-small">Search</button>
+        <?php if (!empty($search)): ?><a class="btn btn-gray btn-small" href="orders.php">Clear</a><?php endif; ?>
+    </form>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                window.location.replace('../admin/login.php');
-            }
-        });
-    </script>
-</body>
-</html>
+    <table class="table">
+        <tr>
+            <th>#</th>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+        <?php $sno = 1; while ($row = mysqli_fetch_assoc($orders)): ?>
+        <tr>
+            <td class="center"><strong>#<?= $row['id'] ?></strong></td>
+            <td><?= htmlspecialchars($row['customer_name']) ?></td>
+            <td><?= htmlspecialchars($row['customer_email']) ?></td>
+            <td class="center">$<?= number_format($row['total_amount'], 2) ?></td>
+            <td class="center"><?= strtoupper($row['payment_method']) ?></td>
+            <td class="center"><?= ucfirst($row['status']) ?></td>
+            <td class="center"><?= date('d M Y', strtotime($row['created_at'])) ?></td>
+            <td class="center">
+                <a class="btn btn-small" href="orders.php?view=<?= $row['id'] ?>">View / Update</a>
+            </td>
+        </tr>
+        <?php endwhile; ?>
+        <?php if (mysqli_num_rows($orders) === 0): ?>
+        <tr>
+            <td colspan="8" class="center">No orders found.</td>
+        </tr>
+        <?php endif; ?>
+    </table>
+<?php endif; ?>
+
+<?php require_once 'includes/footer.php'; ?>

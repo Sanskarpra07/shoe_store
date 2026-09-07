@@ -14,36 +14,18 @@ if (is_numeric($oid)) {
 if ($order_id > 0) {
     mysqli_query($conn, "UPDATE orders SET payment_status = 'failed' WHERE id = $order_id");
 }
+
+site_header('Payment Failed - StepStyle', '');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Payment Failed - StepStyle</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
-</head>
-<body>
 
-<?php frontend_navbar(); ?>
+<h2 class="page-title">Payment Failed</h2>
 
-<div class="container py-5 text-center">
-    <div class="card shadow-sm border-0 rounded-3 mx-auto" style="max-width: 450px;">
-        <div class="card-body p-5">
-            <i class="bi bi-x-circle-fill text-danger" style="font-size: 5rem;"></i>
-            <h2 class="fw-bold text-danger mt-3">Payment Failed</h2>
-            <p class="text-muted mt-2">Your payment was not completed. You can try again or choose another payment option.</p>
-            <div class="mt-4 d-flex gap-2 justify-content-center">
-                <a href="cart.php" class="btn btn-accent">Back to Cart</a>
-                <a href="checkout.php" class="btn btn-outline-dark">Try Again</a>
-            </div>
-        </div>
-    </div>
+<div class="form-box" style="text-align:center; width:500px;">
+    <div style="font-size:52px; color:#c62828;">&#10005;</div>
+    <p style="margin-top:15px; font-size:15px;">Your payment was not completed. You can try again or choose another payment option.</p>
+    <hr>
+    <a class="btn" href="cart.php">Back to Cart</a>
+    <a class="btn btn-green" href="checkout.php">Try Again</a>
 </div>
 
-<?php frontend_footer(); ?>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php site_footer(); ?>

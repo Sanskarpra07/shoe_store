@@ -10,17 +10,12 @@ if (empty($cart)) {
     exit();
 }
 
-if (!csrf_check()) {
-    $_SESSION['checkout_errors'] = ["Invalid security token. Please try again."];
-    header("Location: checkout.php");
-    exit();
-}
-
 // --- Gather shipping data ---
 $name    = trim($_POST['name'] ?? '');
 $email   = trim($_POST['email'] ?? '');
 $phone   = trim($_POST['phone'] ?? '');
 $address = trim($_POST['address'] ?? '');
+$slot    = trim($_POST['delivery_slot'] ?? '');
 $payment = $_POST['payment_method'] ?? 'cod';
 
 $customer_id = isset($_SESSION['customer_id']) ? (int)$_SESSION['customer_id'] : null;
@@ -62,7 +57,7 @@ if (!empty($errors)) {
     $_SESSION['checkout_errors'] = $errors;
     $_SESSION['checkout_data'] = [
         'name' => $name, 'email' => $email, 'phone' => $phone,
-        'address' => $address, 'payment' => $payment
+        'address' => $address, 'payment' => $payment, 'delivery_slot' => $slot
     ];
     header("Location: checkout.php");
     exit();
@@ -77,15 +72,15 @@ foreach ($cart_items as $item) {
     }
 }
 
-// --- Create the order record (payment_status=pending for online payments, handled below for COD) ---
+// --- Create the order record ---
 $payment_status = ($payment === 'cod') ? 'completed' : 'pending';
 $stmt = mysqli_prepare($conn,
     "INSERT INTO orders (customer_id, customer_name, customer_email, customer_phone, customer_address,
-                         total_amount, payment_method, payment_status, transaction_id, status)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 'pending')"
+                         total_amount, payment_method, payment_status, transaction_id, delivery_slot, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, 'pending')"
 );
-mysqli_stmt_bind_param($stmt, "issssdss",
-    $customer_id, $name, $email, $phone, $address, $total, $payment, $payment_status);
+mysqli_stmt_bind_param($stmt, "issssdsss",
+    $customer_id, $name, $email, $phone, $address, $total, $payment, $payment_status, $slot);
 mysqli_stmt_execute($stmt);
 $order_id = mysqli_insert_id($conn);
 
@@ -93,7 +88,7 @@ $order_id = mysqli_insert_id($conn);
 foreach ($cart_items as $item) {
     $istmt = mysqli_prepare($conn,
         "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
-    mysqli_stmt_bind_param($istmt, "iiid", $order_id, $item['id'], $item['qty'], $price);
+    mysqli_stmt_bind_param($istmt, "iiid", $order_id, $item['id'], $item['qty'], $item['line_total']);
     mysqli_stmt_execute($istmt);
 }
 
@@ -109,13 +104,12 @@ if ($payment === 'cod') {
     $_SESSION['cart'] = []; // clear the cart
     $_SESSION['order_success'] = "Order #$order_id placed successfully! Total: $" . number_format($total, 2)
         . ". You will pay <strong>Cash on Delivery</strong> when your order arrives.";
-    require_once __DIR__ . '/email_helper.php';
-    send_order_email($email, $name, $order_id, $total);
+    $_SESSION['last_order'] = ['id' => $order_id, 'slot' => $slot, 'total' => $total];
     header("Location: order_success.php");
     exit();
 }
 
-// Save pending cart so we can restore if payment cancelled
+// Save the order id so payment callbacks can update this order
 $_SESSION['order_id_on_payment'] = $order_id;
 
 // ---------- eSewa ----------
@@ -137,7 +131,7 @@ if ($payment === 'esewa') {
     <html>
     <head><title>Redirecting to eSewa...</title></head>
     <body>
-    <p class="text-center" style="font-family:sans-serif; margin-top:40vh;">Redirecting to eSewa payment gateway...</p>
+    <p style="text-align:center; font-family:sans-serif; margin-top:40vh;">Redirecting to eSewa payment gateway...</p>
     <form method="POST" action="<?= ESEWA_URL ?>" name="esewa_form">
         <?php foreach ($fields as $k => $v): ?>
             <input type="hidden" name="<?= $k ?>" value="<?= htmlspecialchars($v) ?>">
@@ -167,11 +161,11 @@ if ($payment === 'khalti') {
     ];
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://dev.khalti.com/api/v2/epayment/initiate/');
+    curl_setopt($ch, CURLOPT_URL, KHALTI_INIT_CHECKOUT_URL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Key test_secret_key',
+        'Authorization: Key ' . KHALTI_SECRET_KEY,
         'Content-Type: application/json'
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
@@ -180,14 +174,15 @@ if ($payment === 'khalti') {
 
     $data = json_decode($response, true);
 
-    if (isset($data['payment_url'])) {
+    if (!empty($data['payment_url'])) {
         header("Location: " . $data['payment_url']);
         exit();
     }
 
-    // Fallback for sandbox where Khalti isn't reachable: simulate success
+    // Fallback for sandbox when Khalti is not reachable: simulate success
     $_SESSION['cart'] = [];
     $_SESSION['order_success'] = "Order #$order_id placed (Khalti sandbox simulation). Total: $" . number_format($total, 2);
+    $_SESSION['last_order'] = ['id' => $order_id, 'slot' => $slot, 'total' => $total];
     header("Location: order_success.php");
     exit();
 }

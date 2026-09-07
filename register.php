@@ -3,7 +3,7 @@ session_start();
 require_once 'db.php';
 require_once 'auth_helper.php';
 
-if (isset($_SESSION['customer_id'])) {
+if (is_customer_logged_in()) {
     header("Location: my_account.php");
     exit();
 }
@@ -11,9 +11,6 @@ if (isset($_SESSION['customer_id'])) {
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!csrf_check()) {
-        $errors[] = "Invalid security token. Please try again.";
-    } else {
     $full_name = trim($_POST['full_name'] ?? '');
     $email     = trim($_POST['email'] ?? '');
     $phone     = trim($_POST['phone'] ?? '');
@@ -35,9 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (mysqli_stmt_num_rows($stmt) > 0) {
             $errors[] = "An account with this email already exists.";
         } else {
-            $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $otp        = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
             $otp_expiry = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-            $hashed = password_hash($password, PASSWORD_DEFAULT);
+            $hashed     = password_hash($password, PASSWORD_DEFAULT);
 
             $stmt = mysqli_prepare($conn,
                 "INSERT INTO customers (full_name, email, phone, password_eg, otp_code, otp_expires_at, is_verified)
@@ -46,15 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_bind_param($stmt, "ssssss", $full_name, $email, $phone, $hashed, $otp, $otp_expiry);
 
             if (mysqli_stmt_execute($stmt)) {
-                $_SESSION['pending_otp_email'] = $email;
-                $_SESSION['pending_otp_code']  = $otp;  // Stored for demo display fallback
-
                 @mail($email, "StepStyle Email Verification",
                     "Your OTP verification code is: $otp\nIt expires in 10 minutes.\n\n- StepStyle");
 
-                require_once __DIR__ . '/email_helper.php';
-                send_welcome_email($email, $full_name);
-
+                $_SESSION['pending_otp_email'] = $email;
+                $_SESSION['pending_otp_code']  = $otp; // Demo display fallback
+                $_SESSION['pending_otp_mode']  = 'register';
                 header("Location: verify_otp.php");
                 exit();
             } else {
@@ -62,77 +56,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-    }
 }
+
+site_header('Register - StepStyle', '');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - StepStyle</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
-</head>
-<body>
 
-<?php frontend_navbar(); ?>
+<h2 class="page-title">Create Account</h2>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-header text-center py-4 fw-bold" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color:#fff;">
-                    <i class="bi bi-person-plus me-2"></i>Create Account
-                </div>
-                <div class="card-body p-4">
-                    <?php if (!empty($errors)): ?>
-                        <div class="alert alert-danger py-2 small">
-                            <?php foreach ($errors as $e) echo "<div>$e</div>"; ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <form method="POST" action="register.php">
-                        <?= csrf_field() ?>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Full Name <span class="text-danger">*</span></label>
-                            <input type="text" name="full_name" class="form-control" required
-                                   value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Email <span class="text-danger">*</span></label>
-                            <input type="email" name="email" class="form-control" required
-                                   value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Phone</label>
-                            <input type="text" name="phone" class="form-control"
-                                   value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Password <span class="text-danger">*</span></label>
-                            <input type="password" name="password" class="form-control" required minlength="6">
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small">Confirm Password <span class="text-danger">*</span></label>
-                            <input type="password" name="confirm_password" class="form-control" required minlength="6">
-                        </div>
-                        <button type="submit" class="btn btn-accent w-100">
-                            <i class="bi bi-envelope-check me-1"></i>Register & Get OTP
-                        </button>
-                    </form>
-                    <p class="text-center mt-3 small mb-0">
-                        Already have an account? <a href="login.php">Login here</a>
-                    </p>
-                </div>
-            </div>
-        </div>
+<?php if (!empty($errors)): ?>
+    <div class="msg-error">
+        <?php foreach ($errors as $e) echo htmlspecialchars($e) . '<br>'; ?>
     </div>
+<?php endif; ?>
+
+<div class="form-box">
+    <h3>Register & Get OTP</h3>
+    <form method="POST" action="register.php">
+        <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" name="full_name" required value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>">
+        </div>
+        <div class="form-group">
+            <label>Email *</label>
+            <input type="email" name="email" required value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+            <label>Phone</label>
+            <input type="text" name="phone" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
+        </div>
+        <div class="form-group">
+            <label>Password * (min 6 characters)</label>
+            <input type="password" name="password" required minlength="6">
+        </div>
+        <div class="form-group">
+            <label>Confirm Password *</label>
+            <input type="password" name="confirm_password" required minlength="6">
+        </div>
+        <button type="submit" class="btn">Register & Get OTP</button>
+    </form>
+    <p style="text-align:center; margin-top:15px; font-size:13px;">
+        Already have an account? <a href="login.php"><strong>Login here</strong></a>
+    </p>
 </div>
 
-<?php frontend_footer(); ?>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php site_footer(); ?>

@@ -1,19 +1,16 @@
 <?php
 session_start();
+$page_title = 'Users';
+$current_page = 'users';
+require_once 'includes/header.php';
 
-if (!isset($_SESSION['username'])){
-    header("Location: ../admin/login.php");
-    exit();
-}
 if ($_SESSION['role'] !== 'admin') {
     header("Location: dashboard.php");
     exit();
 }
 
-require_once '../db.php';
-
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-    $id = (int) $_GET['id'];
+    $id = (int)$_GET['id'];
 
     $current_user = mysqli_fetch_assoc(
         mysqli_query($conn, "SELECT id FROM users WHERE username = '" . mysqli_real_escape_string($conn, $_SESSION['username']) . "'")
@@ -33,135 +30,92 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
 
 $users = mysqli_query($conn, "SELECT id, username, role, created_at FROM users ORDER BY created_at DESC");
 
-$current_page = 'users';
+// Registered customers (online store accounts)
+$customers = mysqli_query($conn,
+    "SELECT c.id, c.full_name, c.email, c.phone, c.is_verified, c.created_at,
+            COUNT(o.id) AS order_count
+     FROM customers c
+     LEFT JOIN orders o ON o.customer_id = c.id
+     GROUP BY c.id
+     ORDER BY c.created_at DESC"
+);
+
+$success = $_SESSION['success'] ?? '';
+$error   = $_SESSION['error'] ?? '';
+unset($_SESSION['success'], $_SESSION['error']);
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users - Shoe Store Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body { background-color: #f0f2f5; }
-        .avatar {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            background: #6c757d;
-            color: white;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-        }
-    </style>
-</head>
-<body>
+<h2>Users Management</h2>
 
-<div class="container-fluid">
-    <div class="row flex-nowrap">
+<?php if ($success): ?>
+    <div class="msg-success"><?= htmlspecialchars($success) ?></div>
+<?php endif; ?>
+<?php if ($error): ?>
+    <div class="msg-error"><?= htmlspecialchars($error) ?></div>
+<?php endif; ?>
 
-        <?php require_once 'includes/sidebar.php'; ?>
-
-        <div class="col py-4 px-4">
-
-            <div class="d-flex align-items-center justify-content-between mb-4">
-                <h4 class="fw-bold mb-0">
-                    <i class="bi bi-people me-2 text-primary"></i>Users
-                </h4>
-                <a href="register.php" class="btn btn-primary">
-                    <i class="bi bi-person-plus me-1"></i> Add User
-                </a>
-            </div>
-
-            <?php if (!empty($_SESSION['success'])): ?>
-                <div class="alert alert-success alert-dismissible fade show">
-                    <?= htmlspecialchars($_SESSION['success']) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <?php unset($_SESSION['success']); ?>
+<h3 class="section-title">Admin / Staff Users</h3>
+<p><a class="btn" href="register.php">+ Add User</a></p>
+<table class="table" style="width:700px;">
+    <tr>
+        <th>#</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Registered On</th>
+        <th>Action</th>
+    </tr>
+    <?php $sno = 1; while ($row = mysqli_fetch_assoc($users)):
+        $is_me = ($row['username'] === $_SESSION['username']);
+    ?>
+    <tr>
+        <td class="center"><?= $sno++ ?></td>
+        <td>
+            <strong><?= htmlspecialchars($row['username']) ?></strong>
+            <?php if ($is_me): ?>
+                <span style="color:#1a237e;">(You)</span>
             <?php endif; ?>
-            <?php if (!empty($_SESSION['error'])): ?>
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <?= htmlspecialchars($_SESSION['error']) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <?php unset($_SESSION['error']); ?>
+        </td>
+        <td class="center">
+            <?= ucfirst($row['role']) ?>
+        </td>
+        <td class="center"><?= date('d M Y', strtotime($row['created_at'])) ?></td>
+        <td class="center">
+            <?php if ($is_me): ?>
+                <span class="small text-muted">Cannot delete own account</span>
+            <?php else: ?>
+                <a class="btn btn-red btn-small" href="users.php?action=delete&id=<?= $row['id'] ?>"
+                   onclick="return confirm('Delete user: <?= htmlspecialchars($row['username']) ?>?')">Delete</a>
             <?php endif; ?>
+        </td>
+    </tr>
+    <?php endwhile; ?>
+</table>
 
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-dark">
-                            <tr>
-                                <th class="ps-4">#</th>
-                                <th>User</th>
-                                <th>Username</th>
-                                <th>Role</th>
-                                <th>Registered On</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        $sno = 1;
-                        while ($row = mysqli_fetch_assoc($users)):
-                            $is_me = ($row['username'] === $_SESSION['username']);
-                            $initial = strtoupper($row['username'][0]);
-                        ?>
-                            <tr>
-                                <td class="ps-4 text-muted"><?= $sno++ ?></td>
-                                <td>
-                                    <span class="avatar me-2"><?= $initial ?></span>
-                                </td>
-                                <td class="fw-semibold">
-                                    <?= htmlspecialchars($row['username']) ?>
-                                    <?php if ($is_me): ?>
-                                        <span class="badge bg-primary ms-1">You</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <span class="badge bg-<?= $row['role'] === 'admin' ? 'danger' : 'secondary' ?>">
-                                        <?= ucfirst($row['role']) ?>
-                                    </span>
-                                </td>
-                                <td class="text-muted small">
-                                    <?= date('d M Y, h:i A', strtotime($row['created_at'])) ?>
-                                </td>
-                                <td class="text-center">
-                                    <?php if ($is_me): ?>
-                                        <button class="btn btn-sm btn-outline-secondary" disabled title="Cannot delete your own account">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    <?php else: ?>
-                                        <a href="users.php?action=delete&id=<?= $row['id'] ?>"
-                                           class="btn btn-sm btn-outline-danger"
-                                           onclick="return confirm('Delete user: <?= htmlspecialchars($row['username']) ?>?')">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<h3 class="section-title">Registered Customers</h3>
+<table class="table">
+    <tr>
+        <th>#</th>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Verified</th>
+        <th>Orders</th>
+        <th>Registered On</th>
+    </tr>
+    <?php $sno = 1; while ($c = mysqli_fetch_assoc($customers)): ?>
+    <tr>
+        <td class="center"><?= $sno++ ?></td>
+        <td><strong><?= htmlspecialchars($c['full_name']) ?></strong></td>
+        <td><?= htmlspecialchars($c['email']) ?></td>
+        <td class="center"><?= htmlspecialchars($c['phone'] ?? '-') ?></td>
+        <td class="center"><?= $c['is_verified'] ? 'Yes' : 'No' ?></td>
+        <td class="center"><?= $c['order_count'] ?></td>
+        <td class="center"><?= date('d M Y', strtotime($c['created_at'])) ?></td>
+    </tr>
+    <?php endwhile; ?>
+    <?php if (mysqli_num_rows($customers) === 0): ?>
+    <tr><td colspan="7" class="center">No customers registered yet.</td></tr>
+    <?php endif; ?>
+</table>
 
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                window.location.replace('../admin/login.php');
-            }
-        });
-    </script>
-</body>
-</html>
+<?php require_once 'includes/footer.php'; ?>

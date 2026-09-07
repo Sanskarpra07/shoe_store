@@ -3,138 +3,119 @@ session_start();
 require_once 'db.php';
 require_once 'auth_helper.php';
 
-if (isset($_SESSION['customer_id'])) {
-    header("Location: my_account.php");
-    exit();
-}
-
+// OTP verification is used both during registration and password reset.
+// The pending email + mode must be stored in the session.
 $email = $_SESSION['pending_otp_email'] ?? '';
+$mode  = $_SESSION['pending_otp_mode'] ?? 'register';
+$demo_otp = $_SESSION['pending_otp_code'] ?? '';
+
 if (empty($email)) {
-    header("Location: register.php");
+    header("Location: login.php");
     exit();
 }
 
 $errors = [];
-$success = "";
+$success = '';
 
-// Resend OTP
-if (isset($_GET['resend']) && $_GET['resend'] === '1') {
-    $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+// Resend the OTP
+if (isset($_POST['resend'])) {
+    $otp        = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     $otp_expiry = date('Y-m-d H:i:s', strtotime('+10 minutes'));
     $stmt = mysqli_prepare($conn, "UPDATE customers SET otp_code = ?, otp_expires_at = ? WHERE email = ?");
     mysqli_stmt_bind_param($stmt, "sss", $otp, $otp_expiry, $email);
     mysqli_stmt_execute($stmt);
+
     $_SESSION['pending_otp_code'] = $otp;
     @mail($email, "StepStyle Email Verification",
         "Your new OTP verification code is: $otp\nIt expires in 10 minutes.\n\n- StepStyle");
-    $success = "A new OTP has been sent to $email.";
+    $success = "A new OTP has been sent to your email.";
+    $demo_otp = $otp;
 }
 
-// Verify OTP
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!csrf_check()) {
-        $errors[] = "Invalid security token. Please try again.";
-    } else {
+// Verify the entered OTP
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
     $entered = trim($_POST['otp'] ?? '');
 
-    $stmt = mysqli_prepare($conn,
-        "SELECT otp_code, otp_expires_at, id FROM customers WHERE email = ?");
+    $stmt = mysqli_prepare($conn, "SELECT * FROM customers WHERE email = ?");
     mysqli_stmt_bind_param($stmt, "s", $email);
     mysqli_stmt_execute($stmt);
-    $user = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+    $customer = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
-    if (!$user) {
-        $errors[] = "Account not found. Please register again.";
-    } elseif (empty($entered)) {
-        $errors[] = "Please enter the OTP.";
-    } elseif ($user['otp_code'] !== $entered) {
-        $errors[] = "Invalid OTP. Please try again.";
-    } elseif (strtotime($user['otp_expires_at']) < time()) {
-        $errors[] = "OTP has expired. Please request a new one.";
+    if (!$customer || empty($customer['otp_code'])) {
+        $errors = "No OTP found. Please register again or resend the code.";
+    } elseif ($customer['otp_code'] !== $entered) {
+        $errors = "Incorrect OTP. Please check and try again.";
+    } elseif (strtotime($customer['otp_expires_at']) < time()) {
+        $errors = "This OTP has expired. Please resend a new code.";
     } else {
-        $stmt = mysqli_prepare($conn, "UPDATE customers SET is_verified = 1, otp_code = NULL, otp_expires_at = NULL WHERE id = ?");
-        mysqli_stmt_bind_param($stmt, "i", $user['id']);
+        // OTP is correct and valid
+        $stmt = mysqli_prepare($conn,
+            "UPDATE customers SET otp_code = NULL, otp_expires_at = NULL, is_verified = 1 WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "i", $customer['id']);
         mysqli_stmt_execute($stmt);
 
-        unset($_SESSION['pending_otp_email'], $_SESSION['pending_otp_code']);
+        unset($_SESSION['pending_otp_email'], $_SESSION['pending_otp_code'], $_SESSION['pending_otp_mode']);
 
-        $_SESSION['customer_id']   = $user['id'];
-        $_SESSION['customer_name'] = mysqli_fetch_assoc(mysqli_query($conn, "SELECT full_name, email FROM customers WHERE id = {$user['id']}"))['full_name'];
+        if ($mode === 'reset') {
+            // Password reset flow proceeds to the reset form
+            $_SESSION['reset_email']         = $email;
+            $_SESSION['reset_otp_verified']  = true;
+            header("Location: reset_password.php");
+            exit();
+        }
 
-        header("Location: my_account.php?verified=1");
+        // Registration flow: log the customer in immediately
+        $_SESSION['customer_id']    = $customer['id'];
+        $_SESSION['customer_name']  = $customer['full_name'];
+        $_SESSION['customer_email'] = $customer['email'];
+        $_SESSION['login_success']  = "Your account has been verified successfully. Welcome to StepStyle!";
+        header("Location: my_account.php");
         exit();
     }
-    }
 }
+
+site_header($mode === 'reset' ? 'Verify OTP - Password Reset - StepStyle' : 'Verify OTP - StepStyle', '');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify OTP - StepStyle</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
-</head>
-<body>
 
-<?php frontend_navbar(); ?>
+<h2 class="page-title"><?= $mode === 'reset' ? 'Verify OTP - Password Reset' : 'Verify Email - OTP Verification' ?></h2>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-header text-center py-4 fw-bold" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color:#fff;">
-                    <i class="bi bi-shield-lock me-2"></i>Email Verification
-                </div>
-                <div class="card-body p-4">
-                    <?php if ($success): ?>
-                        <div class="alert alert-success py-2 small"><?= $success ?></div>
-                    <?php endif; ?>
-
-                    <p class="text-muted small">
-                        We sent a 6-digit OTP code to <strong><?= htmlspecialchars($email) ?></strong>.
-                        Enter it below to verify your account.
-                    </p>
-
-                    <?php if (isset($_SESSION['pending_otp_code'])): ?>
-                        <div class="alert alert-info py-2 small">
-                            <strong>Demo Mode:</strong> Since mail is not configured on localhost,
-                            your OTP is <span class="fw-bold fs-5"><?= htmlspecialchars($_SESSION['pending_otp_code']) ?></span>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if (!empty($errors)): ?>
-                        <div class="alert alert-danger py-2 small">
-                            <?php foreach ($errors as $e) echo "<div>$e</div>"; ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <form method="POST" action="verify_otp.php">
-                        <?= csrf_field() ?>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Enter OTP Code <span class="text-danger">*</span></label>
-                            <input type="text" name="otp" class="form-control text-center fs-4" maxlength="6" required
-                                   placeholder="______" pattern="[0-9]{6}">
-                        </div>
-                        <button type="submit" class="btn btn-accent w-100">
-                            <i class="bi bi-check-circle me-1"></i>Verify Email
-                        </button>
-                    </form>
-
-                    <div class="text-center mt-3 small">
-                        Didn't receive the code? <a href="verify_otp.php?resend=1">Resend OTP</a>
-                        <br><a href="register.php" class="text-muted mt-1 d-inline-block">Use a different email</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+<?php if (!empty($demo_otp)): ?>
+    <div class="msg-info">
+        <strong>Demo Mode Notice:</strong> In this project an email is sent with your OTP.
+        Since no mail server is configured, your OTP is: <strong><?= htmlspecialchars($demo_otp) ?></strong>
+        (expires in 10 minutes).
     </div>
+<?php else: ?>
+    <div class="msg-info">A 6-digit OTP has been sent to <strong><?= htmlspecialchars($email) ?></strong>. It expires in 10 minutes.</div>
+<?php endif; ?>
+
+<?php if ($success): ?>
+    <div class="msg-success"><?= htmlspecialchars($success) ?></div>
+<?php endif; ?>
+
+<?php if ($errors): ?>
+    <div class="msg-error"><?= htmlspecialchars($errors) ?></div>
+<?php endif; ?>
+
+<div class="form-box">
+    <h3>Enter 6-Digit OTP</h3>
+    <form method="POST" action="verify_otp.php">
+        <div class="form-group">
+            <label>OTP Code *</label>
+            <input type="text" name="otp" required maxlength="6" placeholder="123456"
+                   style="text-align:center; font-size:20px; letter-spacing:6px;">
+        </div>
+        <button type="submit" name="verify" class="btn">Verify OTP</button>
+    </form>
+    <p style="text-align:center; margin-top:12px; font-size:13px;">
+        Didn't receive the code?
+        <form method="POST" action="verify_otp.php" style="display:inline;">
+            <button type="submit" name="resend" style="background:none; border:none; color:#1a237e; text-decoration:underline; cursor:pointer; font-size:13px;">Resend OTP</button>
+        </form>
+    </p>
+    <p style="text-align:center; font-size:13px;">
+        <a href="login.php">&laquo; Back to Login</a>
+    </p>
 </div>
 
-<?php frontend_footer(); ?>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php site_footer(); ?>

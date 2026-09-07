@@ -4,7 +4,7 @@ require_once 'db.php';
 require_once 'auth_helper.php';
 
 if (isset($_GET['remove'])) {
-    $remove_id = (int) $_GET['remove'];
+    $remove_id = (int)$_GET['remove'];
     unset($_SESSION['cart'][$remove_id]);
     header("Location: cart.php");
     exit();
@@ -48,157 +48,67 @@ if (!empty($cart)) {
 }
 
 $cart_count = array_sum($cart);
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - StepStyle</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
-</head>
-<body>
 
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-    <div class="container">
-        <a class="navbar-brand" href="index.php"><i class="bi bi-bag-heart me-2"></i>StepStyle</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" href="cart.php">
-                        <i class="bi bi-cart3 me-1"></i>Cart
-                        <?php if ($cart_count > 0): ?>
-                            <span class="badge bg-danger"><?= $cart_count ?></span>
-                        <?php endif; ?>
-                    </a>
-                </li>
-                <?php if (is_customer_logged_in()): ?>
-                    <li class="nav-item"><a class="nav-link" href="my_account.php"><i class="bi bi-person me-1"></i><?= htmlspecialchars($_SESSION['customer_name'] ?? 'Account') ?></a></li>
-                <?php else: ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.php"><i class="bi bi-person me-1"></i>Login</a>
-                    </li>
-                <?php endif; ?>
-            </ul>
+site_header('Shopping Cart - StepStyle', '');
+?>
+
+<h2 class="page-title">Shopping Cart</h2>
+
+<?php if (!empty($_SESSION['cart_error'])): ?>
+    <div class="msg-error"><?= htmlspecialchars($_SESSION['cart_error']) ?></div>
+    <?php unset($_SESSION['cart_error']); ?>
+<?php endif; ?>
+
+<?php if (empty($cart_items)): ?>
+    <div class="text-center mt-20">
+        <p>Your cart is empty.</p>
+        <a class="btn" href="shop.php">Start Shopping</a>
+    </div>
+<?php else: ?>
+    <form method="POST" action="cart.php">
+        <input type="hidden" name="update_cart" value="1">
+        <table class="table">
+            <tr>
+                <th>Product</th>
+                <th style="width:120px;">Price</th>
+                <th style="width:120px;">Quantity</th>
+                <th style="width:120px;">Total</th>
+                <th style="width:100px;">Action</th>
+            </tr>
+            <?php foreach ($cart_items as $item): ?>
+            <tr>
+                <td>
+                    <a href="product.php?id=<?= $item['id'] ?>"><strong><?= htmlspecialchars($item['product_name']) ?></strong></a>
+                    <?php if ($item['color']): ?><br><span class="small text-muted">Color: <?= htmlspecialchars($item['color']) ?></span><?php endif; ?>
+                    <?php if ($item['size']): ?><br><span class="small text-muted">Size: <?= htmlspecialchars($item['size']) ?></span><?php endif; ?>
+                </td>
+                <td class="center"><?= price_label($item['discount_price'] ?: $item['price']) ?></td>
+                <td class="center">
+                    <input type="number" name="quantity[<?= $item['id'] ?>]" value="<?= $item['qty'] ?>" min="1" max="<?= $item['stock'] ?>" style="width:60px; padding:5px;">
+                </td>
+                <td class="center"><strong><?= price_label($item['line_total']) ?></strong></td>
+                <td class="center">
+                    <a class="btn btn-red btn-small" href="cart.php?remove=<?= $item['id'] ?>" onclick="return confirm('Remove this item?')">Remove</a>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+        <p>
+            <a class="btn btn-gray" href="shop.php">&laquo; Continue Shopping</a>
+            <button type="submit" class="btn">Update Cart</button>
+            <a class="btn btn-red" href="cart.php?clear=1" onclick="return confirm('Clear cart?')">Clear Cart</a>
+        </p>
+    </form>
+
+    <div class="summary" style="width:350px; float:right;">
+        <div class="line"><span>Subtotal (<?= $cart_count ?> items)</span><span><?= price_label($total) ?></span></div>
+        <div class="line"><span>Shipping</span><span>Free</span></div>
+        <div class="line total"><span>Total</span><span><?= price_label($total) ?></span></div>
+        <div style="margin-top:12px; text-align:center;">
+            <a class="btn btn-green" href="checkout.php" style="width:100%;">Proceed to Checkout</a>
         </div>
     </div>
-</nav>
+    <div style="clear:both;"></div>
+<?php endif; ?>
 
-<div class="container py-5">
-    <h2 class="section-title">Shopping Cart</h2>
-
-    <?php if (!empty($_SESSION['cart_error'])): ?>
-        <div class="alert alert-danger">
-            <?= htmlspecialchars($_SESSION['cart_error']) ?>
-        </div>
-        <?php unset($_SESSION['cart_error']); ?>
-    <?php endif; ?>
-
-    <?php if (empty($cart_items)): ?>
-        <div class="text-center py-5">
-            <i class="bi bi-cart-x fs-1 text-muted"></i>
-            <h4 class="text-muted mt-3">Your cart is empty</h4>
-            <a href="shop.php" class="btn btn-accent mt-2">Start Shopping</a>
-        </div>
-    <?php else: ?>
-        <form method="POST" action="cart.php">
-            <input type="hidden" name="update_cart" value="1">
-            <div class="table-responsive">
-                <table class="table align-middle cart-table">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th style="width:150px;">Quantity</th>
-                            <th>Total</th>
-                            <th class="text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($cart_items as $item): ?>
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="cart-item-thumb me-3">
-                                        <?php if (!empty($item['image'])): ?>
-                                            <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>">
-                                        <?php else: ?>
-                                            <div class="placeholder"><i class="bi bi-basket text-muted fs-4"></i></div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0 fw-bold"><?= htmlspecialchars($item['product_name']) ?></h6>
-                                        <?php if ($item['color']): ?>
-                                            <small class="text-muted"><i class="bi bi-palette me-1"></i><?= htmlspecialchars($item['color']) ?></small>
-                                        <?php endif; ?>
-                                        <?php if ($item['size']): ?>
-                                            <br><small class="text-muted">Size: <?= htmlspecialchars($item['size']) ?></small>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>$<?= number_format($item['discount_price'] ?: $item['price'], 2) ?></td>
-                            <td>
-                                <input type="number" name="quantity[<?= $item['id'] ?>]" class="form-control form-control-sm"
-                                       value="<?= $item['qty'] ?>" min="1" max="<?= $item['stock'] ?>">
-                            </td>
-                            <td class="fw-bold">$<?= number_format($item['line_total'], 2) ?></td>
-                            <td class="text-center">
-                                <a href="cart.php?remove=<?= $item['id'] ?>" class="btn btn-sm btn-outline-danger"
-                                   onclick="return confirm('Remove this item?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <a href="shop.php" class="btn btn-outline-dark">
-                    <i class="bi bi-arrow-left me-1"></i>Continue Shopping
-                </a>
-                <div class="d-flex gap-2">
-                    <a href="cart.php?clear=1" class="btn btn-outline-danger" onclick="return confirm('Clear cart?')">Clear Cart</a>
-                    <button type="submit" class="btn btn-dark">Update Cart</button>
-                </div>
-            </div>
-        </form>
-
-        <!-- Order Summary -->
-        <div class="row justify-content-end mt-4">
-            <div class="col-md-4">
-                <div class="summary-card">
-                    <div class="card-header"><i class="bi bi-receipt me-2"></i>Order Summary</div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Subtotal (<?= $cart_count ?> items)</span>
-                            <span>$<?= number_format($total, 2) ?></span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Shipping</span>
-                            <span class="text-success">Free</span>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between fw-bold fs-5">
-                            <span>Total</span>
-                            <span class="text-success">$<?= number_format($total, 2) ?></span>
-                        </div>
-                        <a href="checkout.php" class="btn btn-accent w-100 mt-3 btn-lg">
-                            Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
-
-<?php frontend_footer(); ?>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php site_footer(); ?>

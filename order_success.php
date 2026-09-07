@@ -5,44 +5,35 @@ require_once 'auth_helper.php';
 
 $success = $_SESSION['order_success'] ?? '';
 unset($_SESSION['order_success']);
+$last_order = $_SESSION['last_order'] ?? null;
+unset($_SESSION['last_order']);
+
+site_header('Order Placed - StepStyle', '');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Placed - StepStyle</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
-</head>
-<body>
 
-<?php frontend_navbar(); ?>
+<h2 class="page-title">Order Placed Successfully!</h2>
 
-<div class="container py-5 text-center">
-    <div class="card shadow-sm border-0 rounded-3 mx-auto" style="max-width: 500px;">
-        <div class="card-body p-5">
-            <div class="mb-4">
-                <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
-            </div>
-            <h2 class="fw-bold text-success">Order Placed Successfully!</h2>
-            <?php if ($success): ?>
-                <p class="mt-3 fs-5"><?= htmlspecialchars($success) ?></p>
-            <?php else: ?>
-                <p class="mt-3 fs-5">Thank you for your purchase!</p>
+<div class="form-box" style="text-align:center; width:500px;">
+    <div style="font-size:52px; color:#2e7d32;">&#10004;</div>
+    <?php if ($success): ?>
+        <p style="margin-top:15px; font-size:15px;"><?= htmlspecialchars($success) ?></p>
+    <?php else: ?>
+        <p style="margin-top:15px; font-size:15px;">Thank you for your purchase!</p>
+    <?php endif; ?>
+    <hr>
+    <?php if ($last_order): ?>
+        <p style="font-size:14px;">
+            <?php if (!empty($last_order['slot'])): ?>
+                <strong>Delivery Slot:</strong> <?= htmlspecialchars($last_order['slot']) ?><br>
             <?php endif; ?>
-            <p class="text-muted">We'll send you an email confirmation shortly.</p>
-            <div class="mt-4 d-flex gap-2 justify-content-center">
-                <a href="shop.php" class="btn btn-accent px-4">Continue Shopping</a>
-                <a href="index.php" class="btn btn-outline-dark px-4">Home</a>
-            </div>
-        </div>
-    </div>
+            <strong>Order Total:</strong> $<?= number_format($last_order['total'], 2) ?><br><br>
+        </p>
+        <a class="btn" href="invoice.php?order_id=<?= $last_order['id'] ?>" target="_blank">View Invoice</a>
+    <?php endif; ?>
+    <hr>
+    <a class="btn btn-green" href="track_order.php">Track Your Order</a>
+    <a class="btn" href="shop.php">Continue Shopping</a>
+    <a class="btn btn-gray" href="index.php">Home</a>
 </div>
 
-<?php frontend_footer(); ?>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php site_footer(); ?>

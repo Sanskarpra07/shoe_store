@@ -58,7 +58,16 @@ CREATE TABLE IF NOT EXISTS stock_log (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
--- 6. Customers table (created before orders because orders references it)
+-- 6. Delivery slots table
+CREATE TABLE IF NOT EXISTS delivery_slots (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    slot_name VARCHAR(50) NOT NULL,
+    slot_time VARCHAR(50) NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. Customers table (created before orders because orders references it)
 CREATE TABLE IF NOT EXISTS customers (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100) NOT NULL,
@@ -72,7 +81,7 @@ CREATE TABLE IF NOT EXISTS customers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 7. Orders table
+-- 8. Orders table
 CREATE TABLE IF NOT EXISTS orders (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     customer_id INT UNSIGNED DEFAULT NULL,
@@ -85,11 +94,12 @@ CREATE TABLE IF NOT EXISTS orders (
     payment_status ENUM('pending','completed','failed') DEFAULT 'pending',
     transaction_id VARCHAR(100) DEFAULT NULL,
     status ENUM('pending','processing','shipped','delivered','cancelled') DEFAULT 'pending',
+    delivery_slot VARCHAR(100) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
 );
 
--- 8. Order items table
+-- 9. Order items table
 CREATE TABLE IF NOT EXISTS order_items (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     order_id INT UNSIGNED NOT NULL,
@@ -100,7 +110,18 @@ CREATE TABLE IF NOT EXISTS order_items (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
--- 9. Reviews table
+-- 10. Wishlist table
+CREATE TABLE IF NOT EXISTS wishlists (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT UNSIGNED NOT NULL,
+    product_id INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_wish (customer_id, product_id),
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+-- 11. Reviews table
 CREATE TABLE IF NOT EXISTS reviews (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     product_id INT UNSIGNED NOT NULL,
@@ -137,6 +158,12 @@ INSERT INTO brands (name, description) VALUES
     ('Puma', 'German multinational designing athletic and casual footwear'),
     ('Reebok', 'British footwear and clothing company'),
     ('New Balance', 'American sports footwear manufacturer');
+
+-- Sample Delivery Slots
+INSERT INTO delivery_slots (slot_name, slot_time, is_active) VALUES
+    ('Morning', '8 AM - 11 AM', 1),
+    ('Afternoon', '12 PM - 3 PM', 1),
+    ('Evening', '4 PM - 7 PM', 1);
 
 -- Sample Products
 INSERT INTO products (product_name, description, price, discount_price, stock, size, color, image, category_id, brand_id) VALUES

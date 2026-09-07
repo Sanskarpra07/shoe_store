@@ -2,6 +2,7 @@
 // Khalti callback - verifies the transaction and completes the order
 session_start();
 require_once 'db.php';
+require_once 'payment_config.php';
 require_once 'auth_helper.php';
 
 $order_id = (int)($_GET['order_id'] ?? 0);
@@ -20,11 +21,11 @@ if (!$order) {
 
 // Verify with Khalti API
 if (!empty($pidx)) {
-    $ch = curl_init('https://khalti.com/api/v2/payment/verify/');
+    $ch = curl_init(KHALTI_VERIFY_URL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Key test_secret_key',
+        'Authorization: Key ' . KHALTI_SECRET_KEY,
         'Content-Type: application/json'
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['pidx' => $pidx]));
