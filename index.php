@@ -39,11 +39,11 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     <meta name="description" content="Shop the latest running, casual, sports and formal shoes online. Top brands like Nike, Adidas, Puma and Reebok at StepStyle.">
     <meta name="keywords" content="shoes, sneakers, buy shoes online, Nike, Adidas, Puma, Reebok, footwear Nepal">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="http://localhost/shoe_store/">
+    <link rel="canonical" href="<?= base_url('') ?>">
     <meta property="og:type" content="website">
     <meta property="og:title" content="StepStyle - Premium Shoe Store">
     <meta property="og:description" content="Discover the latest trends in footwear from top brands worldwide.">
-    <meta property="og:url" content="http://localhost/shoe_store/">
+    <meta property="og:url" content="<?= base_url('') ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="css/frontend.css" rel="stylesheet">

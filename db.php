@@ -1,12 +1,27 @@
 <?php
-$servername="127.0.0.1";
-$username="root";
-$password="";
-$dbName="shoe_store_db";
+require_once __DIR__ . '/db_config.php';
 
-$conn=mysqli_connect($servername,$username,$password,$dbName);
+$conn = @mysqli_connect($servername, $username, $password, $dbName);
 if (!$conn) {
-    die("Connection Failed:" . mysqli_connect_error());
+    die("Connection Failed: " . mysqli_connect_error());
+}
+
+// ------------------------------------------------------------------
+// base_url(): builds the site's root URL automatically so the app
+// works from any folder / host / port (no hardcoded localhost paths).
+// ------------------------------------------------------------------
+function base_url($path = '') {
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (($_SERVER['SERVER_PORT'] ?? 80) == 443);
+    $scheme   = $https ? 'https' : 'http';
+    $host     = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $docroot  = rtrim(str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? 'C:/xampp/htdocs') ?: 'C:/xampp/htdocs'), '/');
+    $approot  = rtrim(str_replace('\\', '/', __DIR__), '/');
+    $webpath  = '';
+    if ($docroot !== '/' && strpos($approot, $docroot) === 0) {
+        $webpath = substr($approot, strlen($docroot));
+    }
+    return $scheme . '://' . $host . $webpath . '/' . ltrim($path, '/');
 }
 
 // --- Basic security headers (Availability + Confidentiality hardening) ---

@@ -144,7 +144,7 @@ if ($payment === 'khalti') {
     $khalti_total = (int)round($total * 100);
     $payload = [
         'return_url' => KHALTI_CALLBACK_URL . '?order_id=' . $order_id,
-        'website_url' => 'http://localhost/shoe_store/',
+        'website_url' => base_url(''),
         'amount' => $khalti_total,
         'purchase_order_id' => "order_$order_id",
         'purchase_order_name' => 'StepStyle Order #' . $order_id,

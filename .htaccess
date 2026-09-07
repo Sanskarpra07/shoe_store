@@ -1,16 +1,14 @@
-
-# BEGIN WordPress
-# The directives (lines) between "BEGIN WordPress" and "END WordPress" are
-# dynamically generated, and should only be modified via WordPress filters.
-# Any changes to the directives between these markers will be overwritten.
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-RewriteBase /shoe_store/
-RewriteRule ^index\.php$ - [L]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /shoe_store/index.php [L]
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
-# END WordPress
+# Disable directory listing
+Options -Indexes
+
+# Block access to sensitive files
+<FilesMatch "\.(sql|log|ini|bak|git)$">
+    Require all denied
+</FilesMatch>

@@ -1,17 +1,10 @@
-# ---- CRISIS PREVENTION: Never commit secrets ----
-wp-config.php
-wp-config-sample.php
-
-# ---- WordPress leftovers (not part of the shoe store app) ----
-wp-admin/
-wp-includes/
-wp-content/
-wp-*.php
-xmlrpc.php
-license.txt
-readme.html
-
 # ---- OS / editor noise ----
 .DS_Store
 Thumbs.db
 *.log
+*.idea/
+.vscode/
+
+# ---- Sensitive environment values ----
+.env
+.env.local
