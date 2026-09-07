@@ -37,32 +37,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-site_header('Forgot Password - StepStyle', '');
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password - StepStyle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/frontend.css" rel="stylesheet">
+</head>
+<body>
 
-<h2 class="page-title">Forgot Password</h2>
+<?php frontend_navbar(); ?>
 
-<?php if ($errors): ?>
-    <div class="msg-error"><?= htmlspecialchars($errors) ?></div>
-<?php endif; ?>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header text-center py-4 fw-bold" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color:#fff;">
+                    <i class="bi bi-key me-2"></i>Forgot Password
+                </div>
+                <div class="card-body p-4">
+                    <?php if ($errors): ?>
+                        <div class="alert alert-danger py-2 small"><?= htmlspecialchars($errors) ?></div>
+                    <?php endif; ?>
 
-<div class="form-box">
-    <h3>Reset Your Password</h3>
-    <p style="font-size:13px; margin-bottom:14px;">
-        Enter the email address linked to your account. We will send you an OTP to verify your identity,
-        after which you can set a new password.
-    </p>
-    <form method="POST" action="forgot_password.php">
-        <div class="form-group">
-            <label>Email Address *</label>
-            <input type="email" name="email" required placeholder="you@example.com">
+                    <p class="text-muted small">
+                        Enter the email address linked to your account. We will send you an OTP
+                        to verify your identity, after which you can set a new password.
+                    </p>
+
+                    <form method="POST" action="forgot_password.php">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" required placeholder="you@example.com">
+                        </div>
+                        <button type="submit" class="btn btn-accent w-100">
+                            <i class="bi bi-envelope-check me-1"></i>Send OTP
+                        </button>
+                    </form>
+                    <p class="text-center mt-3 small mb-0">
+                        <a href="login.php" class="text-muted"><i class="bi bi-arrow-left me-1"></i>Back to Login</a>
+                    </p>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn">Send OTP</button>
-    </form>
-    <p style="text-align:center; margin-top:12px; font-size:13px;">
-        <a href="login.php">&laquo; Back to Login</a>
-    </p>
+    </div>
 </div>
 
-<?php site_footer(); ?>
+<?php frontend_footer(); ?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

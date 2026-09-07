@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once 'db.php';
 require_once 'auth_helper.php';
 
@@ -12,6 +11,7 @@ mysqli_stmt_execute($stmt);
 $order = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 if (!$order) { header("Location: index.php"); exit(); }
 
+// Only allow the owner or anyone (invoice is similar to tracking)
 $items_stmt = mysqli_prepare($conn,
     "SELECT oi.*, p.product_name, p.image FROM order_items oi
      JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
@@ -24,74 +24,70 @@ $items = mysqli_stmt_get_result($items_stmt);
 <head>
     <meta charset="UTF-8">
     <title>Invoice #<?= $order['oid'] ?> - StepStyle</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        @media print { .no-print { display: none !important; } }
-        .invoice-inner { width: 700px; margin: 0 auto; padding: 25px; }
-        .inv-head { border-bottom: 3px double #1a237e; padding-bottom: 12px; margin-bottom: 15px; }
-        .inv-head .brand { font-size: 24px; font-weight: bold; color: #1a237e; float: left; }
-        .inv-head .inv-right { float: right; text-align: right; font-size: 13px; }
-        .clear { clear: both; }
-        table.inv-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        table.inv-table th, table.inv-table td { border: 1px solid #cccccc; padding: 8px; text-align: left; }
-        table.inv-table th { background: #eee; }
-        .num-right { text-align: right; }
+        @media print { .no-print { display: none !important; } body { font-size: 12px; } }
+        .invoice-box { max-width: 700px; margin: 0 auto; padding: 30px; }
+        .brand { font-weight: 700; font-size: 20px; color: #1a1a2e; }
+        .line-total { font-weight: 600; }
     </style>
 </head>
 <body>
-<div class="invoice-inner">
-    <div class="inv-head">
-        <div class="brand">StepStyle</div>
-        <div class="inv-right">
-            <strong>INVOICE</strong><br>
-            Invoice #: #<?= $order['oid'] ?><br>
-            <?= date('d M Y, h:i A', strtotime($order['created_at'])) ?>
+<div class="invoice-box">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <div class="brand">StepStyle</div>
+            <div class="small text-muted">Durbar Marg, Kathmandu, Nepal</div>
+            <div class="small text-muted">info@stepstyle.com | +977-1-456789</div>
         </div>
-        <div class="clear"></div>
+        <div class="text-end">
+            <h4 class="fw-bold mb-1">INVOICE</h4>
+            <div class="small">Invoice #: <strong>#<?= $order['oid'] ?></strong></div>
+            <div class="small text-muted"><?= date('d M Y, h:i A', strtotime($order['created_at'])) ?></div>
+        </div>
     </div>
-
-    <h3 style="font-size:15px; margin:10px 0;">Bill To</h3>
-    <table class="table" style="width:100%; margin-top:0;">
-        <tr><th style="width:130px;">Customer</th><td><?= htmlspecialchars($order['customer_name']) ?></td></tr>
-        <tr><th>Email</th><td><?= htmlspecialchars($order['customer_email']) ?></td></tr>
-        <?php if ($order['customer_phone']): ?>
-        <tr><th>Phone</th><td><?= htmlspecialchars($order['customer_phone']) ?></td></tr>
-        <?php endif; ?>
-        <tr><th>Address</th><td><?= htmlspecialchars($order['customer_address']) ?></td></tr>
-        <tr><th>Payment</th><td><?= strtoupper($order['payment_method']) ?> - <?= ucfirst($order['payment_status']) ?></td></tr>
-        <tr><th>Order Status</th><td><?= ucfirst($order['status']) ?></td></tr>
-        <?php if (!empty($order['delivery_slot'])): ?>
-        <tr><th>Delivery Slot</th><td><?= htmlspecialchars($order['delivery_slot']) ?></td></tr>
-        <?php endif; ?>
-    </table>
-
-    <table class="inv-table">
-        <tr>
-            <th>Item</th>
-            <th class="num-right">Qty</th>
-            <th class="num-right">Unit Price</th>
-            <th class="num-right">Total</th>
-        </tr>
+    <hr>
+    <div class="row my-4">
+        <div class="col-6">
+            <h6 class="text-muted">BILL TO</h6>
+            <strong><?= htmlspecialchars($order['customer_name']) ?></strong><br>
+            <?= htmlspecialchars($order['customer_email']) ?><br>
+            <?php if ($order['customer_phone']): ?><?= htmlspecialchars($order['customer_phone']) ?><br><?php endif; ?>
+            <?= htmlspecialchars($order['customer_address']) ?>
+        </div>
+        <div class="col-6 text-end">
+            <h6 class="text-muted">PAYMENT</h6>
+            <div>Method: <strong class="text-uppercase"><?= strtoupper($order['payment_method']) ?></strong></div>
+            <div>Status: <span class="badge bg-<?= $order['payment_status']==='completed'?'success':'warning' ?>"><?= ucfirst($order['payment_status']) ?></span></div>
+            <div>Order Status: <span class="badge bg-info"><?= ucfirst($order['status']) ?></span></div>
+            <?php if (!empty($order['delivery_slot'])): ?>
+            <div>Delivery Slot: <strong><?= htmlspecialchars($order['delivery_slot']) ?></strong></div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <table class="table">
+        <thead class="table-light">
+            <tr><th>Item</th><th class="text-center">Qty</th><th class="text-end">Unit Price</th><th class="text-end">Total</th></tr>
+        </thead>
+        <tbody>
         <?php while ($item = mysqli_fetch_assoc($items)): ?>
-        <tr>
-            <td><?= htmlspecialchars($item['product_name']) ?></td>
-            <td class="num-right"><?= $item['quantity'] ?></td>
-            <td class="num-right">$<?= number_format($item['price'], 2) ?></td>
-            <td class="num-right">$<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
-        </tr>
+            <tr>
+                <td><?= htmlspecialchars($item['product_name']) ?></td>
+                <td class="text-center"><?= $item['quantity'] ?></td>
+                <td class="text-end">$<?= number_format($item['price'], 2) ?></td>
+                <td class="text-end line-total">$<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+            </tr>
         <?php endwhile; ?>
-        <tr>
-            <td colspan="3" class="num-right"><strong>Grand Total</strong></td>
-            <td class="num-right"><strong>$<?= number_format($order['total_amount'], 2) ?></strong></td>
-        </tr>
+        </tbody>
+        <tfoot>
+            <tr><td colspan="3" class="text-end fw-bold">Grand Total</td><td class="text-end fw-bold">$<?= number_format($order['total_amount'], 2) ?></td></tr>
+        </tfoot>
     </table>
-
-    <p style="text-align:center; margin-top:20px; font-size:13px;">Thank you for shopping with StepStyle!</p>
+    <div class="text-center text-muted small mt-4">Thank you for shopping with StepStyle!</div>
 </div>
-
-<div class="no-print text-center" style="margin-bottom:30px;">
-    <button onclick="window.print()" class="btn">Print Invoice</button>
-    <a href="my_orders.php" class="btn btn-gray">Back to My Orders</a>
+<div class="text-center no-print my-4">
+    <button onclick="window.print()" class="btn btn-dark"><i class="bi bi-printer me-1"></i>Print Invoice</button>
+    <a href="my_orders.php" class="btn btn-outline-secondary ms-2">Back to My Orders</a>
 </div>
 </body>
 </html>

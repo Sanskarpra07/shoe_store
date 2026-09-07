@@ -31,34 +31,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 }
-
-site_header('Reset Password - StepStyle', '');
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - StepStyle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/frontend.css" rel="stylesheet">
+</head>
+<body>
 
-<h2 class="page-title">Reset Password</h2>
+<?php frontend_navbar(); ?>
 
-<?php if (!empty($errors)): ?>
-    <div class="msg-error">
-        <?php foreach ($errors as $e) echo htmlspecialchars($e) . '<br>'; ?>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header text-center py-4 fw-bold" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color:#fff;">
+                    <i class="bi bi-shield-lock me-2"></i>Set a New Password
+                </div>
+                <div class="card-body p-4">
+                    <?php if (!empty($errors)): ?>
+                        <div class="alert alert-danger py-2 small">
+                            <?php foreach ($errors as $e) echo "<div>$e</div>"; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <p class="text-muted small">
+                        Account email: <strong><?= htmlspecialchars($email) ?></strong>
+                    </p>
+
+                    <form method="POST" action="reset_password.php">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">New Password <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control" required minlength="6">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small">Confirm New Password <span class="text-danger">*</span></label>
+                            <input type="password" name="confirm_password" class="form-control" required minlength="6">
+                        </div>
+                        <button type="submit" class="btn btn-accent w-100">
+                            <i class="bi bi-check-circle me-1"></i>Save New Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-<?php endif; ?>
-
-<div class="form-box">
-    <h3>Set a New Password</h3>
-    <p style="font-size:13px; margin-bottom:14px;">
-        Account email: <strong><?= htmlspecialchars($email) ?></strong>
-    </p>
-    <form method="POST" action="reset_password.php">
-        <div class="form-group">
-            <label>New Password * (min 6 characters)</label>
-            <input type="password" name="password" required minlength="6">
-        </div>
-        <div class="form-group">
-            <label>Confirm New Password *</label>
-            <input type="password" name="confirm_password" required minlength="6">
-        </div>
-        <button type="submit" class="btn">Save New Password</button>
-    </form>
 </div>
 
-<?php site_footer(); ?>
+<?php frontend_footer(); ?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -9,7 +9,6 @@ if (empty($cart)) {
     exit();
 }
 
-// Load cart items
 $cart_items = [];
 $total = 0;
 $ids = array_keys($cart);
@@ -27,15 +26,6 @@ while ($row = mysqli_fetch_assoc($result)) {
     $total += $row['line_total'];
     $cart_items[] = $row;
 }
-
-if (empty($cart_items)) {
-    header("Location: shop.php");
-    exit();
-}
-
-// Load active delivery slots
-$slots = mysqli_query($conn,
-    "SELECT * FROM delivery_slots WHERE is_active = 1 ORDER BY slot_time ASC");
 
 $errors    = $_SESSION['checkout_errors'] ?? [];
 $prev      = $_SESSION['checkout_data'] ?? [];
@@ -63,88 +53,212 @@ if (is_customer_logged_in()) {
 $selected_payment = $prev['payment'] ?? 'cod';
 $selected_slot    = $prev['delivery_slot'] ?? '';
 
-site_header('Checkout - StepStyle', '');
+$slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 ORDER BY slot_time ASC");
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - StepStyle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/frontend.css" rel="stylesheet">
+    <style>
+        .payment-option { border: 2px solid #dee2e6; border-radius: 10px; padding: 15px; cursor: pointer; transition: all .2s; }
+        .payment-option:hover { border-color: var(--accent); }
+        .payment-option.selected { border-color: var(--accent); background: #fff7f0; }
+        .payment-option .form-check-input { cursor: pointer; }
+    </style>
+</head>
+<body>
 
-<h2 class="page-title">Checkout</h2>
+<?php frontend_navbar(); ?>
 
-<?php if (!is_customer_logged_in()): ?>
-    <div class="msg-info">
-        You are checking out as a guest.
-        <a href="login.php"><strong>Login</strong></a> to save your address and track orders.
-    </div>
-<?php endif; ?>
+<div class="container py-5">
+    <h2 class="section-title">Checkout</h2>
 
-<?php if (!empty($errors)): ?>
-    <div class="msg-error">
-        <?php foreach ($errors as $e) echo htmlspecialchars($e) . '<br>'; ?>
-    </div>
-<?php endif; ?>
+    <?php if (!is_customer_logged_in()): ?>
+        <div class="alert alert-info py-2 small d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-info-circle me-1"></i>You are checking out as a guest.</span>
+            <a href="login.php" class="btn btn-sm btn-dark">Login to save address & track orders</a>
+        </div>
+    <?php endif; ?>
 
-<form method="POST" action="process_order.php">
-    <table class="table" style="width:100%;">
-        <tr>
-            <th>Full Name *</th>
-            <td><input type="text" name="name" required style="width:100%; padding:7px;"
-                       value="<?= htmlspecialchars($name) ?>"></td>
-        </tr>
-        <tr>
-            <th style="width:220px;">Email *</th>
-            <td><input type="email" name="email" required style="width:100%; padding:7px;"
-                       value="<?= htmlspecialchars($email) ?>"></td>
-        </tr>
-        <tr>
-            <th>Phone</th>
-            <td><input type="text" name="phone" style="width:100%; padding:7px;"
-                       value="<?= htmlspecialchars($phone) ?>"></td>
-        </tr>
-        <tr>
-            <th>Shipping Address *</th>
-            <td><textarea name="address" rows="3" required style="width:100%; padding:7px;"
-                          placeholder="Street, City, District, etc."><?= htmlspecialchars($address) ?></textarea></td>
-        </tr>
-        <tr>
-            <th>Delivery Slot</th>
-            <td>
-                <select name="delivery_slot" style="width:100%; padding:7px;">
-                    <option value="">-- Select a delivery slot (optional) --</option>
-                    <?php while ($s = mysqli_fetch_assoc($slots)): ?>
-                        <option value="<?= htmlspecialchars($s['slot_name']) ?>"
-                            <?= $selected_slot === $s['slot_name'] ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($s['slot_name'] . ' (' . $s['slot_time'] . ')') ?>
-                        </option>
-                    <?php endwhile; ?>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <th>Payment Method *</th>
-            <td>
-                <label><input type="radio" name="payment_method" value="cod" <?= $selected_payment === 'cod' ? 'checked' : '' ?>> Cash on Delivery (COD)</label><br>
-                <label><input type="radio" name="payment_method" value="esewa" <?= $selected_payment === 'esewa' ? 'checked' : '' ?>> eSewa</label><br>
-                <label><input type="radio" name="payment_method" value="khalti" <?= $selected_payment === 'khalti' ? 'checked' : '' ?>> Khalti</label>
-            </td>
-        </tr>
-    </table>
+    <?php if (!empty($errors)): ?>
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                <?php foreach ($errors as $e): ?>
+                    <li><?= htmlspecialchars($e) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
-    <div class="summary" style="float:right; width:340px;">
-        <div class="line"><span>Subtotal (<?= count($cart_items) ?> items)</span><span>$<?= number_format($total, 2) ?></span></div>
-        <div class="line"><span>Shipping</span><span>Free</span></div>
-        <div class="line total"><span>Total</span><span>$<?= number_format($total, 2) ?></span></div>
-        <div style="margin-top:12px;">
-            <button type="submit" class="btn btn-green" style="width:100%;">Place Order - $<?= number_format($total, 2) ?></button>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div class="card-header bg-white fw-semibold py-3">
+                    <i class="bi bi-person me-2"></i>Shipping Information
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="process_order.php" id="checkout_form">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" required
+                                   value="<?= htmlspecialchars($name) ?>">
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                                <input type="email" name="email" class="form-control" required
+                                       value="<?= htmlspecialchars($email) ?>">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Phone</label>
+                                <input type="text" name="phone" class="form-control"
+                                       value="<?= htmlspecialchars($phone) ?>">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Shipping Address <span class="text-danger">*</span></label>
+                            <textarea name="address" class="form-control" rows="3" required
+                                      placeholder="Street, City, State, ZIP, Country"><?= htmlspecialchars($address) ?></textarea>
+                        </div>
+
+                        <!-- Delivery Slot -->
+                        <h6 class="fw-bold mt-4 mb-3"><i class="bi bi-clock me-2 text-success"></i>Delivery Slot</h6>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Preferred Delivery Time</label>
+                            <select name="delivery_slot" class="form-select">
+                                <option value="">-- Select a delivery slot (optional) --</option>
+                                <?php while ($s = mysqli_fetch_assoc($slots)): ?>
+                                    <option value="<?= htmlspecialchars($s['slot_name']) ?>"
+                                        <?= $selected_slot === $s['slot_name'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($s['slot_name'] . ' (' . $s['slot_time'] . ')') ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                            <small class="text-muted">Choose when you would like your order delivered.</small>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <h6 class="fw-bold mt-4 mb-3"><i class="bi bi-credit-card me-2 text-primary"></i>Select Payment Method</h6>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="payment-option d-block <?= $selected_payment === 'cod' ? 'selected' : '' ?>">
+                                    <input type="radio" name="payment_method" value="cod" class="form-check-input me-1"
+                                           <?= $selected_payment === 'cod' ? 'checked' : '' ?>>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-cash-coin fs-3 text-success me-2"></i>
+                                        <div>
+                                            <strong>Cash on Delivery</strong>
+                                            <small class="text-muted d-block">Pay when delivered</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="payment-option d-block <?= $selected_payment === 'esewa' ? 'selected' : '' ?>">
+                                    <input type="radio" name="payment_method" value="esewa" class="form-check-input me-1"
+                                           <?= $selected_payment === 'esewa' ? 'checked' : '' ?>>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-credit-card fs-3 text-danger me-2"></i>
+                                        <div>
+                                            <strong>eSewa</strong>
+                                            <small class="text-muted d-block">Nepal's payment gateway</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="payment-option d-block <?= $selected_payment === 'khalti' ? 'selected' : '' ?>">
+                                    <input type="radio" name="payment_method" value="khalti" class="form-check-input me-1"
+                                           <?= $selected_payment === 'khalti' ? 'checked' : '' ?>>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-wallet2 fs-3 text-primary me-2"></i>
+                                        <div>
+                                            <strong>Khalti</strong>
+                                            <small class="text-muted d-block">Digital wallet</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-accent btn-lg w-100">
+                            <i class="bi bi-shield-check me-1"></i>
+                            Place Order - $<?= number_format($total, 2) ?>
+                        </button>
+                        <p class="text-muted text-center small mt-2 mb-0">
+                            <i class="bi bi-lock me-1"></i>Secure checkout. Your payment details are protected.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="summary-card">
+                <div class="card-header"><i class="bi bi-bag me-2"></i>Order Summary</div>
+                <div class="card-body">
+                    <?php foreach ($cart_items as $item): ?>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="cart-item-thumb me-3" style="width:56px;height:56px;">
+                                    <?php if (!empty($item['image'])): ?>
+                                        <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>">
+                                    <?php else: ?>
+                                        <div class="placeholder"><i class="bi bi-basket text-muted"></i></div>
+                                    <?php endif; ?>
+                                </div>
+                                <div>
+                                    <small class="fw-semibold d-block"><?= htmlspecialchars($item['product_name']) ?></small>
+                                    <small class="text-muted">x<?= $item['qty'] ?></small>
+                                </div>
+                            </div>
+                            <span class="fw-bold">$<?= number_format($item['line_total'], 2) ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Subtotal</span>
+                        <span>$<?= number_format($total, 2) ?></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Shipping</span>
+                        <span class="text-success">Free</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold fs-5">
+                        <span>Total</span>
+                        <span class="text-success">$<?= number_format($total, 2) ?></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-3 mt-3">
+                <div class="card-body small text-muted py-3">
+                    <i class="bi bi-shield-check text-success me-1"></i>
+                    Your order data is encrypted & safe. Payments via eSewa & Khalti are processed on their secure gateways.
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <div style="margin-top:12px; overflow:hidden;">
-        <?php foreach ($cart_items as $item): ?>
-            <div class="summary" style="margin-bottom:6px;">
-                <?= htmlspecialchars($item['product_name']) ?> x <?= $item['qty'] ?>
-                = $<?= number_format($item['line_total'], 2) ?>
-            </div>
-        <?php endforeach; ?>
-    </div>
-    <div style="clear:both;"></div>
-</form>
+<?php frontend_footer(); ?>
 
-<?php site_footer(); ?>
+<script>
+// Hightlight selected payment option
+document.querySelectorAll('.payment-option input').forEach(input => {
+    input.addEventListener('change', function () {
+        document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+        this.closest('.payment-option').classList.add('selected');
+    });
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

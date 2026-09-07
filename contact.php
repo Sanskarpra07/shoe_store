@@ -1,50 +1,50 @@
 <?php
-session_start();
-require_once 'db.php';
 require_once 'auth_helper.php';
-
-site_header('Contact Us - StepStyle', 'contact');
+$active = 'contact';
 ?>
-
-<h2 class="page-title">Contact Us</h2>
-<p>Have a question about an order, a product or our services? Reach out to us anytime.</p>
-
-<table class="table" style="width:550px;">
-    <tr>
-        <th style="width:200px;">Our Location</th>
-        <td>Kathmandu, Nepal</td>
-    </tr>
-    <tr>
-        <th>Email</th>
-        <td>info@stepstyle.com</td>
-    </tr>
-    <tr>
-        <th>Phone</th>
-        <td>+977-1-456789</td>
-    </tr>
-    <tr>
-        <th>Hours</th>
-        <td>Sun - Fri: 9:00 AM - 8:00 PM</td>
-    </tr>
-</table>
-
-<div class="form-box" style="width:550px;">
-    <h3>Send Us a Message</h3>
-    <form method="POST" action="contact.php">
-        <div class="form-group">
-            <label>Your Name *</label>
-            <input type="text" name="name" required>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - StepStyle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/frontend.css" rel="stylesheet">
+</head>
+<body>
+    <?php frontend_navbar('contact'); ?>
+    <div class="container py-5">
+        <h2 class="fw-bold mb-2">Contact Us</h2>
+        <p class="text-muted mb-4">Have a question? Reach out to us anytime.</p>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Our Location</h5>
+                    <p class="mb-1">Durbar Marg, Kathmandu, Nepal</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-envelope-fill text-primary me-2"></i>Email</h5>
+                    <p class="mb-1">info@stepstyle.com</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-telephone-fill text-success me-2"></i>Phone</h5>
+                    <p class="mb-1">+977-1-456789</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-clock-fill text-warning me-2"></i>Hours</h5>
+                    <p class="mb-1">Sun - Fri: 9:00 AM - 8:00 PM</p>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Your Email *</label>
-            <input type="email" name="email" required>
-        </div>
-        <div class="form-group">
-            <label>Message *</label>
-            <textarea name="message" rows="5" required></textarea>
-        </div>
-        <button type="submit" class="btn">Send Message</button>
-    </form>
-</div>
-
-<?php site_footer(); ?>
+    </div>
+    <?php frontend_footer(); ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
