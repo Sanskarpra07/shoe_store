@@ -1,20 +1,17 @@
-# 1. CRISIS PREVENTION: Never upload your database password!
+# ---- CRISIS PREVENTION: Never commit secrets ----
 wp-config.php
+wp-config-sample.php
 
-# 2. FILE SIZE CONTROL: Never upload your photos, videos, or PDFs
-wp-content/uploads/
-
-# 3. SPEED: Don't upload core WordPress files (GitHub doesn't need them)
+# ---- WordPress leftovers (not part of the shoe store app) ----
 wp-admin/
 wp-includes/
-*.php
-!.gitignore
+wp-content/
+wp-*.php
+xmlrpc.php
+license.txt
+readme.html
 
-# 4. EXCEPTION: Only keep your specific custom theme or plugin
-# (Replace 'your-custom-theme' with your actual folder name)
-!wp-content/
-wp-content/*
-!wp-content/themes/
-wp-content/themes/*
-!wp-content/themes/your-custom-theme/
-!database/
+# ---- OS / editor noise ----
+.DS_Store
+Thumbs.db
+*.log
