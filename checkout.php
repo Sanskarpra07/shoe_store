@@ -11,8 +11,13 @@ if (empty($cart)) {
 
 $cart_items = [];
 $total = 0;
-$ids = implode(',', array_keys($cart));
-$result = mysqli_query($conn, "SELECT * FROM products WHERE id IN ($ids)");
+$ids = array_keys($cart);
+$placeholders = implode(',', array_fill(0, count($ids), '?'));
+$types = str_repeat('i', count($ids));
+$stmt = mysqli_prepare($conn, "SELECT * FROM products WHERE id IN ($placeholders)");
+mysqli_stmt_bind_param($stmt, $types, ...$ids);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 while ($row = mysqli_fetch_assoc($result)) {
     $qty = $cart[$row['id']] ?? 1;
     $price = $row['discount_price'] ?: $row['price'];

@@ -8,28 +8,32 @@ if (!isset($_SESSION['username'])) {
 
 require_once '../db.php';
 
-if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-    $id = (int) $_GET['id'];
-    $stmt = mysqli_prepare($conn, "UPDATE orders SET status = 'cancelled' WHERE id = ?");
-    mysqli_stmt_bind_param($stmt, "i", $id);
-    mysqli_stmt_execute($stmt);
-    $_SESSION['success'] = "Order cancelled.";
-    header("Location: orders.php");
-    exit();
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrf_check()) { die('Invalid request'); }
 
-if (isset($_GET['action']) && $_GET['action'] === 'update_status' && isset($_GET['id']) && isset($_GET['status'])) {
-    $id     = (int) $_GET['id'];
-    $status = $_GET['status'];
-    $valid  = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-    if (in_array($status, $valid)) {
-        $stmt = mysqli_prepare($conn, "UPDATE orders SET status = ? WHERE id = ?");
-        mysqli_stmt_bind_param($stmt, "si", $status, $id);
+    if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id'])) {
+        $id = (int) $_POST['id'];
+        $stmt = mysqli_prepare($conn, "UPDATE orders SET status = 'cancelled' WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "i", $id);
         mysqli_stmt_execute($stmt);
-        $_SESSION['success'] = "Order #$id status updated to $status.";
+        $_SESSION['success'] = "Order cancelled.";
+        header("Location: orders.php");
+        exit();
     }
-    header("Location: orders.php");
-    exit();
+
+    if (isset($_POST['action']) && $_POST['action'] === 'update_status' && isset($_POST['id']) && isset($_POST['status'])) {
+        $id     = (int) $_POST['id'];
+        $status = $_POST['status'];
+        $valid  = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+        if (in_array($status, $valid)) {
+            $stmt = mysqli_prepare($conn, "UPDATE orders SET status = ? WHERE id = ?");
+            mysqli_stmt_bind_param($stmt, "si", $status, $id);
+            mysqli_stmt_execute($stmt);
+            $_SESSION['success'] = "Order #$id status updated to $status.";
+        }
+        header("Location: orders.php");
+        exit();
+    }
 }
 
 $search = trim($_GET['search'] ?? '');
@@ -125,12 +129,26 @@ $current_page = 'orders';
                                         Status
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="orders.php?action=update_status&id=<?= $row['id'] ?>&status=pending">Pending</a></li>
-                                        <li><a class="dropdown-item" href="orders.php?action=update_status&id=<?= $row['id'] ?>&status=processing">Processing</a></li>
-                                        <li><a class="dropdown-item" href="orders.php?action=update_status&id=<?= $row['id'] ?>&status=shipped">Shipped</a></li>
-                                        <li><a class="dropdown-item" href="orders.php?action=update_status&id=<?= $row['id'] ?>&status=delivered">Delivered</a></li>
+                                        <?php foreach (['pending' => 'Pending', 'processing' => 'Processing', 'shipped' => 'Shipped', 'delivered' => 'Delivered'] as $val => $label): ?>
+                                            <li>
+                                                <form method="POST" action="orders.php" class="m-0">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="action" value="update_status">
+                                                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                                    <input type="hidden" name="status" value="<?= $val ?>">
+                                                    <button type="submit" class="dropdown-item"><?= $label ?></button>
+                                                </form>
+                                            </li>
+                                        <?php endforeach; ?>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="orders.php?action=delete&id=<?= $row['id'] ?>" onclick="return confirm('Cancel this order?')">Cancel</a></li>
+                                        <li>
+                                            <form method="POST" action="orders.php" class="m-0" onsubmit="return confirm('Cancel this order?')">
+                                                <?= csrf_field() ?>
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                                <button type="submit" class="dropdown-item text-danger">Cancel</button>
+                                            </form>
+                                        </li>
                                     </ul>
                                 </div>
                             </td>

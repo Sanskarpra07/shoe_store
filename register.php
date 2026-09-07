@@ -52,6 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 @mail($email, "StepStyle Email Verification",
                     "Your OTP verification code is: $otp\nIt expires in 10 minutes.\n\n- StepStyle");
 
+                require_once __DIR__ . '/email_helper.php';
+                send_welcome_email($email, $full_name);
+
                 header("Location: verify_otp.php");
                 exit();
             } else {

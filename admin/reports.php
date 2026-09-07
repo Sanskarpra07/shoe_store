@@ -18,36 +18,57 @@ $to_s   = date('Y-m-d 23:59:59', strtotime($to));
 $export = $_GET['export'] ?? '';
 
 function row_count($conn, $sql, $from_s, $to_s) {
-    return mysqli_fetch_assoc(mysqli_query($conn, $sql))['c'];
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
+    mysqli_stmt_execute($stmt);
+    return mysqli_fetch_assoc(mysqli_stmt_get_result($stmt))['c'];
 }
 
 // Metrics within range
-$range_orders   = row_count($conn, "SELECT COUNT(*) AS c FROM orders WHERE created_at BETWEEN '$from_s' AND '$to_s'", $from_s, $to_s);
-$range_revenue  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT IFNULL(SUM(total_amount),0) AS r FROM orders WHERE created_at BETWEEN '$from_s' AND '$to_s' AND payment_status='completed'"))['r'];
-$range_pending_pay = mysqli_fetch_assoc(mysqli_query($conn, "SELECT IFNULL(SUM(total_amount),0) AS r FROM orders WHERE created_at BETWEEN '$from_s' AND '$to_s' AND payment_status='pending'"))['r'];
+$range_orders   = row_count($conn, "SELECT COUNT(*) AS c FROM orders WHERE created_at BETWEEN ? AND ?", $from_s, $to_s);
+$stmt = mysqli_prepare($conn, "SELECT IFNULL(SUM(total_amount),0) AS r FROM orders WHERE created_at BETWEEN ? AND ? AND payment_status='completed'");
+mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
+mysqli_stmt_execute($stmt);
+$range_revenue = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt))['r'];
+$stmt = mysqli_prepare($conn, "SELECT IFNULL(SUM(total_amount),0) AS r FROM orders WHERE created_at BETWEEN ? AND ? AND payment_status='pending'");
+mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
+mysqli_stmt_execute($stmt);
+$range_pending_pay = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt))['r'];
 $avg_order_value = $range_orders > 0 ? $range_revenue / $range_orders : 0;
 
 // Orders by status
-$status_data = mysqli_query($conn, "SELECT status, COUNT(*) AS c FROM orders WHERE created_at BETWEEN '$from_s' AND '$to_s' GROUP BY status");
+$stmt = mysqli_prepare($conn, "SELECT status, COUNT(*) AS c FROM orders WHERE created_at BETWEEN ? AND ? GROUP BY status");
+mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
+mysqli_stmt_execute($stmt);
+$status_data = mysqli_stmt_get_result($stmt);
 
 // Payment method breakdown
-$payment_data = mysqli_query($conn, "SELECT payment_method, COUNT(*) AS c, IFNULL(SUM(total_amount),0) AS rev FROM orders WHERE created_at BETWEEN '$from_s' AND '$to_s' GROUP BY payment_method");
+$stmt = mysqli_prepare($conn, "SELECT payment_method, COUNT(*) AS c, IFNULL(SUM(total_amount),0) AS rev FROM orders WHERE created_at BETWEEN ? AND ? GROUP BY payment_method");
+mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
+mysqli_stmt_execute($stmt);
+$payment_data = mysqli_stmt_get_result($stmt);
 
 // Top selling products
-$top_products = mysqli_query($conn,
+$stmt = mysqli_prepare($conn,
   "SELECT p.product_name, SUM(oi.quantity) AS qty_sold, SUM(oi.price) AS revenue
    FROM order_items oi
    JOIN orders o ON oi.order_id = o.id
    JOIN products p ON oi.product_id = p.id
-   WHERE o.created_at BETWEEN '$from_s' AND '$to_s'
+   WHERE o.created_at BETWEEN ? AND ?
    GROUP BY oi.product_id, p.product_name
    ORDER BY qty_sold DESC LIMIT 10");
+mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
+mysqli_stmt_execute($stmt);
+$top_products = mysqli_stmt_get_result($stmt);
 
 // Daily revenue for chart (last 14 days within range)
-$chart_q = mysqli_query($conn,
+$stmt = mysqli_prepare($conn,
   "SELECT DATE(created_at) AS d, IFNULL(SUM(CASE WHEN payment_status='completed' THEN total_amount ELSE 0 END),0) AS rev, COUNT(*) AS orders
-   FROM orders WHERE created_at BETWEEN '$from_s' AND '$to_s'
+   FROM orders WHERE created_at BETWEEN ? AND ?
    GROUP BY DATE(created_at) ORDER BY d ASC");
+mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
+mysqli_stmt_execute($stmt);
+$chart_q = mysqli_stmt_get_result($stmt);
 
 $chart_labels = []; $chart_rev = []; $chart_orders = [];
 while ($r = mysqli_fetch_assoc($chart_q)) {
@@ -70,11 +91,14 @@ if ($export === 'csv') {
     fputcsv($out, ['Avg Order Value', round($avg_order_value, 2)]);
     fputcsv($out, []);
     fputcsv($out, ['Product', 'Qty Sold', 'Revenue']);
-    $t = mysqli_query($conn,
+    $stmt = mysqli_prepare($conn,
       "SELECT p.product_name, SUM(oi.quantity) AS qty_sold, SUM(oi.price) AS revenue
        FROM order_items oi JOIN orders o ON oi.order_id = o.id JOIN products p ON oi.product_id = p.id
-       WHERE o.created_at BETWEEN '$from_s' AND '$to_s'
+       WHERE o.created_at BETWEEN ? AND ?
        GROUP BY oi.product_id, p.product_name ORDER BY qty_sold DESC");
+    mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
+    mysqli_stmt_execute($stmt);
+    $t = mysqli_stmt_get_result($stmt);
     while ($r = mysqli_fetch_assoc($t)) {
         fputcsv($out, [$r['product_name'], $r['qty_sold'], $r['revenue']]);
     }

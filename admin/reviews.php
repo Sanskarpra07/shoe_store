@@ -11,6 +11,7 @@ $current_page = 'reviews';
 
 // Approve / reject / delete actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrf_check()) { die('Invalid request'); }
     $action = $_POST['action'] ?? '';
     $rid = (int)($_POST['review_id'] ?? 0);
     if ($action === 'approve') {
@@ -98,6 +99,7 @@ $reviews = mysqli_query($conn,
                                     </td>
                                     <td class="text-end pe-4">
                                         <form method="POST" class="d-inline">
+                                            <?= csrf_field() ?>
                                             <input type="hidden" name="review_id" value="<?= $r['id'] ?>">
                                             <?php if ($r['status'] !== 'approved'): ?>
                                                 <button name="action" value="approve" class="btn btn-sm btn-success" title="Approve">

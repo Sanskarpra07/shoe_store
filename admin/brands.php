@@ -10,8 +10,9 @@ require_once '../db.php';
 
 $errors = [];
 
-if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-    $id = (int) $_GET['id'];
+if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id'])) {
+    if (!csrf_check()) { die('Invalid request'); }
+    $id = (int) $_POST['id'];
     $check = mysqli_fetch_assoc(
         mysqli_query($conn, "SELECT COUNT(*) AS c FROM products WHERE brand_id = $id")
     );
@@ -28,6 +29,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrf_check()) { die('Invalid request'); }
     $name        = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
 
@@ -117,6 +119,7 @@ $current_page = 'brands';
                         </div>
                         <div class="card-body">
                             <form method="POST" action="brands.php">
+                                <?= csrf_field() ?>
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold small">Brand Name <span class="text-danger">*</span></label>
                                     <input type="text" name="name" class="form-control" placeholder="e.g. Nike" required>
@@ -159,11 +162,14 @@ $current_page = 'brands';
                                             <span class="badge bg-primary rounded-pill"><?= $row['product_count'] ?></span>
                                         </td>
                                         <td class="text-center">
-                                            <a href="brands.php?action=delete&id=<?= $row['id'] ?>"
-                                               class="btn btn-sm btn-outline-danger"
-                                               onclick="return confirm('Delete this brand?')">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
+                                            <form method="POST" action="brands.php" class="d-inline" onsubmit="return confirm('Delete this brand?')">
+                                                <?= csrf_field() ?>
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>

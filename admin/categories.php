@@ -10,8 +10,9 @@ require_once '../db.php';
 
 $errors = [];
 
-if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-    $id = (int) $_GET['id'];
+if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id'])) {
+    if (!csrf_check()) { die('Invalid request'); }
+    $id = (int) $_POST['id'];
     $check = mysqli_fetch_assoc(
         mysqli_query($conn, "SELECT COUNT(*) AS c FROM products WHERE category_id = $id")
     );
@@ -28,6 +29,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrf_check()) { die('Invalid request'); }
     $name        = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
 
@@ -131,11 +133,14 @@ $current_page = 'categories';
                                                class="btn btn-sm btn-outline-info">
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>
-                                            <a href="categories.php?action=delete&id=<?= $row['id'] ?>"
-                                               class="btn btn-sm btn-outline-danger"
-                                               onclick="return confirm('Delete this category?')">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
+                                            <form method="POST" action="categories.php" class="d-inline" onsubmit="return confirm('Delete this category?')">
+                                                <?= csrf_field() ?>
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>

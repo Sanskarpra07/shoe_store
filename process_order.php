@@ -68,8 +68,17 @@ if (!empty($errors)) {
     exit();
 }
 
+// Validate stock before placing order
+foreach ($cart_items as $item) {
+    if ($item['qty'] > $item['stock']) {
+        $_SESSION['checkout_errors'] = ["Insufficient stock for {$item['product_name']}. Only {$item['stock']} available."];
+        header("Location: checkout.php");
+        exit();
+    }
+}
+
 // --- Create the order record (payment_status=pending for online payments, handled below for COD) ---
-$payment_status = ($payment === 'cod') ? 'pending' : 'pending';
+$payment_status = ($payment === 'cod') ? 'completed' : 'pending';
 $stmt = mysqli_prepare($conn,
     "INSERT INTO orders (customer_id, customer_name, customer_email, customer_phone, customer_address,
                          total_amount, payment_method, payment_status, transaction_id, status)
@@ -84,7 +93,7 @@ $order_id = mysqli_insert_id($conn);
 foreach ($cart_items as $item) {
     $istmt = mysqli_prepare($conn,
         "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
-    mysqli_stmt_bind_param($istmt, "iiid", $order_id, $item['id'], $item['qty'], $item['line_total']);
+    mysqli_stmt_bind_param($istmt, "iiid", $order_id, $item['id'], $item['qty'], $price);
     mysqli_stmt_execute($istmt);
 }
 
@@ -100,6 +109,8 @@ if ($payment === 'cod') {
     $_SESSION['cart'] = []; // clear the cart
     $_SESSION['order_success'] = "Order #$order_id placed successfully! Total: $" . number_format($total, 2)
         . ". You will pay <strong>Cash on Delivery</strong> when your order arrives.";
+    require_once __DIR__ . '/email_helper.php';
+    send_order_email($email, $name, $order_id, $total);
     header("Location: order_success.php");
     exit();
 }

@@ -36,15 +36,19 @@ $related = mysqli_query($conn,
 
 // Up-selling: higher-value / premium alternatives in the same category
 $current_price = $row['discount_price'] ?: $row['price'];
-$upsell = mysqli_query($conn,
+$upsell_stmt = mysqli_prepare($conn,
     "SELECT p.*, b.name AS brand_name
      FROM products p
      LEFT JOIN brands b ON p.brand_id = b.id
-     WHERE p.category_id = {$row['category_id']} AND p.id != $id
-       AND IFNULL(p.discount_price, p.price) > $current_price
+     WHERE p.category_id = ? AND p.id != ?
+       AND IFNULL(p.discount_price, p.price) > ?
      ORDER BY IFNULL(p.discount_price, p.price) DESC
      LIMIT 4"
 );
+$cat_id = $row['category_id'];
+mysqli_stmt_bind_param($upsell_stmt, "iid", $cat_id, $id, $current_price);
+mysqli_stmt_execute($upsell_stmt);
+$upsell = mysqli_stmt_get_result($upsell_stmt);
 
 // ---- Reviews ----
 $review_meta = mysqli_fetch_assoc(mysqli_query($conn,
@@ -193,6 +197,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 
             <?php if ($row['stock'] > 0): ?>
             <form method="POST" action="add_to_cart.php" class="d-flex gap-3 align-items-center mt-4">
+                <?= csrf_field() ?>
                 <input type="hidden" name="product_id" value="<?= $row['id'] ?>">
                 <div class="input-group" style="width: 130px;">
                     <span class="input-group-text">Qty</span>
@@ -202,6 +207,18 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                     <i class="bi bi-cart-plus me-1"></i>Add to Cart
                 </button>
             </form>
+            <?php endif; ?>
+            <?php if (is_customer_logged_in()):
+                $wid = (int)$_SESSION['customer_id'];
+                $wchk = mysqli_query($conn, "SELECT id FROM wishlists WHERE customer_id = $wid AND product_id = {$row['id']}");
+                $in_wishlist = mysqli_num_rows($wchk) > 0;
+            ?>
+                <form method="POST" action="add_to_wishlist.php" class="d-inline ms-2">
+                    <input type="hidden" name="product_id" value="<?= $row['id'] ?>">
+                    <button type="submit" class="btn <?= $in_wishlist ? 'btn-danger' : 'btn-outline-danger' ?> btn-lg" title="<?= $in_wishlist ? 'Remove from Wishlist' : 'Add to Wishlist' ?>">
+                        <i class="bi bi-heart<?= $in_wishlist ? '-fill' : '' ?>"></i>
+                    </button>
+                </form>
             <?php endif; ?>
         </div>
     </div>

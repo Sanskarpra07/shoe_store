@@ -16,6 +16,7 @@ $errors = [];
 $success = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrf_check()) { die('Invalid request'); }
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     $role     = $_POST['role'] ?? 'staff';
@@ -90,6 +91,7 @@ $current_page = 'users';
             <div class="card shadow-sm border-0 rounded-3" style="max-width: 500px;">
                 <div class="card-body p-4">
                     <form method="POST" action="register.php">
+                        <?= csrf_field() ?>
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Username <span class="text-danger">*</span></label>

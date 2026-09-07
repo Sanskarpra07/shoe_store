@@ -85,7 +85,7 @@ $orders = mysqli_query($conn,
                                     <?php if ($item['size']): ?><small class="text-muted d-block">Size: <?= htmlspecialchars($item['size']) ?></small><?php endif; ?>
                                 </td>
                                 <td><?= $item['quantity'] ?></td>
-                                <td>$<?= number_format($item['price'] / max(1,$item['quantity']), 2) ?></td>
+                                <td>$<?= number_format($item['price'], 2) ?></td>
                                 <td class="fw-bold">$<?= number_format($item['price'], 2) ?></td>
                             </tr>
                         <?php endforeach; ?>

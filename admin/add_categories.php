@@ -26,6 +26,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) 
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrf_check()) { die('Invalid request'); }
     $name = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
     $cat_id = $_POST['category_id'] ?? '';
@@ -95,6 +96,7 @@ $current_page = 'categories';
                             <?php endif; ?>
 
                             <form method="POST" action="add_categories.php">
+                                <?= csrf_field() ?>
                                 <input type="hidden" name="category_id" value="<?= $category['id'] ?>">
                                 
                                 <div class="mb-3">

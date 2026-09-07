@@ -30,8 +30,13 @@ $cart_items = [];
 $total = 0;
 
 if (!empty($cart)) {
-    $ids = implode(',', array_keys($cart));
-    $result = mysqli_query($conn, "SELECT * FROM products WHERE id IN ($ids)");
+    $ids = array_keys($cart);
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $types = str_repeat('i', count($ids));
+    $stmt = mysqli_prepare($conn, "SELECT * FROM products WHERE id IN ($placeholders)");
+    mysqli_stmt_bind_param($stmt, $types, ...$ids);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
     while ($row = mysqli_fetch_assoc($result)) {
         $qty = $cart[$row['id']] ?? 1;
         $price = $row['discount_price'] ?: $row['price'];
@@ -83,6 +88,13 @@ $cart_count = array_sum($cart);
 
 <div class="container py-5">
     <h2 class="section-title">Shopping Cart</h2>
+
+    <?php if (!empty($_SESSION['cart_error'])): ?>
+        <div class="alert alert-danger">
+            <?= htmlspecialchars($_SESSION['cart_error']) ?>
+        </div>
+        <?php unset($_SESSION['cart_error']); ?>
+    <?php endif; ?>
 
     <?php if (empty($cart_items)): ?>
         <div class="text-center py-5">

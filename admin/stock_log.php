@@ -12,6 +12,7 @@ $errors = [];
 $success = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrf_check()) { die('Invalid request'); }
     $product_id    = (int)($_POST['product_id'] ?? 0);
     $change_amount = (int)($_POST['change_amount'] ?? 0);
     $type          = $_POST['type'] ?? 'add';
@@ -108,6 +109,7 @@ $current_page = 'stock_log';
                             <?php endif; ?>
 
                             <form method="POST" action="stock_log.php">
+                                <?= csrf_field() ?>
 
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold small">Product <span class="text-danger">*</span></label>

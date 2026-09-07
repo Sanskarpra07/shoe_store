@@ -28,6 +28,7 @@ function frontend_navbar($active = '') {
                     <li class="nav-item"><a class="nav-link <?= $active === 'home' ? 'active' : '' ?>" href="index.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link <?= $active === 'shop' ? 'active' : '' ?>" href="shop.php">Shop</a></li>
                     <li class="nav-item"><a class="nav-link <?= $active === 'track' ? 'active' : '' ?>" href="track_order.php">Track Order</a></li>
+                    <li class="nav-item"><a class="nav-link <?= $active === 'contact' ? 'active' : '' ?>" href="contact.php">Contact</a></li>
                 </ul>
                 <ul class="navbar-nav align-items-lg-center">
                     <li class="nav-item">
@@ -46,6 +47,7 @@ function frontend_navbar($active = '') {
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="my_account.php"><i class="bi bi-person me-2"></i>My Account</a></li>
                                 <li><a class="dropdown-item" href="my_orders.php"><i class="bi bi-box-seam me-2"></i>My Orders</a></li>
+                                <li><a class="dropdown-item" href="wishlist.php"><i class="bi bi-heart me-2"></i>My Wishlist</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-left me-2"></i>Logout</a></li>
                             </ul>
@@ -84,6 +86,8 @@ function frontend_footer() {
                         <li class="mb-2"><a href="index.php" class="small"><i class="bi bi-chevron-right me-1" style="font-size:.7rem;"></i>Home</a></li>
                         <li class="mb-2"><a href="shop.php" class="small"><i class="bi bi-chevron-right me-1" style="font-size:.7rem;"></i>Shop All Shoes</a></li>
                         <li class="mb-2"><a href="track_order.php" class="small"><i class="bi bi-chevron-right me-1" style="font-size:.7rem;"></i>Track Order</a></li>
+                        <li class="mb-2"><a href="contact.php" class="small"><i class="bi bi-chevron-right me-1" style="font-size:.7rem;"></i>Contact Us</a></li>
+                        <li class="mb-2"><a href="about.php" class="small"><i class="bi bi-chevron-right me-1" style="font-size:.7rem;"></i>About Us</a></li>
                         <li class="mb-2"><a href="my_account.php" class="small"><i class="bi bi-chevron-right me-1" style="font-size:.7rem;"></i>My Account</a></li>
                     </ul>
                 </div>
