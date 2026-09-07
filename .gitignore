@@ -8,3 +8,27 @@ Thumbs.db
 # ---- Sensitive environment values ----
 .env
 .env.local
+
+# ---- WordPress core files ----
+wp-admin/
+wp-content/
+wp-includes/
+wp-activate.php
+wp-blog-header.php
+wp-comments-post.php
+wp-config-sample.php
+wp-config.php
+wp-cron.php
+wp-links-opml.php
+wp-load.php
+wp-login.php
+wp-mail.php
+wp-settings.php
+wp-signup.php
+wp-trackback.php
+xmlrpc.php
+
+# ---- Unwanted files ----
+license.txt
+readme.html
+setup.bat
