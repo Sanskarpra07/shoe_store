@@ -1,16 +1,20 @@
 <?php
 session_start();
-require_once 'db.php';
-require_once 'auth_helper.php';
+require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/../backend/auth_helper.php';
 
 if (is_customer_logged_in()) {
     header("Location: my_account.php");
     exit();
 }
 
-$errors = $_SESSION['login_error'] ?? [];
+$errors = $_SESSION['login_error'] ?? '';
 unset($_SESSION['login_error']);
-if (!is_array($errors)) $errors = [];
+if (!empty($errors) && !is_array($errors)) {
+    $errors = [$errors];
+} elseif (!is_array($errors)) {
+    $errors = [];
+}
 
 $success = $_SESSION['login_success'] ?? '';
 unset($_SESSION['login_success']);
@@ -23,7 +27,7 @@ unset($_SESSION['login_success']);
     <title>Customer Login - StepStyle</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
+    <link href="../assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
 
@@ -41,7 +45,15 @@ unset($_SESSION['login_success']);
                         <div class="alert alert-success py-2 small"><?= htmlspecialchars($success) ?></div>
                     <?php endif; ?>
                     <?php if (!empty($errors)): ?>
-                        <div class="alert alert-danger py-2 small"><?= htmlspecialchars($errors) ?></div>
+                        <div class="alert alert-danger py-2 small">
+                            <?php if (is_array($errors)): ?>
+                                <?php foreach ($errors as $e): ?>
+                                    <?= htmlspecialchars($e) ?>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <?= htmlspecialchars($errors) ?>
+                            <?php endif; ?>
+                        </div>
                     <?php endif; ?>
 
                     <form method="POST" action="process_customer_login.php">
