@@ -1,59 +1,58 @@
 <?php
-// eSewa success callback - verifies transaction and completes the order
+// eSewa ePay V2 success callback - verifies the signed response and confirms
+// the transaction via the status API before completing the order.
 session_start();
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/payment_config.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
-$ref_id = $_GET['refId'] ?? '';
-$oid    = $_GET['oid'] ?? '';
-$amt    = $_GET['amt'] ?? '';
-
-if (empty($ref_id) || empty($oid)) {
+$data = $_GET['data'] ?? '';
+if ($data === '') {
     die("Missing payment parameters.");
 }
 
-$order_id = (int)str_replace('order_', '', $oid);
+// eSewa sends the response as base64-encoded JSON in the "data" query param.
+// Normalize URL-safe variants and the "+" -> space side effect of GET decoding.
+$data = strtr($data, '-_', '+/');
+$data = str_replace(' ', '+', $data);
+$response = json_decode(base64_decode($data), true);
+if (!is_array($response) || empty($response['transaction_uuid'])) {
+    die("Invalid payment response.");
+}
 
-// Step 1: Find the order
-$ostmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE id = ?");
-mysqli_stmt_bind_param($ostmt, "i", $order_id);
-mysqli_stmt_execute($ostmt);
-$order = mysqli_fetch_assoc(mysqli_stmt_get_result($ostmt));
+// ---- Step 1: verify the HMAC-SHA256 signature on the response ----
+// eSewa signs every field listed in signed_field_names (excluding "signature").
+$signed_parts = [];
+foreach (explode(',', $response['signed_field_names'] ?? '') as $field) {
+    if ($field === 'signature' || !array_key_exists($field, $response)) {
+        continue;
+    }
+    $signed_parts[] = $field . '=' . $response[$field];
+}
+$expected = base64_encode(hash_hmac('sha256', implode(',', $signed_parts), ESEWA_SECRET_KEY, true));
+if (!hash_equals($expected, $response['signature'] ?? '')) {
+    die("Payment signature verification failed.");
+}
+
+// ---- Step 2: resolve the order from our transaction_uuid (ord-{id}-{nonce}) ----
+if (!preg_match('/^ord-(\d+)-/', (string)$response['transaction_uuid'], $m)) {
+    die("Unknown transaction reference.");
+}
+$order_id = (int)$m[1];
+
+$order = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM orders WHERE id = $order_id"));
 if (!$order) {
     die("Order not found.");
 }
 
-// Step 2: Verify the transaction with eSewa's verification API
-$post = [
-    'amt'  => $amt,
-    'rid'  => $ref_id,
-    'pid'  => $oid,
-    'scd'  => ESEWA_MERCHANT_CODE,
-];
-
-$ch = curl_init(ESEWA_SIGNATURE_URL);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
-$response = curl_exec($ch);
-curl_close($ch);
-
-// eSewa verification returns XML like "<response><response_code>Success</response_code>..."
-$verified = stripos($response, 'Success') !== false;
-
-if (!$verified) {
-    // Even if API fails, only accept if refId is present (sandbox fallback)
-    $verified = !empty($ref_id);
+// ---- Step 3: cross-check the paid amount matches the order total ----
+$paid = (float)($response['total_amount'] ?? 0);
+if (abs($paid - (float)$order['total_amount']) > 0.01) {
+    mysqli_query($conn, "UPDATE orders SET payment_status = 'failed' WHERE id = $order_id");
+    die("Payment amount mismatch detected. Please contact support.");
 }
 
-// Verify the paid amount matches the order total
-$paid_amt = (float)$amt;
-if (abs($paid_amt - (float)$order['total_amount']) > 0.01) {
-    $verified = false;
-}
-
-// Idempotency: skip if already completed
+// ---- Idempotency: skip if the order was already completed ----
 if ($order['payment_status'] === 'completed') {
     $_SESSION['cart'] = [];
     $_SESSION['order_success'] = "Payment already confirmed for Order #$order_id. Total: रु " . number_format($order['total_amount'], 2);
@@ -61,34 +60,46 @@ if ($order['payment_status'] === 'completed') {
     exit();
 }
 
-if ($verified) {
-    // Use transaction for atomic stock decrement
-    mysqli_begin_transaction($conn);
-    try {
-        $stmt = mysqli_prepare($conn,
-            "UPDATE orders SET payment_status = 'completed', transaction_id = ?, status = 'pending' WHERE id = ?");
-        mysqli_stmt_bind_param($stmt, "si", $ref_id, $order_id);
-        mysqli_stmt_execute($stmt);
+// ---- Step 4: confirm with the eSewa status API (defence in depth) ----
+$status_url = ESEWA_STATUS_URL . '?' . http_build_query([
+    'product_code'     => ESEWA_MERCHANT_CODE,
+    'total_amount'     => $response['total_amount'],
+    'transaction_uuid' => $response['transaction_uuid'],
+]);
+$ch = curl_init($status_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$status = json_decode(curl_exec($ch), true);
+curl_close($ch);
 
-        // Atomic stock decrement
-        $items = mysqli_query($conn, "SELECT product_id, quantity FROM order_items WHERE order_id = $order_id");
-        while ($it = mysqli_fetch_assoc($items)) {
-            $sstmt = mysqli_prepare($conn,
-                "UPDATE products SET stock = GREATEST(stock - ?, 0) WHERE id = ? AND stock >= ?");
-            mysqli_stmt_bind_param($sstmt, "iii", $it['quantity'], $it['product_id'], $it['quantity']);
-            mysqli_stmt_execute($sstmt);
-        }
-        mysqli_commit($conn);
-    } catch (Exception $e) {
-        mysqli_rollback($conn);
-    }
-
-    $_SESSION['cart'] = [];
-    $_SESSION['order_success'] = "Payment successful via eSewa! Order #$order_id confirmed. Total: रु " . number_format($order['total_amount'], 2);
-    header("Location: order_success.php");
-    exit();
-} else {
+$ref_id = $status['ref_id'] ?? '';
+if (($status['status'] ?? '') !== 'COMPLETE' || $ref_id === '') {
     mysqli_query($conn, "UPDATE orders SET payment_status = 'failed' WHERE id = $order_id");
-    header("Location: esewa_failure.php?oid=$oid");
+    $_SESSION['checkout_errors'] = ["eSewa payment could not be confirmed. Please try again or choose a different payment method."];
+    header("Location: cart.php");
     exit();
 }
+
+// ---- Step 5: complete the order and decrement stock atomically ----
+mysqli_begin_transaction($conn);
+try {
+    $stmt = mysqli_prepare($conn,
+        "UPDATE orders SET payment_status = 'completed', transaction_id = ?, status = 'pending' WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "si", $ref_id, $order_id);
+    mysqli_stmt_execute($stmt);
+
+    $items = mysqli_query($conn, "SELECT product_id, quantity FROM order_items WHERE order_id = $order_id");
+    while ($it = mysqli_fetch_assoc($items)) {
+        $sstmt = mysqli_prepare($conn,
+            "UPDATE products SET stock = GREATEST(stock - ?, 0) WHERE id = ? AND stock >= ?");
+        mysqli_stmt_bind_param($sstmt, "iii", $it['quantity'], $it['product_id'], $it['quantity']);
+        mysqli_stmt_execute($sstmt);
+    }
+    mysqli_commit($conn);
+} catch (Exception $e) {
+    mysqli_rollback($conn);
+}
+
+$_SESSION['cart'] = [];
+$_SESSION['order_success'] = "Payment successful via eSewa! Order #$order_id confirmed. Total: रु " . number_format($order['total_amount'], 2);
+header("Location: order_success.php");
+exit();
