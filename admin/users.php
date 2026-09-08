@@ -12,9 +12,6 @@ if ($_SESSION['role'] !== 'admin') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
     $id = (int)($_POST['user_id'] ?? 0);
 
-    $current_user = mysqli_fetch_assoc(
-        mysqli_prepare($conn, "SELECT id FROM users WHERE username = ?")
-    );
     $stmt = mysqli_prepare($conn, "SELECT id FROM users WHERE username = ?");
     mysqli_stmt_bind_param($stmt, "s", $_SESSION['username']);
     mysqli_stmt_execute($stmt);
