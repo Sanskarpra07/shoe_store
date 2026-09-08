@@ -4,8 +4,11 @@ $page_title = 'Products';
 $current_page = 'products';
 require_once 'includes/header.php';
 
-if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-    $id = (int)$_GET['id'];
+// Product deletion handled via POST form below
+
+// Product deletion via POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_product'])) {
+    $id = (int)$_POST['delete_id'];
     $stmt = mysqli_prepare($conn, "DELETE FROM products WHERE id = ?");
     mysqli_stmt_bind_param($stmt, "i", $id);
     mysqli_stmt_execute($stmt);
@@ -41,6 +44,9 @@ if (!empty($search)) {
 
 $success = $_SESSION['success'] ?? '';
 unset($_SESSION['success']);
+
+// Store row count before the while loop consumes the result
+$total_rows = mysqli_num_rows($result);
 ?>
 
 <div class="page-header">
@@ -59,7 +65,7 @@ unset($_SESSION['success']);
 </form>
 
 <?php if (!empty($search)): ?>
-    <p class="small text-muted" style="margin-bottom:10px;">Showing <?= mysqli_num_rows($result) ?> result(s) for
+    <p class="small text-muted" style="margin-bottom:10px;">Showing <?= $total_rows ?> result(s) for
         "<strong><?= htmlspecialchars($search) ?></strong>"</p>
 <?php endif; ?>
 
@@ -94,9 +100,9 @@ unset($_SESSION['success']);
         <td class="center"><?= htmlspecialchars($row['brand_name'] ?? 'N/A') ?></td>
         <td class="center"><?= htmlspecialchars($row['category_name'] ?? 'Uncategorized') ?></td>
         <td class="center">
-            <strong>$<?= number_format($row['price'], 2) ?></strong>
+            <strong>रु <?= number_format($row['price'], 2) ?></strong>
             <?php if ($row['discount_price']): ?>
-                <br><span class="text-success">$<?= number_format($row['discount_price'], 2) ?></span>
+                <br><span class="text-success">रु <?= number_format($row['discount_price'], 2) ?></span>
             <?php endif; ?>
         </td>
         <td class="center"><?= htmlspecialchars($row['size'] ?? '-') ?></td>
@@ -110,12 +116,15 @@ unset($_SESSION['success']);
         </td>
         <td class="center">
             <a class="btn btn-small" href="add_product.php?id=<?= $row['id'] ?>"><i class="bi bi-pencil"></i> Edit</a>
-            <a class="btn btn-red btn-small" href="products.php?action=delete&id=<?= $row['id'] ?>"
-               onclick="return confirm('Are you sure you want to delete this product?')"><i class="bi bi-trash"></i> Delete</a>
+            <form method="POST" action="products.php" style="display:inline;" data-confirm="Are you sure you want to delete this product?">
+                <input type="hidden" name="delete_product" value="1">
+                <input type="hidden" name="delete_id" value="<?= $row['id'] ?>">
+                <button type="submit" class="btn btn-red btn-small"><i class="bi bi-trash"></i> Delete</button>
+            </form>
         </td>
     </tr>
     <?php endwhile; ?>
-    <?php if (mysqli_num_rows($result) === 0): ?>
+    <?php if ($total_rows === 0): ?>
     <tr>
         <td colspan="10"><div class="empty-state"><i class="bi bi-inbox"></i>No products found. <a href="add_product.php">Add one?</a></div></td>
     </tr>
