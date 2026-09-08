@@ -46,6 +46,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     <meta property="og:url" content="<?= base_url('') ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="css/frontend.css" rel="stylesheet">
 </head>
 <body>
@@ -157,13 +158,13 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         <div class="row g-3">
             <?php while ($cat = mysqli_fetch_assoc($categories)): ?>
             <?php
-                $cat_icons = ['bi-basket', 'bi-bag', 'bi-trophy', 'bi-briefcase', 'bi-cone-striped'];
-                $icon = $cat_icons[$cat['id'] % 5];
+                $cat_icons = ['fa-solid fa-basket-shopping', 'fa-solid fa-bag-shopping', 'fa-solid fa-trophy', 'fa-solid fa-briefcase', 'fa-solid fa-boot'];
+                $icon = !empty($cat['icon']) ? $cat['icon'] : $cat_icons[$cat['id'] % 5];
             ?>
             <div class="col-6 col-md-4 col-lg-2">
                 <a href="shop.php?category=<?= urlencode($cat['name']) ?>" class="text-decoration-none">
                     <div class="card category-card text-center p-4 shadow-sm h-100">
-                        <i class="bi <?= $icon ?> fs-1 mb-2"></i>
+                        <i class="<?= $icon ?> fs-1 mb-2"></i>
                         <h6 class="fw-bold text-dark mb-1"><?= htmlspecialchars($cat['name']) ?></h6>
                         <small class="text-muted d-block"><?= htmlspecialchars(substr($cat['description'] ?? '', 0, 30)) ?></small>
                     </div>
@@ -227,13 +228,14 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         <h2 class="section-title">Our Brands</h2>
         <div class="row g-3">
             <?php
-            $brand_icons = ['bi-badge-tm', 'bi-award', 'bi-lightning-charge', 'bi-hexagon', 'bi-shield-check'];
+            $brand_icons = ['fa-solid fa-certificate', 'fa-solid fa-award', 'fa-solid fa-bolt', 'fa-solid fa-hexagon', 'fa-solid fa-shield-halved'];
             $brand_i = 0;
-            while ($br = mysqli_fetch_assoc($brands)): ?>
+            while ($br = mysqli_fetch_assoc($brands)):
+                $bicon = !empty($br['icon']) ? $br['icon'] : $brand_icons[$brand_i % 5]; ?>
             <div class="col-6 col-md-4 col-lg-2">
                 <a href="shop.php?brand=<?= urlencode($br['name']) ?>" class="text-decoration-none">
                     <div class="card category-card text-center p-4 shadow-sm h-100">
-                        <i class="bi <?= $brand_icons[$brand_i % 5] ?> fs-1 mb-2"></i>
+                        <i class="<?= $bicon ?> fs-1 mb-2"></i>
                         <h6 class="fw-bold text-dark mb-1"><?= htmlspecialchars($br['name']) ?></h6>
                         <small class="text-muted d-block"><?= htmlspecialchars(substr($br['description'] ?? '', 0, 35)) ?></small>
                     </div>
