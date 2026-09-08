@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db.php';
-require_once 'auth_helper.php';
+require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/../backend/auth_helper.php';
 
 // OTP verification is used both during registration and password reset.
 $email = $_SESSION['pending_otp_email'] ?? '';
@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
         }
 
         // Registration flow: log the customer in immediately
+        session_regenerate_id(true);
         $_SESSION['customer_id']    = $customer['id'];
         $_SESSION['customer_name']  = $customer['full_name'];
         $_SESSION['customer_email'] = $customer['email'];
@@ -81,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
     <title><?= $mode === 'reset' ? 'Verify OTP - Password Reset - StepStyle' : 'Verify OTP - StepStyle' ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
+    <link href="../assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
 
