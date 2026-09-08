@@ -65,13 +65,13 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     <meta name="description" content="Browse and filter our full collection of running, casual, sports, formal shoes and boots by category, brand, price and color.">
     <meta name="keywords" content="shoes, sneakers, running shoes, casual shoes, sports shoes, footwear">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="<?= base_url('frontend/shop.php') ?>">
+    <link rel="canonical" href="<?= base_url('shop.php') ?>">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Shop Shoes - StepStyle">
-    <meta property="og:url" content="<?= base_url('frontend/shop.php') ?>">
+    <meta property="og:url" content="<?= base_url('shop.php') ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="../assets/css/frontend.css" rel="stylesheet">
+    <link href="assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
 
@@ -134,7 +134,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         <div class="col-md-6 col-lg-3">
             <div class="card product-card shadow-sm">
                 <?php if (!empty($p['image'])): ?>
-                    <img src="../<?= htmlspecialchars($p['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($p['product_name']) ?>" loading="lazy">
+                    <img src="<?= htmlspecialchars($p['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($p['product_name']) ?>" loading="lazy">
                 <?php else: ?>
                     <div class="card-img-top img-placeholder"><i class="bi bi-basket text-muted" style="font-size:4rem;"></i></div>
                 <?php endif; ?>

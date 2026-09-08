@@ -22,8 +22,8 @@ if (!function_exists('base_url')) {
 define('ESEWA_MERCHANT_CODE', 'EPAYTEST');
 define('ESEWA_URL', 'https://uat.esewa.com.np/epay/main');
 define('ESEWA_SIGNATURE_URL', 'https://uat.esewa.com.np/epay/transrec');
-define('ESEWA_SUCCESS_URL', base_url('frontend/esewa_success.php'));
-define('ESEWA_FAILURE_URL', base_url('frontend/esewa_failure.php'));
+define('ESEWA_SUCCESS_URL', base_url('esewa_success.php'));
+define('ESEWA_FAILURE_URL', base_url('esewa_failure.php'));
 
 // ---------- Khalti Sandbox ----------
 define('KHALTI_SECRET_KEY', '0959556036f34cce88ef419e71d21f7d');
@@ -33,4 +33,4 @@ define('KHALTI_API_BASE', 'https://dev.khalti.com/api/v2');
 define('KHALTI_INITIATE_URL', KHALTI_API_BASE . '/epayment/initiate/');
 define('KHALTI_LOOKUP_URL', KHALTI_API_BASE . '/epayment/lookup/');
 define('KHALTI_REFUND_URL', 'https://dev.khalti.com/api/merchant-transaction/');
-define('KHALTI_CALLBACK_URL', base_url('frontend/khalti_callback.php'));
+define('KHALTI_CALLBACK_URL', base_url('khalti_callback.php'));

@@ -115,6 +115,6 @@ function frontend_footer() {
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="../assets/js/notify.js"></script>
+    <script src="assets/js/notify.js"></script>
     <?php
 }

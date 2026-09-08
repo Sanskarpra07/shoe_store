@@ -211,10 +211,11 @@ C:\xampp\mysql\bin\mysql.exe -u root < database\setup.sql
 
 | Page        | URL                                                    |
 |-------------|--------------------------------------------------------|
-| Storefront  | `http://localhost/shoe_store/frontend/index.php`       |
+| Storefront  | `http://localhost/shoe_store/`                         |
 | Admin panel | `http://localhost/shoe_store/admin/login.php`          |
 
-> Visiting `http://localhost/shoe_store/` redirects to the storefront.
+> The storefront is served from the project root; URLs never show the `frontend/`
+> folder (an `.htaccess` rewrite maps root pages to the `frontend/` directory).
 
 ### Step 5 — Configure payments (optional)
 Edit `backend/payment_config.php` to add your own eSewa / Khalti **sandbox** credentials.
@@ -232,7 +233,7 @@ from the current site URL.
 | Customer | `sita@example.com` | `customer123` |
 
 - **Admin / Staff login:** `/admin/login.php` (username + password).
-- **Customer login:** `/frontend/login.php` (email + password). For a **new** registration
+- **Customer login:** `/login.php` (email + password). For a **new** registration
   the 6-digit OTP is shown on the verification page (demo mode).
 
 ---
@@ -248,10 +249,10 @@ shoe_store/
 │   ├── css/           # frontend.css, admin.css, style.css
 │   ├── js/            # notify.js
 │   └── img/           # Product / slider images
-├── database/          # SQL schema and seed data (setup.sql, shoe_store.sql)
+├── database/          # SQL schema and seed data (setup.sql)
 ├── docs/              # Project documentation (proposal, SRS, system design)
-├── index.php          # Root redirect to frontend/index.php
-└── .htaccess          # Security headers + sensitive-file blocking
+├── index.php          # Root entry point rendering the storefront homepage
+└── .htaccess          # Security headers + storefront URL rewriting
 ```
 
 ## 10. Testing

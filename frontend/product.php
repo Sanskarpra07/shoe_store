@@ -117,7 +117,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     <meta property="og:description" content="<?= htmlspecialchars(mb_substr(strip_tags($row['description'] ?? ''), 0, 150)) ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="../assets/css/frontend.css" rel="stylesheet">
+    <link href="assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
 
@@ -137,7 +137,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         <div class="col-md-5">
             <div class="product-image-container shadow-sm">
                 <?php if (!empty($row['image'])): ?>
-                    <img src="../<?= htmlspecialchars($row['image']) ?>" class="img-fluid" alt="<?= htmlspecialchars($row['product_name']) ?>">
+                    <img src="<?= htmlspecialchars($row['image']) ?>" class="img-fluid" alt="<?= htmlspecialchars($row['product_name']) ?>">
                 <?php else: ?>
                     <div class="placeholder"><i class="bi bi-basket text-muted" style="font-size: 8rem;"></i></div>
                 <?php endif; ?>
@@ -229,7 +229,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
             <div class="col-md-3">
                 <div class="card product-card shadow-sm border-primary">
                     <?php if (!empty($u['image'])): ?>
-                        <img src="../<?= htmlspecialchars($u['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($u['product_name']) ?>" loading="lazy">
+                        <img src="<?= htmlspecialchars($u['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($u['product_name']) ?>" loading="lazy">
                     <?php else: ?>
                         <div class="card-img-top img-placeholder"><i class="bi bi-basket text-muted" style="font-size:3rem;"></i></div>
                     <?php endif; ?>
@@ -255,7 +255,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
             <div class="col-md-3">
                 <div class="card product-card shadow-sm">
                     <?php if (!empty($r['image'])): ?>
-                        <img src="../<?= htmlspecialchars($r['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($r['product_name']) ?>" loading="lazy">
+                        <img src="<?= htmlspecialchars($r['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($r['product_name']) ?>" loading="lazy">
                     <?php else: ?>
                         <div class="card-img-top img-placeholder"><i class="bi bi-basket text-muted" style="font-size:3rem;"></i></div>
                     <?php endif; ?>

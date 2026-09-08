@@ -51,8 +51,8 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
         <div class="side-user">
             Logged in as <strong><?= htmlspecialchars($_SESSION['username']) ?></strong><br>
             <span class="user-actions">
-                <a href="../frontend/index.php"><i class="bi bi-store"></i> Store</a>
-                <a href="../frontend/logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                <a href="../index.php"><i class="bi bi-store"></i> Store</a>
+                <a href="../logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
             </span>
         </div>
     </div>

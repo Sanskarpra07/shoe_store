@@ -47,7 +47,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link href="../assets/css/frontend.css" rel="stylesheet">
+    <link href="assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
 
@@ -122,7 +122,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
             <div class="col-md-6 col-lg-3">
                 <div class="card product-card shadow-sm">
                     <?php if (!empty($p['image'])): ?>
-                        <img src="../<?= htmlspecialchars($p['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($p['product_name']) ?>" loading="lazy">
+                        <img src="<?= htmlspecialchars($p['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($p['product_name']) ?>" loading="lazy">
                     <?php else: ?>
                         <div class="card-img-top img-placeholder"><i class="bi bi-basket text-muted" style="font-size:4rem;"></i></div>
                     <?php endif; ?>
@@ -187,7 +187,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
             <div class="col-md-6 col-lg-3">
                 <div class="card product-card shadow-sm">
                     <?php if (!empty($p['image'])): ?>
-                        <img src="../<?= htmlspecialchars($p['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($p['product_name']) ?>" loading="lazy">
+                        <img src="<?= htmlspecialchars($p['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($p['product_name']) ?>" loading="lazy">
                     <?php else: ?>
                         <div class="card-img-top img-placeholder"><i class="bi bi-basket text-muted" style="font-size:4rem;"></i></div>
                     <?php endif; ?>

@@ -12,3 +12,19 @@ Options -Indexes
 <FilesMatch "\.(sql|log|ini|bak|git)$">
     Require all denied
 </FilesMatch>
+
+# ---- Storefront URL rewriting ----
+# Serve the customer storefront from the project root so URLs never show the
+# frontend/ directory. Pages still live under frontend/ on disk.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /shoe_store/
+
+    # Canonicalize legacy /frontend/*.php links to the root-level URL (301)
+    RewriteCond %{ENV:REDIRECT_STATUS} !200
+    RewriteRule ^frontend/([A-Za-z0-9_]+\.php)$ /shoe_store/$1 [R=301,L]
+
+    # Internally map root-level storefront pages into the frontend/ directory
+    RewriteCond %{ENV:REDIRECT_STATUS} !200
+    RewriteRule ^([A-Za-z0-9_]+\.php)$ frontend/$1 [L]
+</IfModule>

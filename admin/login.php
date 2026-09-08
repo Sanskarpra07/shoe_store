@@ -44,7 +44,7 @@ unset($_SESSION['error_message'], $_SESSION['success_message']);
             </div>
             <button type="submit" class="btn">Login</button>
         </form>
-        <p class="link-row"><a href="../frontend/index.php"><i class="bi bi-arrow-left"></i> Back to Store</a></p>
+        <p class="link-row"><a href="../index.php"><i class="bi bi-arrow-left"></i> Back to Store</a></p>
     </div>
 </div>
 <script>

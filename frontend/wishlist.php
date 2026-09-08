@@ -73,7 +73,7 @@ $wishlist = mysqli_stmt_get_result($stmt);
     <title>My Wishlist - StepStyle</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="../assets/css/frontend.css" rel="stylesheet">
+    <link href="assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
 
@@ -120,7 +120,7 @@ $wishlist = mysqli_stmt_get_result($stmt);
                                 <div class="d-flex align-items-center">
                                     <div class="cart-item-thumb me-3">
                                         <?php if (!empty($item['image'])): ?>
-                                            <img src="../<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>">
+                                            <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>">
                                         <?php else: ?>
                                             <div class="placeholder"><i class="bi bi-basket text-muted"></i></div>
                                         <?php endif; ?>
