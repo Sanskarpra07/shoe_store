@@ -108,14 +108,14 @@ if ($export === 'csv') {
     <div class="stat-card">
         <div class="stat-icon icon-green"><i class="bi bi-currency-dollar"></i></div>
         <div>
-            <div class="stat-value">$<?= number_format($range_revenue, 2) ?></div>
+            <div class="stat-value">रु <?= number_format($range_revenue, 2) ?></div>
             <div class="stat-label">Revenue (Completed)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon icon-warning"><i class="bi bi-hourglass"></i></div>
         <div>
-            <div class="stat-value">$<?= number_format($range_pending_pay, 2) ?></div>
+            <div class="stat-value">रु <?= number_format($range_pending_pay, 2) ?></div>
             <div class="stat-label">Pending Payments</div>
         </div>
     </div>
@@ -129,7 +129,7 @@ if ($export === 'csv') {
     <div class="stat-card">
         <div class="stat-icon icon-sky"><i class="bi bi-graph-up-arrow"></i></div>
         <div>
-            <div class="stat-value">$<?= number_format($avg_order_value, 2) ?></div>
+            <div class="stat-value">रु <?= number_format($avg_order_value, 2) ?></div>
             <div class="stat-label">Avg Order Value</div>
         </div>
     </div>
@@ -167,7 +167,7 @@ if ($export === 'csv') {
     <tr>
         <td><strong><?= htmlspecialchars($p['payment_method']) ?></strong></td>
         <td class="center"><?= $p['c'] ?></td>
-        <td class="center">$<?= number_format($p['rev'], 2) ?></td>
+        <td class="center">रु <?= number_format($p['rev'], 2) ?></td>
     </tr>
     <?php endwhile; ?>
 </table>
@@ -187,7 +187,7 @@ if ($export === 'csv') {
         <td class="center"><?= $i++ ?></td>
         <td><strong><?= htmlspecialchars($r['product_name']) ?></strong></td>
         <td class="center"><span class="badge badge-primary"><?= $r['qty_sold'] ?></span></td>
-        <td class="center">$<?= number_format($r['revenue'], 2) ?></td>
+        <td class="center">रु <?= number_format($r['revenue'], 2) ?></td>
     </tr>
     <?php endwhile; ?>
     <?php if (mysqli_num_rows($top_products) === 0): ?>
