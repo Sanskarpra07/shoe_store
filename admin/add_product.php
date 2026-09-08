@@ -212,12 +212,12 @@ $brands_result = mysqli_query($conn, "SELECT id, name FROM brands ORDER BY name 
         </div>
 
         <div class="form-group">
-            <label>Price ($) *</label>
+            <label>Price (रु) *</label>
             <input type="number" name="price" step="0.01" min="0" required value="<?= htmlspecialchars($product['price']) ?>" placeholder="0.00">
         </div>
 
         <div class="form-group">
-            <label>Discount Price ($) (leave empty if none)</label>
+            <label>Discount Price (रु) (leave empty if none)</label>
             <input type="number" name="discount_price" step="0.01" min="0" value="<?= htmlspecialchars($product['discount_price']) ?>">
         </div>
 
