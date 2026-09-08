@@ -9,14 +9,18 @@ if ($_SESSION['role'] !== 'admin') {
     exit();
 }
 
-if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-    $id = (int)$_GET['id'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
+    $id = (int)($_POST['user_id'] ?? 0);
 
     $current_user = mysqli_fetch_assoc(
-        mysqli_query($conn, "SELECT id FROM users WHERE username = '" . mysqli_real_escape_string($conn, $_SESSION['username']) . "'")
+        mysqli_prepare($conn, "SELECT id FROM users WHERE username = ?")
     );
+    $stmt = mysqli_prepare($conn, "SELECT id FROM users WHERE username = ?");
+    mysqli_stmt_bind_param($stmt, "s", $_SESSION['username']);
+    mysqli_stmt_execute($stmt);
+    $current_user = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
-    if ($id == (int)$current_user['id']) {
+    if ($id === (int)$current_user['id']) {
         $_SESSION['error'] = "You cannot delete your own account.";
     } else {
         $stmt = mysqli_prepare($conn, "DELETE FROM users WHERE id = ?");
@@ -92,8 +96,11 @@ unset($_SESSION['success'], $_SESSION['error']);
             <?php if ($is_me): ?>
                 <span class="small text-muted">Cannot delete own account</span>
             <?php else: ?>
-                <a class="btn btn-red btn-small" href="users.php?action=delete&id=<?= $row['id'] ?>"
-                   onclick="return confirm('Delete user: <?= htmlspecialchars($row['username']) ?>?')"><i class="bi bi-trash"></i> Delete</a>
+                <form method="POST" action="users.php" style="display:inline;" data-confirm="Delete user: <?= htmlspecialchars($row['username']) ?>?">
+                    <input type="hidden" name="delete_user" value="1">
+                    <input type="hidden" name="user_id" value="<?= $row['id'] ?>">
+                    <button type="submit" class="btn btn-red btn-small"><i class="bi bi-trash"></i> Delete</button>
+                </form>
             <?php endif; ?>
         </td>
     </tr>
