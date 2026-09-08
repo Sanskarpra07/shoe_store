@@ -33,6 +33,7 @@ DROP TABLE IF EXISTS `brands`;
 CREATE TABLE `brands` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
+  `icon` varchar(50) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
@@ -46,7 +47,7 @@ CREATE TABLE `brands` (
 
 LOCK TABLES `brands` WRITE;
 /*!40000 ALTER TABLE `brands` DISABLE KEYS */;
-INSERT INTO `brands` VALUES (1,'Nike','Global leader in athletic footwear and apparel','2026-09-04 16:16:17'),(2,'Adidas','German multinational corporation designing shoes','2026-09-04 16:16:17'),(3,'Puma','German multinational designing athletic and casual footwear','2026-09-04 16:16:17'),(4,'Reebok','British footwear and clothing company','2026-09-04 16:16:17'),(5,'New Balance','American sports footwear manufacturer','2026-09-04 16:16:17');
+INSERT INTO `brands` VALUES (1,'Nike','fa-solid fa-bolt','Global leader in athletic footwear and apparel','2026-09-04 16:16:17'),(2,'Adidas','fa-solid fa-bars-staggered','German multinational corporation designing shoes','2026-09-04 16:16:17'),(3,'Puma','fa-solid fa-award','German multinational designing athletic and casual footwear','2026-09-04 16:16:17'),(4,'Reebok','fa-solid fa-hexagon','British footwear and clothing company','2026-09-04 16:16:17'),(5,'New Balance','fa-solid fa-shield-halved','American sports footwear manufacturer','2026-09-04 16:16:17');
 /*!40000 ALTER TABLE `brands` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -60,6 +61,7 @@ DROP TABLE IF EXISTS `categories`;
 CREATE TABLE `categories` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
+  `icon` varchar(50) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
@@ -73,7 +75,7 @@ CREATE TABLE `categories` (
 
 LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-INSERT INTO `categories` VALUES (1,'Running','Running and jogging shoes','2026-09-04 16:16:17'),(2,'Casual','Everyday casual footwear','2026-09-04 16:16:17'),(3,'Sports','Athletic and sports shoes','2026-09-04 16:16:17'),(4,'Formal','Formal and dress shoes','2026-09-04 16:16:17'),(5,'Boots','Boots and heavy-duty footwear','2026-09-04 16:16:17');
+INSERT INTO `categories` VALUES (1,'Running','fa-solid fa-person-running','Running and jogging shoes','2026-09-04 16:16:17'),(2,'Casual','fa-solid fa-bag-shopping','Everyday casual footwear','2026-09-04 16:16:17'),(3,'Sports','fa-solid fa-trophy','Athletic and sports shoes','2026-09-04 16:16:17'),(4,'Formal','fa-solid fa-briefcase','Formal and dress shoes','2026-09-04 16:16:17'),(5,'Boots','fa-solid fa-boot','Boots and heavy-duty footwear','2026-09-04 16:16:17');
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
