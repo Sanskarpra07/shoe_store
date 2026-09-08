@@ -122,19 +122,29 @@ if ($payment === 'cod') {
 // Save the order id so payment callbacks can update this order
 $_SESSION['order_id_on_payment'] = $order_id;
 
-// ---------- eSewa ----------
+// ---------- eSewa (ePay V2) ----------
 if ($payment === 'esewa') {
-    $e_total = number_format($total, 2, '.', '');
+    $esewa_total = number_format($total, 2, '.', '');
+    $esewa_uuid  = 'ord-' . $order_id . '-' . bin2hex(random_bytes(4));
+
+    // Signature message (field order fixed by eSewa): amount, uuid, code
+    $esewa_message = 'total_amount=' . $esewa_total
+                   . ',transaction_uuid=' . $esewa_uuid
+                   . ',product_code=' . ESEWA_MERCHANT_CODE;
+    $esewa_signature = base64_encode(hash_hmac('sha256', $esewa_message, ESEWA_SECRET_KEY, true));
+
     $fields = [
-        'amt'        => $e_total,
-        'pdc'        => '0',
-        'psc'        => '0',
-        'txAmt'      => '0',
-        'tAmt'       => $e_total,
-        'pid'        => "order_$order_id",
-        'scd'        => ESEWA_MERCHANT_CODE,
-        'su'         => ESEWA_SUCCESS_URL,
-        'fu'         => ESEWA_FAILURE_URL,
+        'amount'                  => $esewa_total,
+        'tax_amount'              => '0',
+        'total_amount'            => $esewa_total,
+        'transaction_uuid'        => $esewa_uuid,
+        'product_code'            => ESEWA_MERCHANT_CODE,
+        'product_service_charge'  => '0',
+        'product_delivery_charge' => '0',
+        'success_url'             => ESEWA_SUCCESS_URL,
+        'failure_url'             => ESEWA_FAILURE_URL . '?oid=' . $order_id,
+        'signed_field_names'      => 'total_amount,transaction_uuid,product_code',
+        'signature'               => $esewa_signature,
     ];
     ?>
     <!DOCTYPE html>
