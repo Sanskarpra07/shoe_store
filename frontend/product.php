@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db.php';
-require_once 'auth_helper.php';
+require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/../backend/auth_helper.php';
 
 $id = (int)($_GET['id'] ?? 0);
 if ($id === 0) {
@@ -117,7 +117,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     <meta property="og:description" content="<?= htmlspecialchars(mb_substr(strip_tags($row['description'] ?? ''), 0, 150)) ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
+    <link href="../assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
 
@@ -137,7 +137,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         <div class="col-md-5">
             <div class="product-image-container shadow-sm">
                 <?php if (!empty($row['image'])): ?>
-                    <img src="<?= htmlspecialchars($row['image']) ?>" class="img-fluid" alt="<?= htmlspecialchars($row['product_name']) ?>">
+                    <img src="../<?= htmlspecialchars($row['image']) ?>" class="img-fluid" alt="<?= htmlspecialchars($row['product_name']) ?>">
                 <?php else: ?>
                     <div class="placeholder"><i class="bi bi-basket text-muted" style="font-size: 8rem;"></i></div>
                 <?php endif; ?>
@@ -158,15 +158,15 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 
             <div class="mb-3">
                 <?php if ($row['discount_price']): ?>
-                    <span class="detail-price">$<?= number_format($row['discount_price'], 2) ?></span>
-                    <span class="old-price ms-2 fs-5">$<?= number_format($row['price'], 2) ?></span>
+                    <span class="detail-price">रु <?= number_format($row['discount_price'], 2) ?></span>
+                    <span class="old-price ms-2 fs-5">रु <?= number_format($row['price'], 2) ?></span>
                     <?php
                     $savings = $row['price'] - $row['discount_price'];
                     $percent = round(($savings / $row['price']) * 100);
                     ?>
                     <span class="badge bg-danger ms-2">Save <?= $percent ?>%</span>
                 <?php else: ?>
-                    <span class="detail-price">$<?= number_format($row['price'], 2) ?></span>
+                    <span class="detail-price">रु <?= number_format($row['price'], 2) ?></span>
                 <?php endif; ?>
             </div>
 
@@ -229,14 +229,14 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
             <div class="col-md-3">
                 <div class="card product-card shadow-sm border-primary">
                     <?php if (!empty($u['image'])): ?>
-                        <img src="<?= htmlspecialchars($u['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($u['product_name']) ?>" loading="lazy">
+                        <img src="../<?= htmlspecialchars($u['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($u['product_name']) ?>" loading="lazy">
                     <?php else: ?>
                         <div class="card-img-top img-placeholder"><i class="bi bi-basket text-muted" style="font-size:3rem;"></i></div>
                     <?php endif; ?>
                     <div class="card-body d-flex flex-column">
                         <span class="badge text-bg-primary mb-2 align-self-start"><?= htmlspecialchars($u['brand_name'] ?? '') ?></span>
                         <h6 class="card-title fw-bold"><?= htmlspecialchars($u['product_name']) ?></h6>
-                        <span class="price text-primary fw-bold">$<?= number_format($u['discount_price'] ?: $u['price'], 2) ?></span>
+                        <span class="price text-primary fw-bold">रु <?= number_format($u['discount_price'] ?: $u['price'], 2) ?></span>
                         <a href="product.php?id=<?= $u['id'] ?>" class="btn btn-outline-primary btn-sm w-100 mt-auto add-to-cart">View Upgrade</a>
                     </div>
                 </div>
@@ -255,14 +255,14 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
             <div class="col-md-3">
                 <div class="card product-card shadow-sm">
                     <?php if (!empty($r['image'])): ?>
-                        <img src="<?= htmlspecialchars($r['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($r['product_name']) ?>" loading="lazy">
+                        <img src="../<?= htmlspecialchars($r['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($r['product_name']) ?>" loading="lazy">
                     <?php else: ?>
                         <div class="card-img-top img-placeholder"><i class="bi bi-basket text-muted" style="font-size:3rem;"></i></div>
                     <?php endif; ?>
                     <div class="card-body d-flex flex-column">
                         <span class="badge badge-brand mb-2 align-self-start"><?= htmlspecialchars($r['brand_name'] ?? '') ?></span>
                         <h6 class="card-title fw-bold"><?= htmlspecialchars($r['product_name']) ?></h6>
-                        <span class="price">$<?= number_format($r['discount_price'] ?: $r['price'], 2) ?></span>
+                        <span class="price">रु <?= number_format($r['discount_price'] ?: $r['price'], 2) ?></span>
                         <a href="product.php?id=<?= $r['id'] ?>" class="btn btn-accent btn-sm w-100 mt-auto add-to-cart">View</a>
                     </div>
                 </div>
