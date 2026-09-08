@@ -2,7 +2,7 @@
 session_start();
 $page_title = 'Sales Reports';
 $current_page = 'reports';
-require_once 'includes/header.php';
+require_once __DIR__ . '/../backend/db.php';
 
 // Date range filter
 $from = $_GET['from'] ?? date('Y-m-01');
@@ -45,7 +45,7 @@ $payment_data = mysqli_stmt_get_result($stmt);
 
 // Top selling products
 $stmt = mysqli_prepare($conn,
-    "SELECT p.product_name, SUM(oi.quantity) AS qty_sold, SUM(oi.price) AS revenue
+    "SELECT p.product_name, SUM(oi.quantity) AS qty_sold, SUM(oi.quantity * oi.price) AS revenue
      FROM order_items oi
      JOIN orders o ON oi.order_id = o.id
      JOIN products p ON oi.product_id = p.id
@@ -71,7 +71,7 @@ if ($export === 'csv') {
     fputcsv($out, []);
     fputcsv($out, ['Product', 'Qty Sold', 'Revenue']);
     $stmt = mysqli_prepare($conn,
-        "SELECT p.product_name, SUM(oi.quantity) AS qty_sold, SUM(oi.price) AS revenue
+        "SELECT p.product_name, SUM(oi.quantity) AS qty_sold, SUM(oi.quantity * oi.price) AS revenue
          FROM order_items oi JOIN orders o ON oi.order_id = o.id JOIN products p ON oi.product_id = p.id
          WHERE o.created_at BETWEEN ? AND ?
          GROUP BY oi.product_id, p.product_name ORDER BY qty_sold DESC");
@@ -85,6 +85,8 @@ if ($export === 'csv') {
     exit();
 }
 ?>
+
+<?php require_once 'includes/header.php'; ?>
 
 <div class="page-header">
     <div>
