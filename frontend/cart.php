@@ -63,7 +63,8 @@ $cart_count = array_sum($cart);
 
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="index.php"><i class="bi bi-bag-heart me-2"></i>StepStyle</a>
+        <a class="navbar-brand d-flex align-items-center" href="index.php">
+            <img src="assets/img/megafoot.jpg" alt="MegaFoot" class="navbar-logo"></a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
