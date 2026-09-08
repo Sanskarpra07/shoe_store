@@ -136,9 +136,10 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
 );
 
--- Sample Customer (password: customer123)
-INSERT INTO customers (full_name, email, phone, password_eg, is_verified, address) VALUES
-    ('Sita Sharma', 'sita@example.com', '9841000000', '$2y$10$fiAOWiQVUfx9LOjnQqyyIu1OVb03fwyNMUCKX8Qq3y8r5hvd9UDc6', 1, 'Baneshwor, Kathmandu');
+-- Sample Customers (password: customer123)
+INSERT INTO customers (id, full_name, email, phone, password_eg, is_verified, address, created_at) VALUES
+    (11, 'Sita Sharma', 'sita@example.com', '9841000000', '$2y$10$fiAOWiQVUfx9LOjnQqyyIu1OVb03fwyNMUCKX8Qq3y8r5hvd9UDc6', 1, 'Baneshwor, Kathmandu', '2026-09-04 18:26:48'),
+    (15, 'Sanskar Pradhan', 'pradhansanskar07@gmail.com', '9745967580', '$2y$10$QjmicbKw5D3g8sZD/K6UVezKVRAbW1tZTMy/yGm9AQbimhbZMZ21u', 1, NULL, '2026-09-07 13:50:57');
 
 -- Sample Users (password: password)
 INSERT INTO users (username, password_eg, role) VALUES
@@ -169,9 +170,9 @@ INSERT INTO delivery_slots (slot_name, slot_time, is_active) VALUES
 
 -- Sample Products
 INSERT INTO products (product_name, description, price, discount_price, stock, size, color, image, category_id, brand_id) VALUES
-    ('Nike Air Max 270', 'Comfortable running shoes with Air Max technology', 9.99, 7.99, 45, '8-12', 'Black', 'assets/img/nike_air_max_270.jpg', 1, 1),
-    ('Adidas Ultraboost 22', 'Premium running shoes with Boost cushioning', 10.00, NULL, 30, '7-11', 'White', 'assets/img/adidas_ultraboost.jpg', 1, 2),
-    ('Puma RS-X', 'Retro-inspired casual sneakers', 7.99, 5.99, 60, '8-12', 'Blue', 'assets/img/puma_rsx.jpg', 2, 3),
+    ('Nike Air Max 270', 'Comfortable running shoes with Air Max technology', 9.99, 7.99, 42, '8-12', 'Black', 'assets/img/nike_air_max_270.jpg', 1, 1),
+    ('Adidas Ultraboost 22', 'Premium running shoes with Boost cushioning', 10.00, NULL, 29, '7-11', 'White', 'assets/img/adidas_ultraboost.jpg', 1, 2),
+    ('Puma RS-X', 'Retro-inspired casual sneakers', 7.99, 5.99, 45, '8-12', 'Blue', 'assets/img/puma_rsx.jpg', 2, 3),
     ('Nike Dunk Low', 'Classic casual lifestyle sneakers', 8.50, NULL, 25, '6-10', 'Red', 'assets/img/nike_dunk_low.jpg', 2, 1),
     ('Adidas Stan Smith', 'Iconic casual leather sneakers', 6.99, 5.99, 55, '7-12', 'Green', 'assets/img/adidas_stan_smith.jpg', 2, 2),
     ('Reebok Nano X', 'Cross-training sports shoes', 8.99, NULL, 20, '8-12', 'Black', 'assets/img/reebok_nano_x.jpg', 3, 4),
@@ -181,3 +182,18 @@ INSERT INTO products (product_name, description, price, discount_price, stock, s
     ('Adidas Terrex', 'Outdoor trail boots', 9.50, NULL, 18, '8-13', 'Brown', 'assets/img/adidas_terrex.jpg', 5, 2),
     ('Nike Air Force 1', 'Timeless casual basketball sneakers', 8.00, NULL, 80, '6-13', 'White', 'assets/img/nike_air_force_1.jpg', 2, 1),
     ('Reebok Club C', 'Clean casual retro sneakers', 4.99, 3.99, 35, '7-12', 'Cream', 'assets/img/reebok_club_c.jpg', 2, 4);
+
+-- Sample Orders
+INSERT INTO orders (id, customer_id, customer_name, customer_email, customer_phone, customer_address, total_amount, payment_method, payment_status, status, delivery_slot, created_at) VALUES
+    (1, NULL, 'John Doe', 'john@test.com', '9841234567', 'Kathmandu Nepal', 269.97, 'cod', 'pending', 'pending', NULL, '2026-09-04 16:37:25'),
+    (14, 15, 'Sanskar Pradhan', 'pradhansanskar07@gmail.com', '9745967580', 'Mangal Bazzar', 99.99, 'cod', 'completed', 'pending', '', '2026-09-07 14:12:05');
+
+-- Sample Order Items
+INSERT INTO order_items (id, order_id, product_id, quantity, price) VALUES
+    (1, 1, 1, 2, 199.98),
+    (2, 1, 3, 1, 69.99),
+    (15, 14, 1, 1, 99.99);
+
+-- Sample Wishlists
+INSERT INTO wishlists (id, customer_id, product_id) VALUES
+    (1, 11, 5);
