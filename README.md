@@ -129,7 +129,7 @@ inventory and orders.
 - **Reviews** — approve / reject / delete customer reviews.
 - **Stock Log** — add or remove stock and keep a history of every adjustment.
 - **Users** — admin can create admin/staff users and view registered customers.
-- **Admin UI** — a custom modern theme (`css/admin.css`) with a dark navy + orange design, icon-based sidebar navigation and stat cards; all success / error / info flash messages auto-dismiss after 4 seconds via `js/notify.js` (applied on both admin pages and the storefront).
+- **Admin UI** — a custom modern theme (`assets/css/admin.css`) with a dark navy + orange design, icon-based sidebar navigation and stat cards; all success / error / info flash messages auto-dismiss after 4 seconds via `assets/js/notify.js` (applied on both admin pages and the storefront).
 
 ### 4.10 Security
 - Passwords are **hashed** (`password_hash` / `password_verify`).
@@ -200,10 +200,10 @@ Log in to **phpMyAdmin** → create a database named `shoe_store_db`
 **Option B — Run the setup script (command line):**
 ```bash
 # Windows
-C:\xampp\mysql\bin\mysql.exe -u root < sql\setup.sql
+C:\xampp\mysql\bin\mysql.exe -u root < database\setup.sql
 
 # Linux / macOS
-/opt/lampp/bin/mysql -u root < sql/setup.sql
+/opt/lampp/bin/mysql -u root < database/setup.sql
 ```
 > Add `-p` and type the root password if your MySQL root user has one.
 
@@ -211,11 +211,13 @@ C:\xampp\mysql\bin\mysql.exe -u root < sql\setup.sql
 
 | Page        | URL                                                    |
 |-------------|--------------------------------------------------------|
-| Storefront  | `http://localhost/shoe_store/index.php`                |
+| Storefront  | `http://localhost/shoe_store/frontend/index.php`       |
 | Admin panel | `http://localhost/shoe_store/admin/login.php`          |
 
+> Visiting `http://localhost/shoe_store/` redirects to the storefront.
+
 ### Step 5 — Configure payments (optional)
-Edit `payment_config.php` to add your own eSewa / Khalti **sandbox** credentials.
+Edit `backend/payment_config.php` to add your own eSewa / Khalti **sandbox** credentials.
 Callback URLs (eSewa success/failure, Khalti callback) are generated automatically
 from the current site URL.
 
@@ -230,10 +232,27 @@ from the current site URL.
 | Customer | `sita@example.com` | `customer123` |
 
 - **Admin / Staff login:** `/admin/login.php` (username + password).
-- **Customer login:** `/login.php` (email + password). For a **new** registration
+- **Customer login:** `/frontend/login.php` (email + password). For a **new** registration
   the 6-digit OTP is shown on the verification page (demo mode).
 
 ---
+
+## 10. Project Structure
+
+```
+shoe_store/
+├── frontend/          # Customer-facing storefront pages (shop, cart, checkout, auth, callbacks)
+├── backend/           # Shared back-end / config code (db, db_config, auth_helper, payment_config)
+├── admin/             # Admin panel (dashboard, products, orders, reports, users, ...)
+├── assets/
+│   ├── css/           # frontend.css, admin.css, style.css
+│   ├── js/            # notify.js
+│   └── img/           # Product / slider images
+├── database/          # SQL schema and seed data (setup.sql, shoe_store.sql)
+├── docs/              # Project documentation (proposal, SRS, system design)
+├── index.php          # Root redirect to frontend/index.php
+└── .htaccess          # Security headers + sensitive-file blocking
+```
 
 ## 10. Testing
 
