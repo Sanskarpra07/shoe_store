@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS categories (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
+    icon VARCHAR(50) DEFAULT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -24,6 +25,7 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS brands (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
+    icon VARCHAR(50) DEFAULT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -144,20 +146,20 @@ INSERT INTO users (username, password_eg, role) VALUES
     ('staff1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'staff');
 
 -- Sample Categories
-INSERT INTO categories (name, description) VALUES
-    ('Running', 'Running and jogging shoes'),
-    ('Casual', 'Everyday casual footwear'),
-    ('Sports', 'Athletic and sports shoes'),
-    ('Formal', 'Formal and dress shoes'),
-    ('Boots', 'Boots and heavy-duty footwear');
+INSERT INTO categories (name, icon, description) VALUES
+    ('Running', 'fa-solid fa-person-running', 'Running and jogging shoes'),
+    ('Casual', 'fa-solid fa-bag-shopping', 'Everyday casual footwear'),
+    ('Sports', 'fa-solid fa-trophy', 'Athletic and sports shoes'),
+    ('Formal', 'fa-solid fa-briefcase', 'Formal and dress shoes'),
+    ('Boots', 'fa-solid fa-boot', 'Boots and heavy-duty footwear');
 
 -- Sample Brands
-INSERT INTO brands (name, description) VALUES
-    ('Nike', 'Global leader in athletic footwear and apparel'),
-    ('Adidas', 'German multinational corporation designing shoes'),
-    ('Puma', 'German multinational designing athletic and casual footwear'),
-    ('Reebok', 'British footwear and clothing company'),
-    ('New Balance', 'American sports footwear manufacturer');
+INSERT INTO brands (name, icon, description) VALUES
+    ('Nike', 'fa-solid fa-bolt', 'Global leader in athletic footwear and apparel'),
+    ('Adidas', 'fa-solid fa-bars-staggered', 'German multinational corporation designing shoes'),
+    ('Puma', 'fa-solid fa-award', 'German multinational designing athletic and casual footwear'),
+    ('Reebok', 'fa-solid fa-hexagon', 'British footwear and clothing company'),
+    ('New Balance', 'fa-solid fa-shield-halved', 'American sports footwear manufacturer');
 
 -- Sample Delivery Slots
 INSERT INTO delivery_slots (slot_name, slot_time, is_active) VALUES
