@@ -112,6 +112,7 @@ function frontend_footer() {
             </div>
         </div>
     </footer>
+    <script src="js/notify.js"></script>
     <?php
 }
 
