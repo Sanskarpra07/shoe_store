@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db.php';
-require_once 'auth_helper.php';
+require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/../backend/auth_helper.php';
 
 if (isset($_GET['remove'])) {
     $remove_id = (int) $_GET['remove'];
@@ -57,7 +57,7 @@ $cart_count = array_sum($cart);
     <title>Shopping Cart - StepStyle</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
+    <link href="../assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
 
@@ -123,7 +123,7 @@ $cart_count = array_sum($cart);
                                 <div class="d-flex align-items-center">
                                     <div class="cart-item-thumb me-3">
                                         <?php if (!empty($item['image'])): ?>
-                                            <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>">
+                                            <img src="../<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>">
                                         <?php else: ?>
                                             <div class="placeholder"><i class="bi bi-basket text-muted fs-4"></i></div>
                                         <?php endif; ?>
@@ -139,15 +139,15 @@ $cart_count = array_sum($cart);
                                     </div>
                                 </div>
                             </td>
-                            <td>$<?= number_format($item['discount_price'] ?: $item['price'], 2) ?></td>
+                            <td>रु <?= number_format($item['discount_price'] ?: $item['price'], 2) ?></td>
                             <td>
                                 <input type="number" name="quantity[<?= $item['id'] ?>]" class="form-control form-control-sm"
                                        value="<?= $item['qty'] ?>" min="1" max="<?= $item['stock'] ?>">
                             </td>
-                            <td class="fw-bold">$<?= number_format($item['line_total'], 2) ?></td>
+                            <td class="fw-bold">रु <?= number_format($item['line_total'], 2) ?></td>
                             <td class="text-center">
                                 <a href="cart.php?remove=<?= $item['id'] ?>" class="btn btn-sm btn-outline-danger"
-                                   onclick="return confirm('Remove this item?')">
+                                   data-confirm="Remove this item?">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </td>
@@ -162,7 +162,7 @@ $cart_count = array_sum($cart);
                     <i class="bi bi-arrow-left me-1"></i>Continue Shopping
                 </a>
                 <div class="d-flex gap-2">
-                    <a href="cart.php?clear=1" class="btn btn-outline-danger" onclick="return confirm('Clear cart?')">Clear Cart</a>
+                    <a href="cart.php?clear=1" class="btn btn-outline-danger" data-confirm="Clear cart?">Clear Cart</a>
                     <button type="submit" class="btn btn-dark">Update Cart</button>
                 </div>
             </div>
@@ -176,7 +176,7 @@ $cart_count = array_sum($cart);
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal (<?= $cart_count ?> items)</span>
-                            <span>$<?= number_format($total, 2) ?></span>
+                            <span>रु <?= number_format($total, 2) ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Shipping</span>
@@ -185,7 +185,7 @@ $cart_count = array_sum($cart);
                         <hr>
                         <div class="d-flex justify-content-between fw-bold fs-5">
                             <span>Total</span>
-                            <span class="text-success">$<?= number_format($total, 2) ?></span>
+                            <span class="text-success">रु <?= number_format($total, 2) ?></span>
                         </div>
                         <a href="checkout.php" class="btn btn-accent w-100 mt-3 btn-lg">
                             Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i>
