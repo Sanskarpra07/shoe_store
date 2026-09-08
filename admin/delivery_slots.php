@@ -5,22 +5,23 @@ $current_page = 'delivery_slots';
 require_once 'includes/header.php';
 
 $errors = [];
-$success = "";
+$success = $_SESSION['success'] ?? '';
+unset($_SESSION['success']);
 
 // Actions: toggle active / delete
-if (isset($_GET['action']) && isset($_GET['id'])) {
-    $id = (int)$_GET['id'] ?: 0;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['slot_action'])) {
+    $id = (int)($_POST['slot_id'] ?? 0);
 
-    if ($_GET['action'] === 'toggle') {
+    if ($_POST['slot_action'] === 'toggle') {
         $r = mysqli_fetch_assoc(mysqli_query($conn, "SELECT is_active FROM delivery_slots WHERE id = $id"));
         if ($r) {
             $new = $r['is_active'] ? 0 : 1;
             mysqli_query($conn, "UPDATE delivery_slots SET is_active = $new WHERE id = $id");
-            $success = $new ? "Slot activated." : "Slot deactivated.";
+            $_SESSION['success'] = $new ? "Slot activated." : "Slot deactivated.";
         }
-    } elseif ($_GET['action'] === 'delete') {
+    } elseif ($_POST['slot_action'] === 'delete') {
         mysqli_query($conn, "DELETE FROM delivery_slots WHERE id = $id");
-        $success = "Delivery slot deleted.";
+        $_SESSION['success'] = "Delivery slot deleted.";
     }
     header("Location: delivery_slots.php");
     exit();
@@ -47,12 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = mysqli_prepare($conn, "UPDATE delivery_slots SET slot_name = ?, slot_time = ?, is_active = ? WHERE id = ?");
             mysqli_stmt_bind_param($stmt, "ssii", $slot_name, $slot_time, $is_active, $slot_id);
             mysqli_stmt_execute($stmt);
-            $success = "Delivery slot updated.";
+            $_SESSION['success'] = "Delivery slot updated.";
         } else {
             $stmt = mysqli_prepare($conn, "INSERT INTO delivery_slots (slot_name, slot_time, is_active) VALUES (?, ?, ?)");
             mysqli_stmt_bind_param($stmt, "ssi", $slot_name, $slot_time, $is_active);
             mysqli_stmt_execute($stmt);
-            $success = "Delivery slot added.";
+            $_SESSION['success'] = "Delivery slot added.";
         }
         header("Location: delivery_slots.php");
         exit();
@@ -132,12 +133,18 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots ORDER BY slot_time AS
                 <td class="center">
                     <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
                         <a class="btn btn-small" href="delivery_slots.php?edit=<?= $s['id'] ?>"><i class="bi bi-pencil"></i> Edit</a>
-                        <a class="btn btn-gray btn-small"
-                           href="delivery_slots.php?action=toggle&id=<?= $s['id'] ?>">
-                            <i class="bi bi-power"></i> <?= $s['is_active'] ? 'Deactivate' : 'Activate' ?>
-                        </a>
-                        <a class="btn btn-red btn-small" href="delivery_slots.php?action=delete&id=<?= $s['id'] ?>"
-                           onclick="return confirm('Delete this delivery slot?')"><i class="bi bi-trash"></i> Delete</a>
+                        <form method="POST" action="delivery_slots.php" style="display:inline;">
+                            <input type="hidden" name="slot_action" value="toggle">
+                            <input type="hidden" name="slot_id" value="<?= $s['id'] ?>">
+                            <button type="submit" class="btn btn-gray btn-small">
+                                <i class="bi bi-power"></i> <?= $s['is_active'] ? 'Deactivate' : 'Activate' ?>
+                            </button>
+                        </form>
+                        <form method="POST" action="delivery_slots.php" style="display:inline;" data-confirm="Delete this delivery slot?">
+                            <input type="hidden" name="slot_action" value="delete">
+                            <input type="hidden" name="slot_id" value="<?= $s['id'] ?>">
+                            <button type="submit" class="btn btn-red btn-small"><i class="bi bi-trash"></i> Delete</button>
+                        </form>
                     </div>
                 </td>
             </tr>
