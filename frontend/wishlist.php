@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db.php';
-require_once 'auth_helper.php';
+require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/../backend/auth_helper.php';
 
 if (!is_customer_logged_in()) {
     $_SESSION['redirect_after_login'] = 'wishlist.php';
@@ -26,7 +26,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_wishlist'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['move_to_cart'])) {
     $pid = (int)($_POST['product_id'] ?? 0);
     if ($pid > 0) {
-        $_SESSION['cart'][$pid] = ($_SESSION['cart'][$pid] ?? 0) + 1;
+        // Check stock before moving to cart
+        $stock_check = mysqli_prepare($conn, "SELECT stock FROM products WHERE id = ?");
+        mysqli_stmt_bind_param($stock_check, "i", $pid);
+        mysqli_stmt_execute($stock_check);
+        $stock_row = mysqli_fetch_assoc(mysqli_stmt_get_result($stock_check));
+        if (!$stock_row || $stock_row['stock'] <= 0) {
+            $_SESSION['wishlist_action'] = 'out_of_stock';
+            header("Location: wishlist.php");
+            exit();
+        }
+        $existing = $_SESSION['cart'][$pid] ?? 0;
+        if ($existing + 1 > $stock_row['stock']) {
+            $_SESSION['wishlist_action'] = 'stock_limit';
+            header("Location: wishlist.php");
+            exit();
+        }
+        $_SESSION['cart'][$pid] = $existing + 1;
         $stmt = mysqli_prepare($conn, "DELETE FROM wishlists WHERE customer_id = ? AND product_id = ?");
         mysqli_stmt_bind_param($stmt, "ii", $customer_id, $pid);
         mysqli_stmt_execute($stmt);
@@ -57,7 +73,7 @@ $wishlist = mysqli_stmt_get_result($stmt);
     <title>My Wishlist - StepStyle</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
+    <link href="../assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
 
@@ -79,6 +95,10 @@ $wishlist = mysqli_stmt_get_result($stmt);
         <div class="alert alert-info">Item removed from your wishlist.</div>
     <?php elseif ($wishlist_action === 'moved'): ?>
         <div class="alert alert-success">Item moved to your cart.</div>
+    <?php elseif ($wishlist_action === 'out_of_stock'): ?>
+        <div class="alert alert-danger">Cannot add to cart: product is out of stock.</div>
+    <?php elseif ($wishlist_action === 'stock_limit'): ?>
+        <div class="alert alert-warning">Cannot add to cart: insufficient stock.</div>
     <?php endif; ?>
 
     <div class="card shadow-sm border-0 rounded-3">
@@ -100,7 +120,7 @@ $wishlist = mysqli_stmt_get_result($stmt);
                                 <div class="d-flex align-items-center">
                                     <div class="cart-item-thumb me-3">
                                         <?php if (!empty($item['image'])): ?>
-                                            <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>">
+                                            <img src="../<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>">
                                         <?php else: ?>
                                             <div class="placeholder"><i class="bi bi-basket text-muted"></i></div>
                                         <?php endif; ?>
@@ -113,7 +133,7 @@ $wishlist = mysqli_stmt_get_result($stmt);
                                     </div>
                                 </div>
                             </td>
-                            <td class="fw-bold">$<?= number_format($item['discount_price'] ?: $item['price'], 2) ?></td>
+                            <td class="fw-bold">रु <?= number_format($item['discount_price'] ?: $item['price'], 2) ?></td>
                             <td>
                                 <?php if ($item['stock'] > 0): ?>
                                     <span class="badge bg-success">In Stock (<?= $item['stock'] ?>)</span>
@@ -127,7 +147,7 @@ $wishlist = mysqli_stmt_get_result($stmt);
                                     <button type="submit" name="move_to_cart" class="btn btn-sm btn-accent"><i class="bi bi-cart-plus me-1"></i>Move to Cart</button>
                                 </form>
                                 <a href="product.php?id=<?= $item['id'] ?>" class="btn btn-sm btn-outline-dark"><i class="bi bi-eye me-1"></i>View</a>
-                                <form method="POST" action="wishlist.php" class="d-inline" onsubmit="return confirm('Remove from wishlist?')">
+                                <form method="POST" action="wishlist.php" class="d-inline" data-confirm="Remove from wishlist?">
                                     <input type="hidden" name="product_id" value="<?= $item['id'] ?>">
                                     <button type="submit" name="remove_wishlist" class="btn btn-sm btn-outline-danger"><i class="bi bi-heart-broken"></i></button>
                                 </form>
