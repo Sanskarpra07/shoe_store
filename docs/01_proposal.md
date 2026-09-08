@@ -109,8 +109,8 @@ The primary objectives of the StepStyle project are:
 | Search & Filter          | Text-based product search, filter by category and brand, result count display |
 | Product Detail Page      | Detailed product view with breadcrumbs, specifications, add-to-cart, related products, up-sell recommendations |
 | Shopping Cart            | Session-based cart with add/update/remove, quantity validation, line totals, order summary |
-| Checkout                 | Shipping information form, payment method selection, form validation, pre-fill for logged-in users |
-| Payment Processing       | COD (immediate), eSewa sandbox redirect, Khalti sandbox API call with fallback |
+| Checkout                 | Shipping information form, payment method selection, form validation, login/registration required, pre-fill for logged-in users |
+| Payment Processing       | COD (immediate), eSewa UAT signed V2 form redirect, Khalti sandbox API call with callback verification |
 | Order Tracking           | Track order status by Order ID + email, public access without login            |
 | Customer Registration    | Account creation with email, password, name, phone, address                   |
 | OTP Verification         | Email-based OTP code for account activation (pending → verified workflow)     |
@@ -310,8 +310,8 @@ The data layer manages all database interactions using MySQL/MariaDB:
 | Gateway            | Mode      | Integration Method                                  |
 | ------------------ | --------- | --------------------------------------------------- |
 | Cash on Delivery   | Live      | Direct order creation, payment_status = completed    |
-| eSewa              | Sandbox   | Hidden form POST to eSewa gateway URL                |
-| Khalti             | Sandbox   | REST API call (cJSON via cURL) to Khalti v2 API      |
+| eSewa              | Sandbox   | Signed ePay V2 form POST (HMAC-SHA256) to UAT gateway, callback verified via status API |
+| Khalti             | Sandbox   | KPG-2 REST initiate + Lookup verification via cURL (v2 API)            |
 
 ### 7.5 Development Tools
 
