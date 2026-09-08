@@ -86,42 +86,78 @@ if ($export === 'csv') {
 }
 ?>
 
-<h2>Sales Reports</h2>
+<div class="page-header">
+    <div>
+        <h2>Sales Reports</h2>
+        <p class="page-sub">Analyze sales performance for a date range</p>
+    </div>
+</div>
 
-<form method="GET" action="reports.php" style="margin-bottom:10px;">
-    <label>From:</label>
-    <input type="date" name="from" value="<?= $from ?>">
-    <label>To:</label>
-    <input type="date" name="to" value="<?= $to ?>">
-    <button type="submit" class="btn btn-small">Filter</button>
-    <a class="btn btn-green btn-small" href="reports.php?from=<?= $from ?>&to=<?= $to ?>&export=csv">Download CSV</a>
-</form>
+<div class="card" style="padding:16px 20px;">
+    <form method="GET" action="reports.php" class="report-filter">
+        <label>From:</label>
+        <input type="date" name="from" value="<?= $from ?>">
+        <label>To:</label>
+        <input type="date" name="to" value="<?= $to ?>">
+        <button type="submit" class="btn btn-small"><i class="bi bi-funnel"></i> Filter</button>
+        <a class="btn btn-green btn-small" href="reports.php?from=<?= $from ?>&to=<?= $to ?>&export=csv"><i class="bi bi-download"></i> Download CSV</a>
+    </form>
+</div>
 
-<table class="table" style="width:800px;">
-    <tr>
-        <td class="center"><strong>$<?= number_format($range_revenue, 2) ?></strong><br>Revenue (Completed)</td>
-        <td class="center"><strong>$<?= number_format($range_pending_pay, 2) ?></strong><br>Pending Payments</td>
-        <td class="center"><strong><?= $range_orders ?></strong><br>Orders Placed</td>
-        <td class="center"><strong>$<?= number_format($avg_order_value, 2) ?></strong><br>Avg Order Value</td>
-    </tr>
-</table>
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-icon icon-green"><i class="bi bi-currency-dollar"></i></div>
+        <div>
+            <div class="stat-value">$<?= number_format($range_revenue, 2) ?></div>
+            <div class="stat-label">Revenue (Completed)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-warning"><i class="bi bi-hourglass"></i></div>
+        <div>
+            <div class="stat-value">$<?= number_format($range_pending_pay, 2) ?></div>
+            <div class="stat-label">Pending Payments</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-orange"><i class="bi bi-bag"></i></div>
+        <div>
+            <div class="stat-value"><?= $range_orders ?></div>
+            <div class="stat-label">Orders Placed</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-sky"><i class="bi bi-graph-up-arrow"></i></div>
+        <div>
+            <div class="stat-value">$<?= number_format($avg_order_value, 2) ?></div>
+            <div class="stat-label">Avg Order Value</div>
+        </div>
+    </div>
+</div>
 
 <h3 class="section-title">Orders by Status</h3>
-<table class="table" style="width:400px;">
+<div style="overflow-x:auto;">
+<table class="table" style="max-width:400px;">
     <tr>
         <th>Status</th>
         <th>Orders</th>
     </tr>
     <?php while ($s = mysqli_fetch_assoc($status_data)): ?>
     <tr>
-        <td><?= ucfirst($s['status']) ?></td>
+        <td>
+            <span class="badge badge-<?=
+                ['pending'=>'warning','processing'=>'info','shipped'=>'primary','delivered'=>'success','cancelled'=>'danger'][$s['status']] ?? 'secondary'
+            ?>"><?= ucfirst($s['status']) ?></span>
+        </td>
         <td class="center"><?= $s['c'] ?></td>
     </tr>
     <?php endwhile; ?>
 </table>
+</div>
 
 <h3 class="section-title">Payment Methods</h3>
-<table class="table" style="width:500px;">
+<div style="overflow-x:auto;">
+<table class="table" style="max-width:520px;">
     <tr>
         <th>Method</th>
         <th>Orders</th>
@@ -129,15 +165,17 @@ if ($export === 'csv') {
     </tr>
     <?php while ($p = mysqli_fetch_assoc($payment_data)): ?>
     <tr>
-        <td><?= htmlspecialchars($p['payment_method']) ?></td>
+        <td><strong><?= htmlspecialchars($p['payment_method']) ?></strong></td>
         <td class="center"><?= $p['c'] ?></td>
         <td class="center">$<?= number_format($p['rev'], 2) ?></td>
     </tr>
     <?php endwhile; ?>
 </table>
+</div>
 
 <h3 class="section-title">Top Selling Products</h3>
-<table class="table" style="width:600px;">
+<div style="overflow-x:auto;">
+<table class="table" style="max-width:620px;">
     <tr>
         <th>#</th>
         <th>Product</th>
@@ -147,14 +185,15 @@ if ($export === 'csv') {
     <?php $i = 1; while ($r = mysqli_fetch_assoc($top_products)): ?>
     <tr>
         <td class="center"><?= $i++ ?></td>
-        <td><?= htmlspecialchars($r['product_name']) ?></td>
-        <td class="center"><?= $r['qty_sold'] ?></td>
+        <td><strong><?= htmlspecialchars($r['product_name']) ?></strong></td>
+        <td class="center"><span class="badge badge-primary"><?= $r['qty_sold'] ?></span></td>
         <td class="center">$<?= number_format($r['revenue'], 2) ?></td>
     </tr>
     <?php endwhile; ?>
     <?php if (mysqli_num_rows($top_products) === 0): ?>
-    <tr><td colspan="4" class="center">No sales in this period.</td></tr>
+    <tr><td colspan="4"><div class="empty-state"><i class="bi bi-inbox"></i>No sales in this period.</div></td></tr>
     <?php endif; ?>
 </table>
+</div>
 
 <?php require_once 'includes/footer.php'; ?>

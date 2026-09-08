@@ -86,7 +86,7 @@ inventory and orders.
 - After OTP verification the customer sets a **new password** and logs in again.
 
 ### 4.3 Product Browsing and Search
-- Home page shows featured products; the shop page lists all products.
+- Home page shows featured products plus **categories and brands with their assigned icons**; the shop page lists all products.
 - Products can be filtered by **category and brand** and searched by **keyword**.
 - Product detail page shows description, price, discount, stock, size, color, image
   and **customer reviews**.
@@ -122,13 +122,14 @@ inventory and orders.
 ### 4.9 Admin Panel Modules
 - **Dashboard** — statistics (total products, stock, orders, revenue, customers) with quick links.
 - **Products** — add / edit / delete products with image upload and automatic **stock log** entries.
-- **Categories & Brands** — add / edit / delete (a brand can be deleted only when unused).
+- **Categories & Brands** — add / edit / delete (a brand can be deleted only when unused). Each entry supports a **Font Awesome icon** picked from fontawesome.com — the icon code is pasted into a text field with a live preview and is displayed next to the name in the admin tables and on the storefront homepage.
 - **Delivery Slots** — add / edit / activate / deactivate / delete slots.
 - **Orders** — search orders, view full detail (items, payment, delivery slot) and update status.
 - **Reports** — date-range sales reports (orders, revenue, payment methods, top products) with **CSV export**.
 - **Reviews** — approve / reject / delete customer reviews.
 - **Stock Log** — add or remove stock and keep a history of every adjustment.
 - **Users** — admin can create admin/staff users and view registered customers.
+- **Admin UI** — a custom modern theme (`css/admin.css`) with a dark navy + orange design, icon-based sidebar navigation and stat cards; all success / error / info flash messages auto-dismiss after 4 seconds via `js/notify.js` (applied on both admin pages and the storefront).
 
 ### 4.10 Security
 - Passwords are **hashed** (`password_hash` / `password_verify`).
@@ -147,7 +148,7 @@ inventory and orders.
 - OTP email verification runs in **demo mode** — no real mail server is configured,
   so the OTP is displayed on screen. Replace `@mail()`/SMTP with a live service for production.
 - Payment gateways are in **test mode**; live credentials are needed for real money.
-- React (vanilla UI), no frameworks used — suited for a classroom project.
+- Vanilla PHP codebase (no PHP framework) — suited for a classroom project.
 
 ---
 
@@ -155,7 +156,7 @@ inventory and orders.
 
 | Purpose        | Technology                      |
 |----------------|---------------------------------|
-| Frontend       | HTML5, CSS3, JavaScript          |
+| Frontend       | HTML5, CSS3, JavaScript, **Bootstrap 5, Bootstrap Icons, Font Awesome** |
 | Backend        | **PHP**                         |
 | Database       | **MySQL / MariaDB**             |
 | Server         | **Apache (XAMPP)**              |
@@ -247,6 +248,8 @@ from the current site URL.
 | eSewa / Khalti handover             | Order pending until callback, then completed         | Pass   |
 | Admin: approve review               | Shows on product page                                | Pass   |
 | Admin: stock adjustment             | Stock updated and logged                            | Pass   |
+| Set Font Awesome icon on category/brand | Icon shows in admin table and on homepage       | Pass   |
+| Flash messages auto-dismiss         | Success/error/alert fades out after 4 seconds      | Pass   |
 | Reports + CSV export                | Filtered tables exported                            | Pass   |
 
 ---

@@ -43,18 +43,23 @@ $success = $_SESSION['success'] ?? '';
 unset($_SESSION['success']);
 ?>
 
-<h2>Products</h2>
-<p><a class="btn btn-green" href="add_product.php">+ Add Product</a></p>
+<div class="page-header">
+    <div>
+        <h2>Products</h2>
+        <p class="page-sub">Manage your product catalog</p>
+    </div>
+    <a class="btn btn-green" href="add_product.php"><i class="bi bi-plus-lg"></i> Add Product</a>
+</div>
 
-<form method="GET" action="products.php" style="margin-bottom:10px;">
+<form method="GET" action="products.php" class="search-row">
     <input type="text" name="search" placeholder="Search by name, category or brand..."
-           value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" style="padding:7px; width:300px;">
-    <button type="submit" class="btn btn-small">Search</button>
-    <?php if (!empty($search)): ?><a class="btn btn-gray btn-small" href="products.php">Clear</a><?php endif; ?>
+           value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+    <button type="submit" class="btn btn-small"><i class="bi bi-search"></i> Search</button>
+    <?php if (!empty($search)): ?><a class="btn btn-gray btn-small" href="products.php"><i class="bi bi-x-circle"></i> Clear</a><?php endif; ?>
 </form>
 
 <?php if (!empty($search)): ?>
-    <p class="small text-muted">Showing <?= mysqli_num_rows($result) ?> result(s) for
+    <p class="small text-muted" style="margin-bottom:10px;">Showing <?= mysqli_num_rows($result) ?> result(s) for
         "<strong><?= htmlspecialchars($search) ?></strong>"</p>
 <?php endif; ?>
 
@@ -80,39 +85,39 @@ unset($_SESSION['success']);
         <td class="center"><?= $sno++ ?></td>
         <td class="center">
             <?php if (!empty($row['image'])): ?>
-                <img src="../<?= htmlspecialchars($row['image']) ?>" alt="" style="width:50px; height:50px; border:1px solid #ddd;">
+                <img src="../<?= htmlspecialchars($row['image']) ?>" alt="" class="thumb">
             <?php else: ?>
-                <span class="text-muted">No image</span>
+                <span class="text-muted small">No image</span>
             <?php endif; ?>
         </td>
         <td><strong><?= htmlspecialchars($row['product_name']) ?></strong></td>
         <td class="center"><?= htmlspecialchars($row['brand_name'] ?? 'N/A') ?></td>
         <td class="center"><?= htmlspecialchars($row['category_name'] ?? 'Uncategorized') ?></td>
         <td class="center">
-            $<?= number_format($row['price'], 2) ?>
+            <strong>$<?= number_format($row['price'], 2) ?></strong>
             <?php if ($row['discount_price']): ?>
-                <br><span style="color:#2e7d32;">$<?= number_format($row['discount_price'], 2) ?></span>
+                <br><span class="text-success">$<?= number_format($row['discount_price'], 2) ?></span>
             <?php endif; ?>
         </td>
         <td class="center"><?= htmlspecialchars($row['size'] ?? '-') ?></td>
         <td class="center"><?= htmlspecialchars($row['color'] ?? '-') ?></td>
         <td class="center">
             <?php if ($row['stock'] < 10): ?>
-                <span style="color:#c62828;"><strong><?= $row['stock'] ?> (Low)</strong></span>
+                <span class="badge badge-danger"><?= $row['stock'] ?> &middot; Low</span>
             <?php else: ?>
-                <span style="color:#2e7d32;"><strong><?= $row['stock'] ?></strong></span>
+                <span class="badge badge-success"><?= $row['stock'] ?></span>
             <?php endif; ?>
         </td>
         <td class="center">
-            <a class="btn btn-small" href="add_product.php?id=<?= $row['id'] ?>">Edit</a>
+            <a class="btn btn-small" href="add_product.php?id=<?= $row['id'] ?>"><i class="bi bi-pencil"></i> Edit</a>
             <a class="btn btn-red btn-small" href="products.php?action=delete&id=<?= $row['id'] ?>"
-               onclick="return confirm('Are you sure you want to delete this product?')">Delete</a>
+               onclick="return confirm('Are you sure you want to delete this product?')"><i class="bi bi-trash"></i> Delete</a>
         </td>
     </tr>
     <?php endwhile; ?>
     <?php if (mysqli_num_rows($result) === 0): ?>
     <tr>
-        <td colspan="10" class="center">No products found. <a href="add_product.php">Add one?</a></td>
+        <td colspan="10"><div class="empty-state"><i class="bi bi-inbox"></i>No products found. <a href="add_product.php">Add one?</a></div></td>
     </tr>
     <?php endif; ?>
 </table>

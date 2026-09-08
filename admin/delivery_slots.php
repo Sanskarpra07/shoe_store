@@ -62,8 +62,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $slots = mysqli_query($conn, "SELECT * FROM delivery_slots ORDER BY slot_time ASC");
 ?>
 
-<h2>Delivery Slots</h2>
-<p>Define the time slots customers can choose at checkout.</p>
+<div class="page-header">
+    <div>
+        <h2>Delivery Slots</h2>
+        <p class="page-sub">Define the time slots customers can choose at checkout.</p>
+    </div>
+</div>
 
 <?php if (!empty($errors)): ?>
     <div class="msg-error">
@@ -75,65 +79,74 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots ORDER BY slot_time AS
     <div class="msg-success"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 
-<div class="form-box" style="max-width:380px; float:left; margin-right:20px;">
-    <h3><?= $edit_slot ? 'Edit Slot' : 'Add New Slot' ?></h3>
-    <form method="POST" action="delivery_slots.php">
-        <input type="hidden" name="slot_id" value="<?= $edit_slot['id'] ?? 0 ?>">
-        <div class="form-group">
-            <label>Slot Name *</label>
-            <input type="text" name="slot_name" value="<?= htmlspecialchars($edit_slot['slot_name'] ?? '') ?>"
-                   placeholder="e.g. Morning" required>
-        </div>
-        <div class="form-group">
-            <label>Slot Time *</label>
-            <input type="text" name="slot_time" value="<?= htmlspecialchars($edit_slot['slot_time'] ?? '') ?>"
-                   placeholder="e.g. 9 AM - 11 AM" required>
-        </div>
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="is_active" <?= (!isset($edit_slot) || $edit_slot['is_active']) ? 'checked' : '' ?>>
-                Active (shown at checkout)
-            </label>
-        </div>
-        <button type="submit" class="btn"><?= $edit_slot ? 'Update Slot' : 'Add Slot' ?></button>
-        <?php if ($edit_slot): ?>
-            <a href="delivery_slots.php" class="btn">Cancel</a>
-        <?php endif; ?>
-    </form>
-</div>
+<div class="split">
+    <div class="form-box">
+        <h3><i class="bi bi-clock"></i> <?= $edit_slot ? 'Edit Slot' : 'Add New Slot' ?></h3>
+        <form method="POST" action="delivery_slots.php">
+            <input type="hidden" name="slot_id" value="<?= $edit_slot['id'] ?? 0 ?>">
+            <div class="form-group">
+                <label>Slot Name *</label>
+                <input type="text" name="slot_name" value="<?= htmlspecialchars($edit_slot['slot_name'] ?? '') ?>"
+                       placeholder="e.g. Morning" required>
+            </div>
+            <div class="form-group">
+                <label>Slot Time *</label>
+                <input type="text" name="slot_time" value="<?= htmlspecialchars($edit_slot['slot_time'] ?? '') ?>"
+                       placeholder="e.g. 9 AM - 11 AM" required>
+            </div>
+            <div class="form-group">
+                <label style="display:flex; align-items:center; gap:8px; font-weight:600;">
+                    <input type="checkbox" name="is_active" style="width:auto;" <?= (!isset($edit_slot) || $edit_slot['is_active']) ? 'checked' : '' ?>>
+                    Active (shown at checkout)
+                </label>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                <button type="submit" class="btn" style="flex:1;"><i class="bi bi-check-lg"></i> <?= $edit_slot ? 'Update Slot' : 'Add Slot' ?></button>
+                <?php if ($edit_slot): ?>
+                    <a href="delivery_slots.php" class="btn btn-gray"><i class="bi bi-x-lg"></i> Cancel</a>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
 
-<div style="float:left; width:600px;">
-    <h3 class="section-title">Available Slots</h3>
-    <table class="table">
-        <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Time</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        <?php $sno = 1; while ($s = mysqli_fetch_assoc($slots)): ?>
-        <tr>
-            <td class="center"><?= $sno++ ?></td>
-            <td><strong><?= htmlspecialchars($s['slot_name']) ?></strong></td>
-            <td class="center"><?= htmlspecialchars($s['slot_time']) ?></td>
-            <td class="center"><?= $s['is_active'] ? 'Active' : 'Inactive' ?></td>
-            <td class="center">
-                <a class="btn btn-small" href="delivery_slots.php?edit=<?= $s['id'] ?>">Edit</a>
-                <a class="btn btn-gray btn-small"
-                   href="delivery_slots.php?action=toggle&id=<?= $s['id'] ?>">
-                    <?= $s['is_active'] ? 'Deactivate' : 'Activate' ?>
-                </a>
-                <a class="btn btn-red btn-small" href="delivery_slots.php?action=delete&id=<?= $s['id'] ?>"
-                   onclick="return confirm('Delete this delivery slot?')">Delete</a>
-            </td>
-        </tr>
-        <?php endwhile; ?>
-        <?php if (mysqli_num_rows($slots) === 0): ?>
-        <tr><td colspan="5" class="center">No delivery slots added yet.</td></tr>
-        <?php endif; ?>
-    </table>
+    <div>
+        <h3 class="section-title">Available Slots</h3>
+        <table class="table">
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            <?php $sno = 1; while ($s = mysqli_fetch_assoc($slots)): ?>
+            <tr>
+                <td class="center"><?= $sno++ ?></td>
+                <td><strong><?= htmlspecialchars($s['slot_name']) ?></strong></td>
+                <td class="center"><?= htmlspecialchars($s['slot_time']) ?></td>
+                <td class="center">
+                    <?= $s['is_active']
+                        ? '<span class="badge badge-success">Active</span>'
+                        : '<span class="badge badge-secondary">Inactive</span>' ?>
+                </td>
+                <td class="center">
+                    <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                        <a class="btn btn-small" href="delivery_slots.php?edit=<?= $s['id'] ?>"><i class="bi bi-pencil"></i> Edit</a>
+                        <a class="btn btn-gray btn-small"
+                           href="delivery_slots.php?action=toggle&id=<?= $s['id'] ?>">
+                            <i class="bi bi-power"></i> <?= $s['is_active'] ? 'Deactivate' : 'Activate' ?>
+                        </a>
+                        <a class="btn btn-red btn-small" href="delivery_slots.php?action=delete&id=<?= $s['id'] ?>"
+                           onclick="return confirm('Delete this delivery slot?')"><i class="bi bi-trash"></i> Delete</a>
+                    </div>
+                </td>
+            </tr>
+            <?php endwhile; ?>
+            <?php if (mysqli_num_rows($slots) === 0): ?>
+            <tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i>No delivery slots added yet.</div></td></tr>
+            <?php endif; ?>
+        </table>
+    </div>
 </div>
-<div style="clear:both;"></div>
 
 <?php require_once 'includes/footer.php'; ?>

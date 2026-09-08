@@ -45,7 +45,13 @@ $error   = $_SESSION['error'] ?? '';
 unset($_SESSION['success'], $_SESSION['error']);
 ?>
 
-<h2>Users Management</h2>
+<div class="page-header">
+    <div>
+        <h2>Users Management</h2>
+        <p class="page-sub">Manage admin &amp; staff accounts and registered customers</p>
+    </div>
+    <a class="btn btn-green" href="register.php"><i class="bi bi-person-plus"></i> Add User</a>
+</div>
 
 <?php if ($success): ?>
     <div class="msg-success"><?= htmlspecialchars($success) ?></div>
@@ -55,8 +61,8 @@ unset($_SESSION['success'], $_SESSION['error']);
 <?php endif; ?>
 
 <h3 class="section-title">Admin / Staff Users</h3>
-<p><a class="btn" href="register.php">+ Add User</a></p>
-<table class="table" style="width:700px;">
+<div style="overflow-x:auto;">
+<table class="table" style="max-width:760px;">
     <tr>
         <th>#</th>
         <th>Username</th>
@@ -72,11 +78,14 @@ unset($_SESSION['success'], $_SESSION['error']);
         <td>
             <strong><?= htmlspecialchars($row['username']) ?></strong>
             <?php if ($is_me): ?>
-                <span style="color:#1a237e;">(You)</span>
+                <span class="badge badge-primary" style="margin-left:6px;">You</span>
             <?php endif; ?>
         </td>
         <td class="center">
-            <?= ucfirst($row['role']) ?>
+            <span class="badge badge-<?= $row['role'] === 'admin' ? 'danger' : 'secondary' ?>">
+                <i class="bi bi-<?= $row['role'] === 'admin' ? 'shield-lock' : 'person' ?>" style="font-size:11px;"></i>
+                <?= ucfirst($row['role']) ?>
+            </span>
         </td>
         <td class="center"><?= date('d M Y', strtotime($row['created_at'])) ?></td>
         <td class="center">
@@ -84,14 +93,16 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <span class="small text-muted">Cannot delete own account</span>
             <?php else: ?>
                 <a class="btn btn-red btn-small" href="users.php?action=delete&id=<?= $row['id'] ?>"
-                   onclick="return confirm('Delete user: <?= htmlspecialchars($row['username']) ?>?')">Delete</a>
+                   onclick="return confirm('Delete user: <?= htmlspecialchars($row['username']) ?>?')"><i class="bi bi-trash"></i> Delete</a>
             <?php endif; ?>
         </td>
     </tr>
     <?php endwhile; ?>
 </table>
+</div>
 
 <h3 class="section-title">Registered Customers</h3>
+<div style="overflow-x:auto;">
 <table class="table">
     <tr>
         <th>#</th>
@@ -108,14 +119,19 @@ unset($_SESSION['success'], $_SESSION['error']);
         <td><strong><?= htmlspecialchars($c['full_name']) ?></strong></td>
         <td><?= htmlspecialchars($c['email']) ?></td>
         <td class="center"><?= htmlspecialchars($c['phone'] ?? '-') ?></td>
-        <td class="center"><?= $c['is_verified'] ? 'Yes' : 'No' ?></td>
-        <td class="center"><?= $c['order_count'] ?></td>
+        <td class="center">
+            <?= $c['is_verified']
+                ? '<span class="badge badge-success">Yes</span>'
+                : '<span class="badge badge-secondary">No</span>' ?>
+        </td>
+        <td class="center"><span class="badge badge-primary"><?= $c['order_count'] ?></span></td>
         <td class="center"><?= date('d M Y', strtotime($c['created_at'])) ?></td>
     </tr>
     <?php endwhile; ?>
     <?php if (mysqli_num_rows($customers) === 0): ?>
-    <tr><td colspan="7" class="center">No customers registered yet.</td></tr>
+    <tr><td colspan="7"><div class="empty-state"><i class="bi bi-inbox"></i>No customers registered yet.</div></td></tr>
     <?php endif; ?>
 </table>
+</div>
 
 <?php require_once 'includes/footer.php'; ?>

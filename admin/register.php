@@ -44,8 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<h2>Add New User</h2>
-<p><a href="users.php">&laquo; Back to Users</a></p>
+<div class="page-header">
+    <div>
+        <h2>Add New User</h2>
+        <p class="page-sub">Create an admin or staff account</p>
+    </div>
+    <a class="btn btn-gray" href="users.php"><i class="bi bi-arrow-left"></i> Back to Users</a>
+</div>
 
 <?php if (!empty($errors)): ?>
     <div class="msg-error">
@@ -74,8 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <option value="admin">Admin</option>
             </select>
         </div>
-        <button type="submit" class="btn">Create User</button>
-        <a href="users.php" class="btn">Cancel</a>
+        <div style="display:flex; gap:10px; margin-top:8px;">
+            <button type="submit" class="btn" style="flex:1;"><i class="bi bi-person-plus"></i> Create User</button>
+            <a href="users.php" class="btn btn-gray"><i class="bi bi-x-lg"></i> Cancel</a>
+        </div>
     </form>
 </div>
 

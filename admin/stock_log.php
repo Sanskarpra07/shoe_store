@@ -57,8 +57,12 @@ $logs = mysqli_query($conn,
      LIMIT 50");
 ?>
 
-<h2>Stock Adjustment Log</h2>
-<p>Add or remove stock for products and keep a record of every change.</p>
+<div class="page-header">
+    <div>
+        <h2>Stock Adjustment Log</h2>
+        <p class="page-sub">Add or remove stock for products and keep a record of every change.</p>
+    </div>
+</div>
 
 <?php if (!empty($errors)): ?>
     <div class="msg-error">
@@ -70,8 +74,8 @@ $logs = mysqli_query($conn,
     <div class="msg-success"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 
-<div style="float:left; width:320px; margin-right:20px;">
-    <div class="form-box" style="width:100%;">
+<div class="split">
+    <div class="form-box">
         <h3>Adjust Stock</h3>
         <form method="POST" action="stock_log.php">
             <div class="form-group">
@@ -100,41 +104,40 @@ $logs = mysqli_query($conn,
                 <label>Reason</label>
                 <input type="text" name="reason" placeholder="e.g. New shipment arrived">
             </div>
-            <button type="submit" class="btn">Apply Adjustment</button>
+            <button type="submit" class="btn"><i class="bi bi-check-lg"></i> Apply Adjustment</button>
         </form>
     </div>
-</div>
 
-<div style="float:left; width:700px;">
-    <h3 class="section-title">Recent Adjustments</h3>
-    <table class="table">
-        <tr>
-            <th>Product</th>
-            <th>Change</th>
-            <th>Reason</th>
-            <th>By</th>
-            <th>Date</th>
-        </tr>
-        <?php while ($log = mysqli_fetch_assoc($logs)): ?>
-        <tr>
-            <td><strong><?= htmlspecialchars($log['product_name']) ?></strong></td>
-            <td class="center">
-                <?php if ($log['change_amount'] > 0): ?>
-                    <span style="color:#2e7d32;"><strong>+<?= $log['change_amount'] ?></strong></span>
-                <?php else: ?>
-                    <span style="color:#c62828;"><strong><?= $log['change_amount'] ?></strong></span>
-                <?php endif; ?>
-            </td>
-            <td><?= htmlspecialchars($log['reason'] ?? '-') ?></td>
-            <td class="center"><?= htmlspecialchars($log['changed_by']) ?></td>
-            <td class="center"><?= date('d M Y, h:i A', strtotime($log['created_at'])) ?></td>
-        </tr>
-        <?php endwhile; ?>
-        <?php if (mysqli_num_rows($logs) === 0): ?>
-        <tr><td colspan="5" class="center">No stock adjustments recorded yet.</td></tr>
-        <?php endif; ?>
-    </table>
+    <div>
+        <h3 class="section-title">Recent Adjustments</h3>
+        <table class="table">
+            <tr>
+                <th>Product</th>
+                <th>Change</th>
+                <th>Reason</th>
+                <th>By</th>
+                <th>Date</th>
+            </tr>
+            <?php while ($log = mysqli_fetch_assoc($logs)): ?>
+            <tr>
+                <td><strong><?= htmlspecialchars($log['product_name']) ?></strong></td>
+                <td class="center">
+                    <?php if ($log['change_amount'] > 0): ?>
+                        <span class="badge badge-success">+<?= $log['change_amount'] ?></span>
+                    <?php else: ?>
+                        <span class="badge badge-danger"><?= $log['change_amount'] ?></span>
+                    <?php endif; ?>
+                </td>
+                <td><?= htmlspecialchars($log['reason'] ?? '-') ?></td>
+                <td class="center"><?= htmlspecialchars($log['changed_by']) ?></td>
+                <td class="center"><?= date('d M Y, h:i A', strtotime($log['created_at'])) ?></td>
+            </tr>
+            <?php endwhile; ?>
+            <?php if (mysqli_num_rows($logs) === 0): ?>
+            <tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i>No stock adjustments recorded yet.</div></td></tr>
+            <?php endif; ?>
+        </table>
+    </div>
 </div>
-<div style="clear:both;"></div>
 
 <?php require_once 'includes/footer.php'; ?>

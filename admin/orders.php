@@ -69,28 +69,43 @@ $success = $_SESSION['success'] ?? '';
 unset($_SESSION['success']);
 ?>
 
-<h2>Orders</h2>
+<div class="page-header">
+    <div>
+        <h2>Orders</h2>
+        <p class="page-sub">Track and manage customer orders</p>
+    </div>
+</div>
 
 <?php if ($success): ?>
     <div class="msg-success"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 
 <?php if ($order_detail): ?>
-    <p><a href="orders.php">&laquo; Back to Orders</a></p>
-    <h3 class="section-title">Order #<?= $order_detail['id'] ?> Details</h3>
-    <table class="table" style="width:600px;">
-        <tr><th style="width:180px;">Customer</th><td><?= htmlspecialchars($order_detail['customer_name']) ?></td></tr>
-        <tr><th>Email</th><td><?= htmlspecialchars($order_detail['customer_email']) ?></td></tr>
-        <tr><th>Phone</th><td><?= htmlspecialchars($order_detail['customer_phone'] ?? '-') ?></td></tr>
-        <tr><th>Address</th><td><?= htmlspecialchars($order_detail['customer_address']) ?></td></tr>
-        <tr><th>Delivery Slot</th><td><?= htmlspecialchars($order_detail['delivery_slot'] ?: '-') ?></td></tr>
-        <tr><th>Payment Method</th><td><?= strtoupper($order_detail['payment_method']) ?></td></tr>
-        <tr><th>Payment Status</th><td><?= ucfirst($order_detail['payment_status']) ?></td></tr>
+    <a class="breadcrumb-back" href="orders.php"><i class="bi bi-arrow-left"></i> Back to Orders</a>
+    <div class="page-header">
+        <div>
+            <h2>Order #<?= $order_detail['id'] ?> Details</h2>
+            <p class="page-sub">Customer &amp; payment information</p>
+        </div>
+        <span class="badge badge-<?=
+            ['pending'=>'warning','processing'=>'info','shipped'=>'primary','delivered'=>'success','cancelled'=>'danger'][$order_detail['status']] ?? 'secondary'
+        ?>" style="font-size:14px; padding:8px 16px;"><i class="bi bi-circle-fill" style="font-size:8px;"></i> <?= ucfirst($order_detail['status']) ?></span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="table detail" style="max-width:640px;">
+        <tr><td>Customer</td><td><strong><?= htmlspecialchars($order_detail['customer_name']) ?></strong></td></tr>
+        <tr><td>Email</td><td><?= htmlspecialchars($order_detail['customer_email']) ?></td></tr>
+        <tr><td>Phone</td><td><?= htmlspecialchars($order_detail['customer_phone'] ?? '-') ?></td></tr>
+        <tr><td>Address</td><td><?= htmlspecialchars($order_detail['customer_address']) ?></td></tr>
+        <tr><td>Delivery Slot</td><td><?= htmlspecialchars($order_detail['delivery_slot'] ?: '-') ?></td></tr>
+        <tr><td>Payment Method</td><td><span class="badge badge-secondary"><?= strtoupper($order_detail['payment_method']) ?></span></td></tr>
+        <tr><td>Payment Status</td><td><?= ucfirst($order_detail['payment_status']) ?></td></tr>
         <?php if ($order_detail['transaction_id']): ?>
-        <tr><th>Transaction ID</th><td><?= htmlspecialchars($order_detail['transaction_id']) ?></td></tr>
+        <tr><td>Transaction ID</td><td><?= htmlspecialchars($order_detail['transaction_id']) ?></td></tr>
         <?php endif; ?>
-        <tr><th>Order Date</th><td><?= date('d M Y, h:i A', strtotime($order_detail['created_at'])) ?></td></tr>
+        <tr><td>Order Date</td><td><?= date('d M Y, h:i A', strtotime($order_detail['created_at'])) ?></td></tr>
     </table>
+    </div>
 
     <table class="table">
         <tr>
@@ -103,7 +118,7 @@ unset($_SESSION['success']);
         </tr>
         <?php foreach ($order_items as $item): ?>
         <tr>
-            <td><?= htmlspecialchars($item['product_name']) ?></td>
+            <td><strong><?= htmlspecialchars($item['product_name']) ?></strong></td>
             <td class="center"><?= htmlspecialchars($item['size'] ?? '-') ?></td>
             <td class="center"><?= htmlspecialchars($item['color'] ?? '-') ?></td>
             <td class="center"><?= $item['quantity'] ?></td>
@@ -113,12 +128,12 @@ unset($_SESSION['success']);
         <?php endforeach; ?>
         <tr>
             <td colspan="5" class="text-right"><strong>Order Total</strong></td>
-            <td class="center"><strong>$<?= number_format($order_detail['total_amount'], 2) ?></strong></td>
+            <td class="center"><strong style="font-size:16px;">$<?= number_format($order_detail['total_amount'], 2) ?></strong></td>
         </tr>
     </table>
 
     <h3 class="section-title">Update Status</h3>
-    <div class="form-box" style="width:400px;">
+    <div class="form-box" style="max-width:420px; margin:0;">
         <form method="POST" action="orders.php">
             <input type="hidden" name="action" value="update_status">
             <input type="hidden" name="id" value="<?= $order_detail['id'] ?>">
@@ -130,15 +145,15 @@ unset($_SESSION['success']);
                     <?php endforeach; ?>
                 </select>
             </div>
-            <button type="submit" class="btn btn-green">Update Status</button>
+            <button type="submit" class="btn btn-green"><i class="bi bi-check-lg"></i> Update Status</button>
         </form>
     </div>
 <?php else: ?>
-    <form method="GET" action="orders.php" style="margin-bottom:10px;">
+    <form method="GET" action="orders.php" class="search-row">
         <input type="text" name="search" placeholder="Search by customer name, email or order #..."
-               value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" style="padding:7px; width:300px;">
-        <button type="submit" class="btn btn-small">Search</button>
-        <?php if (!empty($search)): ?><a class="btn btn-gray btn-small" href="orders.php">Clear</a><?php endif; ?>
+               value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+        <button type="submit" class="btn btn-small"><i class="bi bi-search"></i> Search</button>
+        <?php if (!empty($search)): ?><a class="btn btn-gray btn-small" href="orders.php"><i class="bi bi-x-circle"></i> Clear</a><?php endif; ?>
     </form>
 
     <table class="table">
@@ -157,18 +172,22 @@ unset($_SESSION['success']);
             <td class="center"><strong>#<?= $row['id'] ?></strong></td>
             <td><?= htmlspecialchars($row['customer_name']) ?></td>
             <td><?= htmlspecialchars($row['customer_email']) ?></td>
-            <td class="center">$<?= number_format($row['total_amount'], 2) ?></td>
-            <td class="center"><?= strtoupper($row['payment_method']) ?></td>
-            <td class="center"><?= ucfirst($row['status']) ?></td>
+            <td class="center"><strong>$<?= number_format($row['total_amount'], 2) ?></strong></td>
+            <td class="center"><span class="badge badge-secondary"><?= strtoupper($row['payment_method']) ?></span></td>
+            <td class="center">
+                <span class="badge badge-<?=
+                    ['pending'=>'warning','processing'=>'info','shipped'=>'primary','delivered'=>'success','cancelled'=>'danger'][$row['status']] ?? 'secondary'
+                ?>"><?= ucfirst($row['status']) ?></span>
+            </td>
             <td class="center"><?= date('d M Y', strtotime($row['created_at'])) ?></td>
             <td class="center">
-                <a class="btn btn-small" href="orders.php?view=<?= $row['id'] ?>">View / Update</a>
+                <a class="btn btn-small" href="orders.php?view=<?= $row['id'] ?>"><i class="bi bi-eye"></i> View / Update</a>
             </td>
         </tr>
         <?php endwhile; ?>
         <?php if (mysqli_num_rows($orders) === 0): ?>
         <tr>
-            <td colspan="8" class="center">No orders found.</td>
+            <td colspan="8"><div class="empty-state"><i class="bi bi-inbox"></i>No orders found.</div></td>
         </tr>
         <?php endif; ?>
     </table>
