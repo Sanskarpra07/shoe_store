@@ -103,7 +103,7 @@ $recent_orders = mysqli_query($conn,
     <div class="stat-card">
         <div class="stat-icon icon-green"><i class="bi bi-currency-dollar"></i></div>
         <div>
-            <div class="stat-value">$<?= number_format($total_revenue, 2) ?></div>
+            <div class="stat-value">रु <?= number_format($total_revenue, 2) ?></div>
             <div class="stat-label">Revenue (Paid Orders)</div>
         </div>
     </div>
@@ -123,7 +123,7 @@ $recent_orders = mysqli_query($conn,
         <td><strong><?= htmlspecialchars($row['product_name']) ?></strong></td>
         <td class="center"><?= htmlspecialchars($row['brand'] ?? 'N/A') ?></td>
         <td class="center"><?= htmlspecialchars($row['category'] ?? 'Uncategorized') ?></td>
-        <td class="center">$<?= number_format($row['price'], 2) ?></td>
+        <td class="center">रु <?= number_format($row['price'], 2) ?></td>
         <td class="center">
             <?php if ($row['stock'] < 10): ?>
                 <span class="badge badge-danger"><?= $row['stock'] ?> &middot; Low</span>
@@ -149,7 +149,7 @@ $recent_orders = mysqli_query($conn,
     <tr>
         <td class="center"><a href="orders.php?view=<?= $o['id'] ?>"><strong>#<?= $o['id'] ?></strong></a></td>
         <td><?= htmlspecialchars($o['customer_name']) ?></td>
-        <td class="center">$<?= number_format($o['total_amount'], 2) ?></td>
+        <td class="center">रु <?= number_format($o['total_amount'], 2) ?></td>
         <td class="center">
             <?php
             $status_badge = [
