@@ -39,6 +39,13 @@ body {
     -webkit-text-fill-color: transparent;
     font-size: 1.6rem;
 }
+.navbar-logo {
+    height: 42px;
+    width: auto;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
 .navbar-nav .nav-link {
     font-weight: 600;
     color: rgba(255,255,255,0.85) !important;
