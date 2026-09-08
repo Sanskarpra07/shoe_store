@@ -80,9 +80,9 @@ The system serves four distinct user classes:
 
 | Attribute       | Description                                                       |
 | --------------- | ----------------------------------------------------------------- |
-| Primary Role    | Browse products, search, filter, add to cart, checkout as guest   |
-| Auth Required   | No                                                               |
-| Capabilities    | View homepage, shop page, product details; add items to cart; place order as guest; track an order by ID + email |
+| Primary Role    | Browse products, search, filter, add to cart                      |
+| Auth Required   | No (login required before checkout)                              |
+| Capabilities    | View homepage, shop page, product details; add items to cart; log in / register to place an order |
 
 #### 2.2.2 Registered Customer
 
@@ -90,7 +90,8 @@ The system serves four distinct user classes:
 | --------------- | ----------------------------------------------------------------- |
 | Primary Role    | Full shopping experience with saved account data                  |
 | Auth Required   | Yes (email + password, verified via OTP)                         |
-| Capabilities    | All guest capabilities plus: login/logout, profile management, order history, wishlist, product reviews, address pre-fill at checkout |
+| Capabilities    | Full guest capabilities plus: checkout and order placement, login/logout, profile management, order history, wishlist, product reviews, address pre-fill at checkout |
+| Restrictions    | Checkout (`checkout.php`) and order placement (`process_order.php`) require a logged-in session |
 
 #### 2.2.3 Staff Member
 
@@ -208,7 +209,7 @@ The system serves four distinct user classes:
 - FR-04.2 The system shall display a summary of cart items with quantities and line totals on the checkout page.
 - FR-04.3 The checkout form shall capture full name (required), email (required), phone, and shipping address (required).
 - FR-04.4 For logged-in customers, the form shall pre-fill name, email, phone, and address from their profile.
-- FR-04.5 The checkout form shall display an info banner for guest checkout with a suggestion to log in.
+- FR-04.5 The checkout page shall **require an authenticated customer session**; an unauthenticated visitor with items in the cart is redirected to the login page and, after login, returned to checkout (`redirect_after_login`).
 - FR-04.6 The checkout form shall include a hidden CSRF token field.
 - FR-04.7 Server-side validation shall be performed in `process_order.php`; errors are stored in the session and displayed on the checkout page with previously entered data preserved.
 - FR-04.8 An order total of zero shall be rejected.
@@ -221,11 +222,12 @@ The system serves four distinct user classes:
 
 **Functional requirements**:
 - FR-05.1 **COD**: Creating an order with `payment_method = 'cod'` shall immediately set `payment_status = 'completed'`, reduce product stock, clear the cart, and redirect to the order success page with a confirmation message.
-- FR-05.2 **eSewa**: Creating an order with `payment_method = 'esewa'` shall set `payment_status = 'pending'`, store the order ID in session, and render an auto-submitting hidden form posting `amt`, `pid`, `scd`, `su`, `fu`, and other required fields to the eSewa gateway URL (load-balanced URL).
+- FR-05.2 **eSewa (ePay V2)**: Creating an order with `payment_method = 'esewa'` shall set `payment_status = 'pending'`, store the order ID in session, generate a unique `transaction_uuid` (`ord-{id}-{nonce}`) and an HMAC-SHA256 `signature` over `total_amount,transaction_uuid,product_code`, and render an auto-submitting hidden form posting those signed fields plus `success_url` / `failure_url` to the eSewa UAT form URL (`ESEWA_URL`).
 - FR-05.3 **Khalti**: Creating an order with `payment_method = 'khalti'` shall set `payment_status = 'pending'`, call the Khalti e-payment initiate API via cURL with the test secret key, and redirect the customer to the returned `payment_url`.
-- FR-05.4 **Khalti Fallback**: If the Khalti sandbox API is unreachable, the system shall simulate a successful payment (sandbox) by clearing the cart and showing an order success message.
+- FR-05.4 **Khalti**: The callback (`khalti_callback.php`) verifies the transaction with the Khalti Lookup API; only a `Completed` lookups with a matching amount completes the order. There is no success simulation in the current implementation — unreachable gateway or failed verification marks the order failed and redirects back to the cart/checkout with an error message.
 - FR-05.5 The payment method shall be validated server-side; only `cod`, `esewa`, or `khalti` are accepted (anything else defaults to `cod`).
-- FR-05.6 eSewa integration shall respect the `ESEWA_URL`, `ESEWA_MERCHANT_CODE`, `ESEWA_SUCCESS_URL`, and `ESEWA_FAILURE_URL` configuration values in `backend/payment_config.php`.
+- FR-05.6 eSewa integration shall respect the `ESEWA_URL`, `ESEWA_MERCHANT_CODE`, `ESEWA_SECRET_KEY`, `ESEWA_SUCCESS_URL`, and `ESEWA_FAILURE_URL` configuration values in `backend/payment_config.php`.
+- FR-05.7 The eSewa success callback (`esewa_success.php`) shall decode the base64 `data` response, verify the HMAC-SHA256 signature, cross-check the paid amount against the order total, confirm the transaction with the eSewa status API (`ESEWA_STATUS_URL`) returning `COMPLETE`, and only then set `payment_status = 'completed'`, store `transaction_id`, and reduce stock atomically. Callback handling is idempotent (a replayed callback on an already-completed order is ignored).
 
 ### 3.6 FR-06: Order Tracking by ID + Email
 
@@ -506,7 +508,7 @@ Stores customer orders with payment and fulfillment status.
 | Column            | Type            | Constraints                          | Description                  |
 | ----------------- | --------------- | ------------------------------------ | ---------------------------- |
 | id                | INT UNSIGNED    | PK, AUTO_INCREMENT                   | Order ID                     |
-| customer_id       | INT UNSIGNED    | FK → customers.id ON DELETE SET NULL | Customer (NULL for guest)    |
+| customer_id       | INT UNSIGNED    | FK → customers.id ON DELETE SET NULL | Customer (order placement requires login) |
 | customer_name     | VARCHAR(100)    | NOT NULL                             | Customer name at order time  |
 | customer_email    | VARCHAR(150)    | NOT NULL                             | Customer email at order time |
 | customer_phone    | VARCHAR(20)     | NULL                                 | Customer phone               |
@@ -572,28 +574,31 @@ Stores the inventory audit trail.
 
 ## 6. External Interface Requirements
 
-### 6.1 eSewa Payment Gateway API (Sandbox)
+### 6.1 eSewa Payment Gateway API (Sandbox, ePay V2)
 
 | Item               | Description                                                                                   |
 | ------------------ | --------------------------------------------------------------------------------------------- |
-| Interface Type     | HTTP POST (HTML form submission)                                                              |
-| Gateway URL        | Configured in `backend/payment_config.php` as `ESEWA_URL`                                             |
-| Parameters Sent    | `amt`, `pdc`, `psc`, `txAmt`, `tAmt`, `pid`, `scd` (merchant code), `su` (success URL), `fu` (failure URL) |
-| Merchant Code      | `ESEWA_MERCHANT_CODE` from `backend/payment_config.php`                                               |
-| Success/Failure    | `ESEWA_SUCCESS_URL`, `ESEWA_FAILURE_URL` are redeemed on gateway return                        |
-| Mode               | Sandbox (no real money movement)                                                              |
+| Interface Type     | HTTP POST (HTML form submission) + HMAC-SHA256 signature                                      |
+| Gateway URL        | `ESEWA_URL` in `backend/payment_config.php` — `https://rc-epay.esewa.com.np/api/epay/main/v2/form` (classic `uat.esewa.com.np/epay/main` is retired) |
+| Parameters Sent    | `amount`, `tax_amount`, `total_amount`, `transaction_uuid`, `product_code`, `product_service_charge`, `product_delivery_charge`, `success_url`, `failure_url`, `signed_field_names`, `signature` |
+| Signature          | `base64(hmac_sha256(secret, "total_amount=X,transaction_uuid=Y,product_code=Z"))` |
+| Secret Key         | `ESEWA_SECRET_KEY` from `backend/payment_config.php` (sandbox `8gBm/:&EnhH.1/q`)           |
+| Success/Failure    | On return `esewa_success.php` receives base64 `data`, verifies the signature and calls `ESEWA_STATUS_URL` (status API) before completing the order; `esewa_failure.php` marks the order failed |
+| Mode               | Sandbox (no real money movement); test wallet login `9711111111` / `Test@123`, OTP `123456` |
 
-### 6.2 Khalti Payment Gateway API (Sandbox)
+### 6.2 Khalti Payment Gateway API (Sandbox, KPG-2)
 
 | Item               | Description                                                                                   |
 | ------------------ | --------------------------------------------------------------------------------------------- |
 | Interface Type     | REST API via cURL (JSON)                                                                      |
-| Endpoint           | `https://dev.khalti.com/api/v2/epayment/initiate/`                                            |
-| Authentication     | `Authorization: Key test_secret_key` header                                                    |
-| Payload            | `return_url`, `website_url`, `amount` (paise), `purchase_order_id`, `purchase_order_name`, `customer_info` (name, email, phone) |
-| Response           | JSON containing `payment_url` to which the customer is redirected                             |
-| Mode               | Sandbox (test secret key)                                                                     |
-| Fallback           | If the API is unreachable, the system simulates success to complete the demo flow              |
+| Initiate Endpoint  | `https://dev.khalti.com/api/v2/epayment/initiate/`                                            |
+| Lookup Endpoint    | `https://dev.khalti.com/api/v2/epayment/lookup/` (used by `khalti_callback.php` for final verification) |
+| Authentication     | `Authorization: Key <secret_key>` header                                                      |
+| Payload            | `return_url`, `website_url`, `amount` (paisa), `purchase_order_id`, `purchase_order_name`, `customer_info` (name, email, phone), `product_details` |
+| Response (initiate)| JSON containing `payment_url` to which the customer is redirected                             |
+| Callback           | `khalti_callback.php?order_id=N&pidx=...` — verifies via Lookup API (`status = Completed`, amount match) before completing the order & stock |
+| Test Wallet        | Sandbox wallet login `9800000000` – `9800000005`, MPIN `1111`, OTP `987654`                  |
+| Mode               | Sandbox (test secret key). No success simulation — failed verification marks the order failed |
 
 ### 6.3 Email (SMTP / mail())
 
