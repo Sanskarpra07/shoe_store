@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db.php';
-require_once 'auth_helper.php';
+require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/../backend/auth_helper.php';
 
 $cart = $_SESSION['cart'] ?? [];
 if (empty($cart)) {
@@ -63,7 +63,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
     <title>Checkout - StepStyle</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
+    <link href="../assets/css/frontend.css" rel="stylesheet">
     <style>
         .payment-option { border: 2px solid #dee2e6; border-radius: 10px; padding: 15px; cursor: pointer; transition: all .2s; }
         .payment-option:hover { border-color: var(--accent); }
@@ -189,7 +189,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
 
                         <button type="submit" class="btn btn-accent btn-lg w-100">
                             <i class="bi bi-shield-check me-1"></i>
-                            Place Order - $<?= number_format($total, 2) ?>
+                            Place Order - रु <?= number_format($total, 2) ?>
                         </button>
                         <p class="text-muted text-center small mt-2 mb-0">
                             <i class="bi bi-lock me-1"></i>Secure checkout. Your payment details are protected.
@@ -208,7 +208,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
                             <div class="d-flex align-items-center">
                                 <div class="cart-item-thumb me-3" style="width:56px;height:56px;">
                                     <?php if (!empty($item['image'])): ?>
-                                        <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>">
+                                        <img src="../<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['product_name']) ?>">
                                     <?php else: ?>
                                         <div class="placeholder"><i class="bi bi-basket text-muted"></i></div>
                                     <?php endif; ?>
@@ -218,13 +218,13 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
                                     <small class="text-muted">x<?= $item['qty'] ?></small>
                                 </div>
                             </div>
-                            <span class="fw-bold">$<?= number_format($item['line_total'], 2) ?></span>
+                            <span class="fw-bold">रु <?= number_format($item['line_total'], 2) ?></span>
                         </div>
                     <?php endforeach; ?>
                     <hr>
                     <div class="d-flex justify-content-between mb-1">
                         <span>Subtotal</span>
-                        <span>$<?= number_format($total, 2) ?></span>
+                        <span>रु <?= number_format($total, 2) ?></span>
                     </div>
                     <div class="d-flex justify-content-between mb-1">
                         <span>Shipping</span>
@@ -233,7 +233,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
                     <hr>
                     <div class="d-flex justify-content-between fw-bold fs-5">
                         <span>Total</span>
-                        <span class="text-success">$<?= number_format($total, 2) ?></span>
+                        <span class="text-success">रु <?= number_format($total, 2) ?></span>
                     </div>
                 </div>
             </div>
