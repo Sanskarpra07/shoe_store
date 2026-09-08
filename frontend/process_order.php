@@ -1,8 +1,8 @@
 <?php
 // process_order.php - Creates the order and routes to the chosen payment method
 session_start();
-require_once 'db.php';
-require_once 'payment_config.php';
+require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/../backend/payment_config.php';
 
 $cart = $_SESSION['cart'] ?? [];
 if (empty($cart)) {
@@ -84,25 +84,28 @@ mysqli_stmt_bind_param($stmt, "issssdsss",
 mysqli_stmt_execute($stmt);
 $order_id = mysqli_insert_id($conn);
 
-// --- Insert order items ---
+// --- Insert order items (store unit price, not line total) ---
 foreach ($cart_items as $item) {
+    $unit_price = $item['discount_price'] ?: $item['price'];
     $istmt = mysqli_prepare($conn,
         "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
-    mysqli_stmt_bind_param($istmt, "iiid", $order_id, $item['id'], $item['qty'], $item['line_total']);
+    mysqli_stmt_bind_param($istmt, "iiid", $order_id, $item['id'], $item['qty'], $unit_price);
     mysqli_stmt_execute($istmt);
 }
 
 // For online payments, hold the stock until payment completes
 if ($payment === 'cod') {
-    // Reduce stock immediately for COD
+    // Reduce stock atomically for COD
+    mysqli_begin_transaction($conn);
     foreach ($cart_items as $item) {
-        $new_stock = $item['stock'] - $item['qty'];
-        $sstmt = mysqli_prepare($conn, "UPDATE products SET stock = ? WHERE id = ?");
-        mysqli_stmt_bind_param($sstmt, "ii", $new_stock, $item['id']);
+        $sstmt = mysqli_prepare($conn,
+            "UPDATE products SET stock = GREATEST(stock - ?, 0) WHERE id = ? AND stock >= ?");
+        mysqli_stmt_bind_param($sstmt, "iii", $item['qty'], $item['id'], $item['qty']);
         mysqli_stmt_execute($sstmt);
     }
+    mysqli_commit($conn);
     $_SESSION['cart'] = []; // clear the cart
-    $_SESSION['order_success'] = "Order #$order_id placed successfully! Total: $" . number_format($total, 2)
+    $_SESSION['order_success'] = "Order #$order_id placed successfully! Total: रु " . number_format($total, 2)
         . ". You will pay <strong>Cash on Delivery</strong> when your order arrives.";
     $_SESSION['last_order'] = ['id' => $order_id, 'slot' => $slot, 'total' => $total];
     header("Location: order_success.php");
@@ -147,6 +150,21 @@ if ($payment === 'esewa') {
 // ---------- Khalti ----------
 if ($payment === 'khalti') {
     $khalti_total = (int)round($total * 100);
+
+    // Build product_details from cart items (per Khalti docs)
+    $product_details = [];
+    foreach ($cart_items as $item) {
+        $unit_price = (int)round((float)($item['discount_price'] ?: $item['price']) * 100);
+        $line_total = $unit_price * (int)$item['qty'];
+        $product_details[] = [
+            'identity'   => (string)$item['id'],
+            'name'       => $item['product_name'],
+            'total_price'=> $line_total,
+            'quantity'   => (int)$item['qty'],
+            'unit_price' => $unit_price
+        ];
+    }
+
     $payload = [
         'return_url' => KHALTI_CALLBACK_URL . '?order_id=' . $order_id,
         'website_url' => base_url(''),
@@ -157,11 +175,12 @@ if ($payment === 'khalti') {
             'name' => $name,
             'email' => $email,
             'phone' => $phone ?: '9800000000'
-        ]
+        ],
+        'product_details' => $product_details
     ];
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, KHALTI_INIT_CHECKOUT_URL);
+    curl_setopt($ch, CURLOPT_URL, KHALTI_INITIATE_URL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -170,6 +189,7 @@ if ($payment === 'khalti') {
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
     $response = curl_exec($ch);
+    $curl_err = curl_error($ch);
     curl_close($ch);
 
     $data = json_decode($response, true);
@@ -179,10 +199,15 @@ if ($payment === 'khalti') {
         exit();
     }
 
-    // Fallback for sandbox when Khalti is not reachable: simulate success
-    $_SESSION['cart'] = [];
-    $_SESSION['order_success'] = "Order #$order_id placed (Khalti sandbox simulation). Total: $" . number_format($total, 2);
-    $_SESSION['last_order'] = ['id' => $order_id, 'slot' => $slot, 'total' => $total];
-    header("Location: order_success.php");
+    // Surface the actual error message if available
+    $khalti_error = $data['detail'] ?? $data['error_key'] ?? '';
+    $msg = "Khalti payment gateway could not be reached.";
+    if (!empty($khalti_error)) {
+        $msg .= " (" . htmlspecialchars($khalti_error) . ")";
+    } elseif (!empty($curl_err)) {
+        $msg .= " (" . htmlspecialchars($curl_err) . ")";
+    }
+    $_SESSION['checkout_errors'] = [$msg . " Please try again or choose a different payment method."];
+    header("Location: checkout.php");
     exit();
 }
