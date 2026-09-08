@@ -18,7 +18,7 @@ function get_cart_count() {
 }
 
 function price_label($price) {
-    return '$' . number_format($price, 2);
+    return 'रु ' . number_format($price, 2);
 }
 
 function frontend_navbar($active = '') {
@@ -114,7 +114,8 @@ function frontend_footer() {
             </div>
         </div>
     </footer>
-    <script src="js/notify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/notify.js"></script>
     <?php
 }
 
@@ -127,7 +128,7 @@ function site_header($title = 'StepStyle - Online Shoe Store', $active = '') {
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($title) ?></title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
 <div class="site-wrap">
@@ -165,7 +166,7 @@ function site_footer() {
     </div>
     <div class="footer">
         <p>&copy; 2026 StepStyle Online Shoe Store. All rights reserved.</p>
-        <p>Developed for 5th Semester BCA Project | <a href="admin/login.php">Admin Panel</a></p>
+        <p>Developed for 5th Semester BCA Project | <a href="../admin/login.php">Admin Panel</a></p>
     </div>
 </div>
 </body>
