@@ -169,15 +169,15 @@ INSERT INTO delivery_slots (slot_name, slot_time, is_active) VALUES
 
 -- Sample Products
 INSERT INTO products (product_name, description, price, discount_price, stock, size, color, image, category_id, brand_id) VALUES
-    ('Nike Air Max 270', 'Comfortable running shoes with Air Max technology', 129.99, 99.99, 45, '8-12', 'Black', 'assets/img/nike_air_max_270.jpg', 1, 1),
-    ('Adidas Ultraboost 22', 'Premium running shoes with Boost cushioning', 149.99, NULL, 30, '7-11', 'White', 'assets/img/adidas_ultraboost.jpg', 1, 2),
-    ('Puma RS-X', 'Retro-inspired casual sneakers', 89.99, 69.99, 60, '8-12', 'Blue', 'assets/img/puma_rsx.jpg', 2, 3),
-    ('Nike Dunk Low', 'Classic casual lifestyle sneakers', 109.99, NULL, 25, '6-10', 'Red', 'assets/img/nike_dunk_low.jpg', 2, 1),
-    ('Adidas Stan Smith', 'Iconic casual leather sneakers', 94.99, 79.99, 55, '7-12', 'Green', 'assets/img/adidas_stan_smith.jpg', 2, 2),
-    ('Reebok Nano X', 'Cross-training sports shoes', 134.99, NULL, 20, '8-12', 'Black', 'assets/img/reebok_nano_x.jpg', 3, 4),
-    ('Nike React Infinity', 'High-performance running shoes', 159.99, 129.99, 15, '7-11', 'Grey', 'assets/img/nike_react_infinity.jpg', 1, 1),
-    ('New Balance 574', 'Classic casual running-inspired shoes', 89.99, NULL, 70, '6-12', 'Navy', 'assets/img/new_balance_574.jpg', 2, 5),
-    ('Puma Future Rider', 'Lightweight casual sneakers', 74.99, 59.99, 40, '7-11', 'White', 'assets/img/puma_future_rider.jpg', 2, 3),
-    ('Adidas Terrex', 'Outdoor trail boots', 169.99, NULL, 18, '8-13', 'Brown', 'assets/img/adidas_terrex.jpg', 5, 2),
-    ('Nike Air Force 1', 'Timeless casual basketball sneakers', 109.99, NULL, 80, '6-13', 'White', 'assets/img/nike_air_force_1.jpg', 2, 1),
-    ('Reebok Club C', 'Clean casual retro sneakers', 79.99, 64.99, 35, '7-12', 'Cream', 'assets/img/reebok_club_c.jpg', 2, 4);
+    ('Nike Air Max 270', 'Comfortable running shoes with Air Max technology', 9.99, 7.99, 45, '8-12', 'Black', 'assets/img/nike_air_max_270.jpg', 1, 1),
+    ('Adidas Ultraboost 22', 'Premium running shoes with Boost cushioning', 10.00, NULL, 30, '7-11', 'White', 'assets/img/adidas_ultraboost.jpg', 1, 2),
+    ('Puma RS-X', 'Retro-inspired casual sneakers', 7.99, 5.99, 60, '8-12', 'Blue', 'assets/img/puma_rsx.jpg', 2, 3),
+    ('Nike Dunk Low', 'Classic casual lifestyle sneakers', 8.50, NULL, 25, '6-10', 'Red', 'assets/img/nike_dunk_low.jpg', 2, 1),
+    ('Adidas Stan Smith', 'Iconic casual leather sneakers', 6.99, 5.99, 55, '7-12', 'Green', 'assets/img/adidas_stan_smith.jpg', 2, 2),
+    ('Reebok Nano X', 'Cross-training sports shoes', 8.99, NULL, 20, '8-12', 'Black', 'assets/img/reebok_nano_x.jpg', 3, 4),
+    ('Nike React Infinity', 'High-performance running shoes', 9.99, 7.99, 15, '7-11', 'Grey', 'assets/img/nike_react_infinity.jpg', 1, 1),
+    ('New Balance 574', 'Classic casual running-inspired shoes', 6.50, NULL, 70, '6-12', 'Navy', 'assets/img/new_balance_574.jpg', 2, 5),
+    ('Puma Future Rider', 'Lightweight casual sneakers', 5.49, 4.49, 40, '7-11', 'White', 'assets/img/puma_future_rider.jpg', 2, 3),
+    ('Adidas Terrex', 'Outdoor trail boots', 9.50, NULL, 18, '8-13', 'Brown', 'assets/img/adidas_terrex.jpg', 5, 2),
+    ('Nike Air Force 1', 'Timeless casual basketball sneakers', 8.00, NULL, 80, '6-13', 'White', 'assets/img/nike_air_force_1.jpg', 2, 1),
+    ('Reebok Club C', 'Clean casual retro sneakers', 4.99, 3.99, 35, '7-12', 'Cream', 'assets/img/reebok_club_c.jpg', 2, 4);
