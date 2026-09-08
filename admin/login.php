@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../backend/db.php';
 $error_message = $_SESSION['error_message'] ?? '';
 $success_message = $_SESSION['success_message'] ?? '';
 unset($_SESSION['error_message'], $_SESSION['success_message']);
@@ -12,7 +12,7 @@ unset($_SESSION['error_message'], $_SESSION['success_message']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Shoe Store</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
 <div class="login-page">
@@ -28,7 +28,7 @@ unset($_SESSION['error_message'], $_SESSION['success_message']);
             <div class="msg-success"><?= htmlspecialchars($success_message) ?></div>
         <?php endif; ?>
 
-        <form method="POST" action="../process_login.php">
+        <form method="POST" action="process_login.php">
             <div class="form-group">
                 <label>Username *</label>
                 <input type="text" name="username" required autofocus placeholder="Enter your username">
@@ -44,7 +44,7 @@ unset($_SESSION['error_message'], $_SESSION['success_message']);
             </div>
             <button type="submit" class="btn">Login</button>
         </form>
-        <p class="link-row"><a href="../index.php"><i class="bi bi-arrow-left"></i> Back to Store</a></p>
+        <p class="link-row"><a href="../frontend/index.php"><i class="bi bi-arrow-left"></i> Back to Store</a></p>
     </div>
 </div>
 <script>
@@ -53,6 +53,7 @@ function togglePassword() {
     field.type = field.type === "password" ? "text" : "password";
 }
 </script>
-<script src="../js/notify.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../assets/js/notify.js"></script>
 </body>
 </html>
