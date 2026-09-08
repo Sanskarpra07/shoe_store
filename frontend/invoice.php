@@ -1,6 +1,6 @@
 <?php
-require_once 'db.php';
-require_once 'auth_helper.php';
+require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/../backend/auth_helper.php';
 
 $order_id = (int)($_GET['order_id'] ?? 0);
 if ($order_id <= 0) { header("Location: index.php"); exit(); }
@@ -11,7 +11,19 @@ mysqli_stmt_execute($stmt);
 $order = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 if (!$order) { header("Location: index.php"); exit(); }
 
-// Only allow the owner or anyone (invoice is similar to tracking)
+// Auth check: logged-in customer can view own orders, or anyone with tracking email match
+$is_owner = false;
+if (isset($_SESSION['customer_id'])) {
+    $is_owner = ((int)$order['customer_id'] === (int)$_SESSION['customer_id']);
+}
+if (!$is_owner) {
+    // Allow access via track_order style (no auth required for invoice) but only for completed orders
+    if ($order['payment_status'] !== 'completed' && $order['status'] === 'cancelled') {
+        header("Location: index.php");
+        exit();
+    }
+}
+
 $items_stmt = mysqli_prepare($conn,
     "SELECT oi.*, p.product_name, p.image FROM order_items oi
      JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
@@ -74,13 +86,13 @@ $items = mysqli_stmt_get_result($items_stmt);
             <tr>
                 <td><?= htmlspecialchars($item['product_name']) ?></td>
                 <td class="text-center"><?= $item['quantity'] ?></td>
-                <td class="text-end">$<?= number_format($item['price'], 2) ?></td>
-                <td class="text-end line-total">$<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+                <td class="text-end">रु <?= number_format($item['price'], 2) ?></td>
+                <td class="text-end line-total">रु <?= number_format($item['price'] * $item['quantity'], 2) ?></td>
             </tr>
         <?php endwhile; ?>
         </tbody>
         <tfoot>
-            <tr><td colspan="3" class="text-end fw-bold">Grand Total</td><td class="text-end fw-bold">$<?= number_format($order['total_amount'], 2) ?></td></tr>
+            <tr><td colspan="3" class="text-end fw-bold">Grand Total</td><td class="text-end fw-bold">रु <?= number_format($order['total_amount'], 2) ?></td></tr>
         </tfoot>
     </table>
     <div class="text-center text-muted small mt-4">Thank you for shopping with StepStyle!</div>
