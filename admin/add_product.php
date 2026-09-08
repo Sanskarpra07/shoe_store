@@ -84,21 +84,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $old       = mysqli_fetch_assoc(mysqli_query($conn, "SELECT stock FROM products WHERE id = $edit_id"));
             $old_stock = (int)$old['stock'];
 
+            // Convert empty strings to null for nullable columns
+            $cat = $category_id !== '' ? (int)$category_id : null;
+            $brd = $brand_id !== '' ? (int)$brand_id : null;
+            $dprice = $discount_price !== null ? (float)$discount_price : null;
+            $img = !empty($image) ? $image : null;
+
             $stmt = mysqli_prepare($conn,
                 "UPDATE products
                  SET product_name=?, description=?, price=?, discount_price=?, stock=?, size=?, color=?, image=?, category_id=?, brand_id=?
                  WHERE id=?"
             );
-            mysqli_stmt_bind_param($stmt, "ssddissisii",
-                $product_name, $description, $price, $discount_price, $stock, $size, $color, $image, $cat, $brd, $edit_id
+            mysqli_stmt_bind_param($stmt, "ssddisssiii",
+                $product_name, $description, $price, $dprice, $stock, $size, $color, $img, $cat, $brd, $edit_id
             );
         } else {
+            $cat = $category_id !== '' ? (int)$category_id : null;
+            $brd = $brand_id !== '' ? (int)$brand_id : null;
+            $dprice = $discount_price !== null ? (float)$discount_price : null;
+            $img = !empty($image) ? $image : null;
+
             $stmt = mysqli_prepare($conn,
                 "INSERT INTO products (product_name, description, price, discount_price, stock, size, color, image, category_id, brand_id)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
             );
             mysqli_stmt_bind_param($stmt, "ssddisssii",
-                $product_name, $description, $price, $discount_price, $stock, $size, $color, $image, $cat, $brd
+                $product_name, $description, $price, $dprice, $stock, $size, $color, $img, $cat, $brd
             );
         }
 
@@ -134,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: products.php");
             exit();
         } else {
-            $errors[] = "Database error: " . mysqli_error($conn);
+            $errors[] = "Failed to save product. Please try again.";
         }
     }
 
