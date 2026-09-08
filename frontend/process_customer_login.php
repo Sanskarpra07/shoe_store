@@ -55,5 +55,7 @@ $_SESSION['customer_id']    = $customer['id'];
 $_SESSION['customer_name']  = $customer['full_name'];
 $_SESSION['customer_email'] = $customer['email'];
 
-header("Location: my_account.php");
+$redirect = $_SESSION['redirect_after_login'] ?? 'my_account.php';
+unset($_SESSION['redirect_after_login']);
+header("Location: " . $redirect);
 exit();
