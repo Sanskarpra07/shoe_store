@@ -79,10 +79,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $status = $_POST['status'];
         $valid  = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
         if (in_array($status, $valid)) {
+            $prev = mysqli_fetch_assoc(mysqli_query($conn, "SELECT status, payment_status FROM orders WHERE id = $id"));
             $stmt = mysqli_prepare($conn, "UPDATE orders SET status = ? WHERE id = ?");
             mysqli_stmt_bind_param($stmt, "si", $status, $id);
             mysqli_stmt_execute($stmt);
-            $_SESSION['success'] = "Order #$id status updated to $status.";
+            $msg = "Order #$id status updated to $status.";
+            // Restore stock when cancelling a previously paid order that still had stock deducted
+            if ($status === 'cancelled' && $prev && $prev['status'] !== 'cancelled'
+                && ($prev['payment_status'] === 'completed' || $prev['payment_status'] === 'refunded')) {
+                restore_order_stock($conn, $id);
+                $msg .= " Stock restored to inventory.";
+            }
+            $_SESSION['success'] = $msg;
         }
         header("Location: orders.php");
         exit();
