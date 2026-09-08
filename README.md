@@ -112,11 +112,15 @@ inventory and orders.
 
 ### 4.8 Payment Gateway (eSewa, Khalti, COD)
 - **Cash on Delivery**: order is placed and stock reduced immediately.
-- **eSewa**: order is created as pending and customer redirects to the eSewa
-  **UAT (test)** gateway; success/failure callbacks update payment status.
-- **Khalti**: order is created as pending and Khalti **sandbox** checkout is
-  initiated; callback verifies payment with the secret key, releases the payment
-  and reduces stock.
+- **eSewa (ePay V2)**: order is created as `pending` and the customer is sent to
+  the eSewa **UAT (test)** gateway via a signed HMAC-SHA256 form; on return the
+  `esewa_success.php` callback verifies the signature and confirms the transaction
+  with eSewa's status API before completing the order and reducing stock.
+- **Khalti (KPG-2)**: order is created as `pending` and Khalti **sandbox** checkout
+  is initiated; the `khalti_callback.php` callback verifies the payment with the
+  Lookup API, completes the order and reduces stock.
+- **Checkout requires login**: customers must be logged in to place an order
+  (see section 9 test customer).
 - Future work: **Fonepay** support can be added easily.
 
 ### 4.9 Admin Panel Modules
@@ -235,6 +239,58 @@ from the current site URL.
 - **Admin / Staff login:** `/admin/login.php` (username + password).
 - **Customer login:** `/login.php` (email + password). For a **new** registration
   the 6-digit OTP is shown on the verification page (demo mode).
+
+---
+
+## 9A. Payment Gateway Testing (Sandbox)
+
+> Both gateways are sandbox / UAT and **credit no real money**. Payment pages are
+> protected by the provider's own login (Khalti wallet PIN, eSewa reCAPTCHA), so the
+> gateway login must be done manually in a browser.
+>
+> **Checkout now requires a store login first** — log in at `/login.php` with
+> `sita@example.com` / `customer123` before paying.
+
+### eSewa (UAT)
+
+1. Add products to the cart and go to **Checkout**.
+2. Choose **eSewa** and submit the order.
+3. You are redirected automatically to the eSewa UAT gateway
+   (`rc-epay.esewa.com.np`, booked via the signed ePay V2 form).
+4. On the eSewa login page enter:
+   - **eSewa ID:** `9711111111` (also `9711111112` / `9711111113` / `9711111114`)
+   - **Password:** `Test@123`
+   - **OTP token:** `123456`
+   - MPIN `1122` is for the phone app only — not needed on the web page.
+5. After success, the site's `esewa_success.php` verifies the signed callback and
+   confirms via the status API, then shows the order-success page.
+
+> Older docs also list `9806800001`–`9806800005` / `Nepal@123`. On the current UAT
+> build these are rejected, so prefer the `9711111111` / `Test@123` set above.
+
+### Khalti (Sandbox / KPG-2)
+
+1. Add products to the cart and go to **Checkout**.
+2. Choose **Khalti** and submit the order.
+3. You are redirected to Khalti's sandbox wallet page (`test-pay.khalti.com`).
+4. On the wallet login enter:
+   - **Khalti ID:** `9800000000` (or `9800000002` – `9800000005`)
+   - **MPIN:** `1111`
+   - **OTP:** `987654`
+5. After success, the site's `khalti_callback.php` verifies the payment via the
+   Khalti Lookup API and completes the order.
+
+Test-wallet behaviour notes:
+- `9800000000` → **successful** payment (has balance).
+- `9800000001` → reserved for testing the **"insufficient balance"** error path.
+- Entering a wrong MPIN locks that sandbox ID for a while — wait, then retry in a
+  private window with the correct `1111` / `987654`, or simply use another ID.
+
+### Where the credentials live
+
+- `backend/payment_config.php` holds the eSewa merchant code (`EPAYTEST`), secret
+  key and UAT URLs, and the Khalti sandbox secret/public keys. Callback URLs are
+  generated automatically from the current site URL.
 
 ---
 
