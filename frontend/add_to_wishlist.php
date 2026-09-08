@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'db.php';
+require_once __DIR__ . '/../backend/db.php';
 
 if (!isset($_SESSION['customer_id'])) {
     header("Location: login.php");
@@ -29,6 +29,10 @@ if ($product_id > 0) {
     mysqli_stmt_free_result($check);
 }
 
-$referer = $_SERVER['HTTP_REFERER'] ?? 'shop.php';
+$referer = $_SERVER['HTTP_REFERER'] ?? '';
+// Sanitize: only allow same-site redirects
+if (empty($referer) || parse_url($referer, PHP_URL_HOST) !== $_SERVER['HTTP_HOST']) {
+    $referer = 'shop.php';
+}
 header("Location: " . $referer);
 exit();
