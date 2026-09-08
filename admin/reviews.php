@@ -4,16 +4,22 @@ $page_title = 'Reviews';
 $current_page = 'reviews';
 require_once 'includes/header.php';
 
+$success = $_SESSION['success'] ?? '';
+unset($_SESSION['success']);
+
 // Approve / reject / delete actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $rid = (int)($_POST['review_id'] ?? 0);
     if ($action === 'approve') {
         mysqli_query($conn, "UPDATE reviews SET status='approved' WHERE id=$rid");
+        $_SESSION['success'] = "Review approved.";
     } elseif ($action === 'reject') {
         mysqli_query($conn, "UPDATE reviews SET status='rejected' WHERE id=$rid");
+        $_SESSION['success'] = "Review rejected.";
     } elseif ($action === 'delete') {
         mysqli_query($conn, "DELETE FROM reviews WHERE id=$rid");
+        $_SESSION['success'] = "Review deleted.";
     }
     header("Location: reviews.php");
     exit();
@@ -33,6 +39,10 @@ $reviews = mysqli_query($conn,
         <p class="page-sub">Manage customer reviews and ratings</p>
     </div>
 </div>
+
+<?php if ($success): ?>
+    <div class="msg-success"><?= htmlspecialchars($success) ?></div>
+<?php endif; ?>
 
 <div style="overflow-x:auto;">
 <table class="table">
@@ -67,7 +77,7 @@ $reviews = mysqli_query($conn,
                     <button type="submit" name="action" value="reject" class="btn btn-gray btn-small"><i class="bi bi-x-lg"></i> Reject</button>
                 <?php endif; ?>
                 <button type="submit" name="action" value="delete" class="btn btn-red btn-small"
-                        onclick="return confirm('Delete this review?')"><i class="bi bi-trash"></i> Delete</button>
+                        data-confirm="Delete this review?"><i class="bi bi-trash"></i> Delete</button>
             </form>
             </div>
         </td>
