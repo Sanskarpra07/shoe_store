@@ -18,7 +18,7 @@ function base_url($path = '') {
 
     $docroot = rtrim(str_replace('\\', '/',
         realpath($_SERVER['DOCUMENT_ROOT'] ?? 'C:/xampp/htdocs') ?: 'C:/xampp/htdocs'), '/');
-    $approot = rtrim(str_replace('\\', '/', __DIR__), '/');
+    $approot = rtrim(str_replace('\\', '/', dirname(__DIR__)), '/');
 
     $webpath = '';
     if ($docroot !== '/' && strpos($approot, $docroot) === 0) {
