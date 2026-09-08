@@ -10,6 +10,13 @@ if (empty($cart)) {
     exit();
 }
 
+// Order placement requires a logged-in customer account (guards direct POSTs)
+if (empty($_SESSION['customer_id'])) {
+    $_SESSION['redirect_after_login'] = 'checkout.php';
+    header("Location: login.php");
+    exit();
+}
+
 // --- Gather shipping data ---
 $name    = trim($_POST['name'] ?? '');
 $email   = trim($_POST['email'] ?? '');
