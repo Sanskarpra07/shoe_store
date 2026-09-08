@@ -31,28 +31,83 @@ $recent_orders = mysqli_query($conn,
 );
 ?>
 
-<h2>Dashboard</h2>
-<p>Welcome back, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong>!</p>
+<div class="page-header">
+    <div>
+        <h2>Dashboard</h2>
+        <p class="page-sub">Welcome back, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong>! Here's what's happening in your store.</p>
+    </div>
+</div>
 
-<h3 class="section-title">Statistics</h3>
-<table class="table">
-    <tr>
-        <?php if ($_SESSION['role'] === 'admin'): ?>
-            <td class="center" style="width:16%;"><strong><?= $total_users ?></strong><br>Total Users<br><a href="users.php">&raquo;</a></td>
-        <?php endif; ?>
-        <td class="center" style="width:16%;"><strong><?= $total_products ?></strong><br>Total Products<br><a href="products.php">&raquo;</a></td>
-        <td class="center" style="width:16%;"><strong><?= $total_categories ?></strong><br>Categories<br><a href="categories.php">&raquo;</a></td>
-        <td class="center" style="width:16%;"><strong><?= $total_brands ?></strong><br>Brands<br><a href="brands.php">&raquo;</a></td>
-    </tr>
-    <tr>
-        <td class="center" style="width:16%;"><strong><?= $total_orders ?></strong><br>Total Orders<br><a href="orders.php">&raquo;</a></td>
-        <td class="center" style="width:16%;"><strong><?= $total_customers ?></strong><br>Registered Customers</td>
-        <td class="center" style="width:16%;"><strong><?= $low_stock ?></strong><br>Low Stock Items<br><a href="stock_log.php">&raquo;</a></td>
-        <td class="center" style="width:16%;"><strong><?= $pending_orders ?></strong><br>Pending Orders<br><a href="orders.php">&raquo;</a></td>
-    </tr>
-</table>
+<div class="stat-grid">
+    <?php if ($_SESSION['role'] === 'admin'): ?>
+        <div class="stat-card">
+            <div class="stat-icon icon-indigo"><i class="bi bi-people"></i></div>
+            <div>
+                <div class="stat-value"><?= $total_users ?></div>
+                <div class="stat-label">Total Users <a href="users.php"><i class="bi bi-arrow-right-circle"></i></a></div>
+            </div>
+        </div>
+    <?php endif; ?>
+    <div class="stat-card">
+        <div class="stat-icon icon-orange"><i class="bi bi-box-seam"></i></div>
+        <div>
+            <div class="stat-value"><?= $total_products ?></div>
+            <div class="stat-label">Products <a href="products.php"><i class="bi bi-arrow-right-circle"></i></a></div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-sky"><i class="bi bi-tags"></i></div>
+        <div>
+            <div class="stat-value"><?= $total_categories ?></div>
+            <div class="stat-label">Categories <a href="categories.php"><i class="bi bi-arrow-right-circle"></i></a></div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-pink"><i class="bi bi-buildings"></i></div>
+        <div>
+            <div class="stat-value"><?= $total_brands ?></div>
+            <div class="stat-label">Brands <a href="brands.php"><i class="bi bi-arrow-right-circle"></i></a></div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-green"><i class="bi bi-bag-check"></i></div>
+        <div>
+            <div class="stat-value"><?= $total_orders ?></div>
+            <div class="stat-label">Total Orders <a href="orders.php"><i class="bi bi-arrow-right-circle"></i></a></div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-amber"><i class="bi bi-person-check"></i></div>
+        <div>
+            <div class="stat-value"><?= $total_customers ?></div>
+            <div class="stat-label">Registered Customers</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-danger"><i class="bi bi-exclamation-triangle"></i></div>
+        <div>
+            <div class="stat-value"><?= $low_stock ?></div>
+            <div class="stat-label">Low Stock Items <a href="stock_log.php"><i class="bi bi-arrow-right-circle"></i></a></div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-warning"><i class="bi bi-hourglass-split"></i></div>
+        <div>
+            <div class="stat-value"><?= $pending_orders ?></div>
+            <div class="stat-label">Pending Orders <a href="orders.php"><i class="bi bi-arrow-right-circle"></i></a></div>
+        </div>
+    </div>
+</div>
 
-<h3 class="section-title">Revenue (Paid Orders): <span style="color:#2e7d32;">$<?= number_format($total_revenue, 2) ?></span></h3>
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-icon icon-green"><i class="bi bi-currency-dollar"></i></div>
+        <div>
+            <div class="stat-value">$<?= number_format($total_revenue, 2) ?></div>
+            <div class="stat-label">Revenue (Paid Orders)</div>
+        </div>
+    </div>
+</div>
 
 <h3 class="section-title">Recently Added Products</h3>
 <table class="table">
@@ -65,15 +120,15 @@ $recent_orders = mysqli_query($conn,
     </tr>
     <?php while ($row = mysqli_fetch_assoc($recent)): ?>
     <tr>
-        <td><?= htmlspecialchars($row['product_name']) ?></td>
+        <td><strong><?= htmlspecialchars($row['product_name']) ?></strong></td>
         <td class="center"><?= htmlspecialchars($row['brand'] ?? 'N/A') ?></td>
         <td class="center"><?= htmlspecialchars($row['category'] ?? 'Uncategorized') ?></td>
         <td class="center">$<?= number_format($row['price'], 2) ?></td>
         <td class="center">
             <?php if ($row['stock'] < 10): ?>
-                <span style="color:#c62828;"><strong><?= $row['stock'] ?> (Low)</strong></span>
+                <span class="badge badge-danger"><?= $row['stock'] ?> &middot; Low</span>
             <?php else: ?>
-                <span style="color:#2e7d32;"><strong><?= $row['stock'] ?></strong></span>
+                <span class="badge badge-success"><?= $row['stock'] ?></span>
             <?php endif; ?>
         </td>
     </tr>
@@ -95,7 +150,18 @@ $recent_orders = mysqli_query($conn,
         <td class="center"><a href="orders.php?view=<?= $o['id'] ?>"><strong>#<?= $o['id'] ?></strong></a></td>
         <td><?= htmlspecialchars($o['customer_name']) ?></td>
         <td class="center">$<?= number_format($o['total_amount'], 2) ?></td>
-        <td class="center"><?= ucfirst($o['status']) ?></td>
+        <td class="center">
+            <?php
+            $status_badge = [
+                'pending'    => 'badge-warning',
+                'processing' => 'badge-info',
+                'shipped'    => 'badge-primary',
+                'delivered'  => 'badge-success',
+                'cancelled'  => 'badge-danger',
+            ];
+            ?>
+            <span class="badge <?= $status_badge[$o['status']] ?? 'badge-secondary' ?>"><?= ucfirst($o['status']) ?></span>
+        </td>
         <td class="center"><?= date('d M Y', strtotime($o['created_at'])) ?></td>
     </tr>
     <?php endwhile; ?>
