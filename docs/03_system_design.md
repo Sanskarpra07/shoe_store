@@ -109,7 +109,7 @@ Notation used:
 | Attribute       | Type            | Key/Constraints                    | Description                    |
 | --------------- | --------------- | ---------------------------------- | ------------------------------ |
 | id              | INT UNSIGNED    | **PK**, AUTO_INCREMENT             | Order ID                       |
-| customer_id     | INT UNSIGNED    | **FK** → customers.id              | Customer (NULL → guest order; SET NULL on delete) |
+| customer_id     | INT UNSIGNED    | **FK** → customers.id              | Customer (order placement requires login; SET NULL on delete) |
 | customer_name   | VARCHAR(100)    | NN                                 | Customer name at order time    |
 | customer_email  | VARCHAR(150)    | NN                                 | Customer email at order time   |
 | customer_phone  | VARCHAR(20)     | —                                  | Customer phone at order time   |
@@ -169,7 +169,7 @@ Notation used:
 | - | ------------------------------------- | ------------ | ------------------------------------------------------------------------ |
 | R1| categories → products                 | 1 : N        | One category can contain many products; product category nullable (SET NULL on category delete) |
 | R2| brands → products                    | 1 : N        | One brand can own many products; product brand nullable (SET NULL on brand delete) |
-| R3| customers → orders                   | 1 : N        | One customer can place many orders; order.customer_id nullable (guest orders) |
+| R3| customers → orders                   | 1 : N        | One customer can place many orders; order placement requires login (customer_id always set) |
 | R4| orders → order_items                 | 1 : N        | One order has many line items (CASCADE delete)                           |
 | R5| products → order_items               | 1 : N        | One product can appear in many order line items (CASCADE delete)         |
 | R6| customers → reviews                  | 1 : N        | One customer can write many reviews (CASCADE delete)                     |
@@ -366,7 +366,7 @@ Two external entities interact with the system: **Customer** and **Admin/Staff**
 
 | External System   | Exchange with System                             |
 | ----------------- | ------------------------------------------------ |
-| eSewa Gateway     | Redirect form POST → gateway; success/failure callback |
+| eSewa Gateway     | Signed ePay V2 form POST → gateway (HMAC-SHA256); success callback verifies signature + status API |
 | Khalti Gateway    | Initiate payment API request; payment URL return  |
 | Email Server      | OTP email, order confirmation email (via `mail()`)|
 
@@ -381,7 +381,7 @@ Two external entities interact with the system: **Customer** and **Admin/Staff**
 | 1.0        | User Management       | Registration, OTP verification, login/logout, profile management   |
 | 2.0        | Product Management    | Catalog browsing, search, filter, product detail, admin CRUD, stock management |
 | 3.0        | Order Processing      | Cart display, checkout, order creation, order tracking, admin status updates |
-| 4.0        | Payment Processing    | COD completion, eSewa form redirect, Khalti API call, payment status handling |
+| 4.0        | Payment Processing    | COD completion, eSewa signed V2 form redirect, Khalti API call, callback verification, payment status handling |
 | 5.0        | Review Management     | Review submission, rating aggregation, admin moderation            |
 | 6.0        | Wishlist Management   | Add/remove wishlist items, display wishlist                         |
 | 7.0        | Reporting             | Date-range sales reports, top products, revenue trends, CSV export  |
@@ -426,8 +426,9 @@ Two external entities interact with the system: **Customer** and **Admin/Staff**
  │ (cart)  │  cart view/total  │ Order    │──► D2 products (stock read)
  └─────────┘◄──────────────────│ Processing│
  ┌─────────┐  checkout data    │          │          created order
- │ Guest / │─────────────────► │          │────────► D5  (INSERT)
- │ Customer│  confirm ◄─────── │          │────────► D6  (INSERT items)
+ │Customer │─────────────────► │          │────────► D5  (INSERT)
+ │(logged  │  confirm ◄─────── │          │────────► D6  (INSERT items)
+ │ in)     │                   │          │
  └─────────┘                   └──────────┘
  Order tracking:
  Customer ── Order ID + email ──► 3.0 ──(read D5, D6)──► status display
@@ -441,7 +442,7 @@ Two external entities interact with the system: **Customer** and **Admin/Staff**
  ┌─────────┐  payment choice  ┌──────────┐
  │Customer │────────────────►│ 4.0      │
  └─────────┘                 │ Payment  │
-                             │ Processing├───► eSewa gateway (POST form)
+                             │ Processing├───► eSewa gateway (signed V2 form POST)
                                  │       ├───► Khalti API (cURL)
                                  │       ├───► mark payment_status
                                  │       └───► reduce stock (COD)
@@ -498,7 +499,7 @@ Two external entities interact with the system: **Customer** and **Admin/Staff**
 
 | Actor           | Description                                                          |
 | --------------- | -------------------------------------------------------------------- |
-| **Guest**       | Unauthenticated visitor who can browse and place guest orders         |
+| **Guest**       | Unauthenticated visitor who can browse, search, filter, and manage a cart; must log in / register before checkout |
 | **Customer**    | Registered, verified user (inherits all Guest actions + account features) |
 | **Staff**       | Store operations user with the `staff` role                          |
 | **Admin**       | Full-privilege user with the `admin` role (inherits Staff actions + user management) |
@@ -514,7 +515,7 @@ Two external entities interact with the system: **Customer** and **Admin/Staff**
 | UC-03   | Filter Products      | Guest, Customer | Filter by category and brand                     |
 | UC-04   | View Product Detail  | Guest, Customer | View full product info, related and up-sell items|
 | UC-05   | Manage Cart          | Guest, Customer | Add/update/remove/clear cart items                |
-| UC-06   | Checkout as Guest    | Guest         | Place order with shipping details without login   |
+| UC-06   | Authenticate at Checkout  | Guest         | Prompted to log in / register at checkout; `redirect_after_login` returns the guest to checkout |
 | UC-07   | Track Order          | Guest, Customer | Track by Order ID + email                         |
 | UC-08   | Register             | Guest         | Create a customer account                         |
 
@@ -560,7 +561,7 @@ Two external entities interact with the system: **Customer** and **Admin/Staff**
 | includes          | Checkout          | Manage Cart                 | Cart must be non-empty before checkout         |
 | includes          | Checkout          | View Product Detail (→ Order Summary) | Order summary rendered from cart data |
 | includes          | Place Order       | Validate Payment Method     | Server-side validation of COD/eSewa/Khalti     |
-| includes          | Checkout          | Authenticate (optional)     | Login recommended at checkout (guest allowed)  |
+| includes          | Checkout          | Authenticate (required)     | Login/registration enforced at checkout (`checkout.php`, `process_order.php`) |
 | includes          | Place Order       | Reduce Stock                | Stock decremented after successful order       |
 | includes          | Place Order       | Send Order Email            | Order confirmation emailed after COD order     |
 | includes          | Submit Review     | Authenticate                | Review requires customer login                 |
