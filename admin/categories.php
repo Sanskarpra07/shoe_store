@@ -57,8 +57,13 @@ $error   = $_SESSION['error'] ?? '';
 unset($_SESSION['success'], $_SESSION['error']);
 ?>
 
-<h2>Categories</h2>
-<p><a class="btn" href="add_categories.php">+ Add Category</a></p>
+<div class="page-header">
+    <div>
+        <h2>Categories</h2>
+        <p class="page-sub">Organize your products into categories</p>
+    </div>
+    <a class="btn btn-green" href="add_categories.php"><i class="bi bi-plus-lg"></i> Add Category</a>
+</div>
 
 <?php if ($success): ?>
     <div class="msg-success"><?= htmlspecialchars($success) ?></div>
@@ -78,16 +83,27 @@ unset($_SESSION['success'], $_SESSION['error']);
     <?php $sno = 1; while ($row = mysqli_fetch_assoc($categories)): ?>
     <tr>
         <td class="center"><?= $sno++ ?></td>
-        <td><strong><?= htmlspecialchars($row['name']) ?></strong></td>
+        <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <?php if (!empty($row['icon'])): ?>
+                    <i class="<?= htmlspecialchars($row['icon']) ?>" style="font-size:18px; color:#f5470d;"></i>
+                <?php else: ?>
+                    <i class="fa-solid fa-icons text-muted" style="font-size:18px;"></i>
+                <?php endif; ?>
+                <strong><?= htmlspecialchars($row['name']) ?></strong>
+            </div>
+        </td>
         <td><?= htmlspecialchars($row['description'] ?? '-') ?></td>
         <td class="center"><?= $row['product_count'] ?></td>
         <td class="center">
-            <a class="btn btn-small" href="add_categories.php?action=edit&id=<?= $row['id'] ?>">Edit</a>
-            <form method="POST" action="categories.php" style="display:inline;" onsubmit="return confirm('Delete this category?')">
-                <input type="hidden" name="action" value="delete">
-                <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                <button type="submit" class="btn btn-red btn-small">Delete</button>
-            </form>
+            <div style="display:flex; gap:6px; justify-content:center;">
+                <a class="btn btn-small" href="add_categories.php?action=edit&id=<?= $row['id'] ?>"><i class="bi bi-pencil"></i> Edit</a>
+                <form method="POST" action="categories.php" style="display:inline;" onsubmit="return confirm('Delete this category?')">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                    <button type="submit" class="btn btn-red btn-small"><i class="bi bi-trash"></i> Delete</button>
+                </form>
+            </div>
         </td>
     </tr>
     <?php endwhile; ?>
