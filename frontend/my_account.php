@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db.php';
-require_once 'auth_helper.php';
+require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/../backend/auth_helper.php';
 
 if (!is_customer_logged_in()) {
     $_SESSION['redirect_after_login'] = 'my_account.php';
@@ -91,7 +91,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
     <title>My Account - StepStyle</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/frontend.css" rel="stylesheet">
+    <link href="../assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
 
@@ -132,7 +132,11 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
                     </div>
                     <h5 class="fw-bold mb-0"><?= htmlspecialchars($customer['full_name']) ?></h5>
                     <p class="text-muted small"><?= htmlspecialchars($customer['email']) ?></p>
-                    <span class="badge bg-success"><i class="bi bi-patch-check me-1"></i>Verified</span>
+                    <?php if ($customer['is_verified']): ?>
+                        <span class="badge bg-success"><i class="bi bi-patch-check me-1"></i>Verified</span>
+                    <?php else: ?>
+                        <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-circle me-1"></i>Not Verified</span>
+                    <?php endif; ?>
                     <hr>
                     <a href="my_account.php" class="d-block text-decoration-none mb-2"><i class="bi bi-person me-2"></i>Profile</a>
                     <a href="my_orders.php" class="d-block text-decoration-none"><i class="bi bi-box-seam me-2"></i>My Orders</a>
@@ -157,7 +161,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
                     <div class="card stat-card border-0 shadow-sm p-3">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <div class="fs-3 fw-bold">$<?= number_format($total_spent, 2) ?></div>
+                                <div class="fs-3 fw-bold">रु <?= number_format($total_spent, 2) ?></div>
                                 <div class="text-muted small">Total Spent</div>
                             </div>
                             <i class="bi bi-cash-stack fs-2 text-success"></i>
@@ -264,7 +268,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
                                     <a href="my_orders.php?view=<?= $o['id'] ?>" class="text-decoration-none">#<?= $o['id'] ?></a>
                                 </td>
                                 <td class="small"><?= date('d M Y, h:i A', strtotime($o['created_at'])) ?></td>
-                                <td class="fw-bold">$<?= number_format($o['total_amount'], 2) ?></td>
+                                <td class="fw-bold">रु <?= number_format($o['total_amount'], 2) ?></td>
                                 <td><span class="badge bg-secondary"><?= strtoupper($o['payment_method']) ?></span></td>
                                 <td><span class="badge order-status-<?= $o['status'] ?>"><?= ucfirst($o['status']) ?></span></td>
                             </tr>
