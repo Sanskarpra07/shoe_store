@@ -18,10 +18,13 @@ if (!function_exists('base_url')) {
     }
 }
 
-// ---------- eSewa Sandbox ----------
+// ---------- eSewa Sandbox (ePay V2) ----------
 define('ESEWA_MERCHANT_CODE', 'EPAYTEST');
-define('ESEWA_URL', 'https://uat.esewa.com.np/epay/main');
-define('ESEWA_SIGNATURE_URL', 'https://uat.esewa.com.np/epay/transrec');
+// Sandbox secret key used for HMAC-SHA256 signature generation/verification.
+// Production: replace with your live secret key and the epay.esewa.com.np URLs.
+define('ESEWA_SECRET_KEY', '8gBm/:&EnhH.1/q');
+define('ESEWA_URL', 'https://rc-epay.esewa.com.np/api/epay/main/v2/form');
+define('ESEWA_STATUS_URL', 'https://rc-epay.esewa.com.np/api/epay/transaction/status/');
 define('ESEWA_SUCCESS_URL', base_url('esewa_success.php'));
 define('ESEWA_FAILURE_URL', base_url('esewa_failure.php'));
 
