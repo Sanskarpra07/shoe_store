@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db.php';
-require_once 'auth_helper.php';
+require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/../backend/auth_helper.php';
 
 if (is_customer_logged_in()) {
     header("Location: my_account.php");
@@ -50,6 +50,7 @@ if (!$customer['is_verified']) {
     exit();
 }
 
+session_regenerate_id(true);
 $_SESSION['customer_id']    = $customer['id'];
 $_SESSION['customer_name']  = $customer['full_name'];
 $_SESSION['customer_email'] = $customer['email'];
