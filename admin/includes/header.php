@@ -1,11 +1,11 @@
 <?php
 // Admin panel layout header.
 // The including page must set $current_page (e.g. 'dashboard', 'products').
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['username']) || !isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'staff'])) {
     header("Location: login.php");
     exit();
 }
-require_once __DIR__ . '/../../db.php';
+require_once __DIR__ . '/../../backend/db.php';
 
 $nav_items = [
     'dashboard'      => ['Dashboard', 'bi-speedometer2'],
@@ -30,7 +30,7 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
     <title><?= htmlspecialchars($page_title ?? 'Admin') ?> - Shoe Store Admin</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
 <div class="admin-wrap">
@@ -51,8 +51,8 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
         <div class="side-user">
             Logged in as <strong><?= htmlspecialchars($_SESSION['username']) ?></strong><br>
             <span class="user-actions">
-                <a href="../index.php"><i class="bi bi-store"></i> Store</a>
-                <a href="../logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                <a href="../frontend/index.php"><i class="bi bi-store"></i> Store</a>
+                <a href="../frontend/logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
             </span>
         </div>
     </div>
