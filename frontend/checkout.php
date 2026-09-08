@@ -9,6 +9,13 @@ if (empty($cart)) {
     exit();
 }
 
+// Checkout requires a logged-in customer account
+if (!is_customer_logged_in()) {
+    $_SESSION['redirect_after_login'] = 'checkout.php';
+    header("Location: login.php");
+    exit();
+}
+
 $cart_items = [];
 $total = 0;
 $ids = array_keys($cart);
@@ -77,13 +84,6 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
 
 <div class="container py-5">
     <h2 class="section-title">Checkout</h2>
-
-    <?php if (!is_customer_logged_in()): ?>
-        <div class="alert alert-info py-2 small d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-info-circle me-1"></i>You are checking out as a guest.</span>
-            <a href="login.php" class="btn btn-sm btn-dark">Login to save address & track orders</a>
-        </div>
-    <?php endif; ?>
 
     <?php if (!empty($errors)): ?>
         <div class="alert alert-danger">
