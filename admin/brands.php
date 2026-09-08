@@ -171,7 +171,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <td class="center">
                     <div style="display:flex; gap:6px; justify-content:center;">
                         <a class="btn btn-small" href="brands.php?action=edit&id=<?= $row['id'] ?>"><i class="bi bi-pencil"></i> Edit</a>
-                        <form method="POST" action="brands.php" onsubmit="return confirm('Delete this brand?')">
+                        <form method="POST" action="brands.php" data-confirm="Delete this brand?">
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= $row['id'] ?>">
                             <button type="submit" class="btn btn-red btn-small"><i class="bi bi-trash"></i> Delete</button>
