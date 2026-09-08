@@ -94,7 +94,6 @@ unset($_SESSION['success'], $_SESSION['error']);
         <h2>Brands</h2>
         <p class="page-sub">Manage the brands in your catalog</p>
     </div>
-    <a class="btn btn-green" href="brands.php"><i class="bi bi-plus-lg"></i> Add Brand</a>
 </div>
 
 <?php if ($success): ?>
