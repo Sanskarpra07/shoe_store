@@ -6,7 +6,7 @@ require_once 'includes/header.php';
 
 $errors = [];
 $is_edit = false;
-$category = ['id' => '', 'name' => '', 'description' => ''];
+$category = ['id' => '', 'name' => '', 'description' => '', 'icon' => ''];
 
 if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) {
     $id = (int)$_GET['id'];
@@ -20,7 +20,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
+    $icon = trim($_POST['icon'] ?? '');
     $cat_id = $_POST['category_id'] ?? '';
+
+    if (strlen($icon) > 100) {
+        $icon = substr($icon, 0, 100);
+    }
+    if (!empty($icon) && !preg_match('/^[a-zA-Z0-9\s\-]+$/', $icon)) {
+        $icon = '';
+    }
 
     if (empty($name)) {
         $errors[] = "Category name is required.";
@@ -28,11 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         if (!empty($cat_id)) {
-            $stmt = mysqli_prepare($conn, "UPDATE categories SET name = ?, description = ? WHERE id = ?");
-            mysqli_stmt_bind_param($stmt, "ssi", $name, $description, $cat_id);
+            $stmt = mysqli_prepare($conn, "UPDATE categories SET name = ?, description = ?, icon = ? WHERE id = ?");
+            mysqli_stmt_bind_param($stmt, "sssi", $name, $description, $icon, $cat_id);
         } else {
-            $stmt = mysqli_prepare($conn, "INSERT INTO categories (name, description) VALUES (?, ?)");
-            mysqli_stmt_bind_param($stmt, "ss", $name, $description);
+            $stmt = mysqli_prepare($conn, "INSERT INTO categories (name, description, icon) VALUES (?, ?, ?)");
+            mysqli_stmt_bind_param($stmt, "sss", $name, $description, $icon);
         }
 
         if (mysqli_stmt_execute($stmt)) {
@@ -44,10 +52,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+$selected_icon = $is_edit ? ($category['icon'] ?? '') : ($_POST['icon'] ?? '');
 ?>
 
-<h2><?= $is_edit ? 'Edit Category' : 'Add New Category' ?></h2>
-<p><a href="categories.php">&laquo; Back to Categories</a></p>
+<div class="page-header">
+    <div>
+        <h2><?= $is_edit ? 'Edit Category' : 'Add New Category' ?></h2>
+        <p class="page-sub"><?= $is_edit ? 'Update this category' : 'Create a new category' ?></p>
+    </div>
+    <a class="btn btn-gray" href="categories.php"><i class="bi bi-arrow-left"></i> Back to Categories</a>
+</div>
 
 <?php if (!empty($errors)): ?>
     <div class="msg-error">
@@ -69,11 +84,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <textarea name="description" rows="2"><?= htmlspecialchars($is_edit ? $category['description'] : ($_POST['description'] ?? '')) ?></textarea>
         </div>
 
-        <button type="submit" class="btn"><?= $is_edit ? 'Update Category' : 'Add Category' ?></button>
-        <?php if ($is_edit): ?>
-            <a href="categories.php" class="btn btn-gray">Cancel</a>
-        <?php endif; ?>
+        <div class="form-group">
+            <label>Icon Code (Font Awesome)</label>
+            <input type="text" name="icon" id="icon-input" value="<?= htmlspecialchars($selected_icon ?? '') ?>"
+                   placeholder="e.g. fa-solid fa-running" oninput="previewIcon()">
+            <p class="small text-muted" style="margin:6px 0 0;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Pick an icon from
+                <a href="https://fontawesome.com/icons" target="_blank" rel="noopener">Font Awesome</a>,
+                copy the icon code, and paste it into this field.
+            </p>
+            <div style="margin-top:10px; display:flex; align-items:center; gap:12px;">
+                <i id="icon-preview" class="<?= !empty($selected_icon) ? htmlspecialchars($selected_icon) : 'fa-solid fa-icons' ?> fs-3" style="color:#f5470d;"></i>
+                <span class="small text-muted">Live preview</span>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+            <button type="submit" class="btn" style="flex:1;"><i class="bi bi-check-lg"></i> <?= $is_edit ? 'Update Category' : 'Add Category' ?></button>
+            <?php if ($is_edit): ?>
+                <a href="categories.php" class="btn btn-gray"><i class="bi bi-x-lg"></i> Cancel</a>
+            <?php endif; ?>
+        </div>
     </form>
 </div>
+
+<script>
+function previewIcon() {
+    var input = document.getElementById('icon-input');
+    var p = document.getElementById('icon-preview');
+    p.className = (input.value.trim() || 'fa-solid fa-icons') + ' fs-3';
+}
+</script>
 
 <?php require_once 'includes/footer.php'; ?>

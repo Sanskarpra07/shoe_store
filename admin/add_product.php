@@ -158,8 +158,13 @@ $categories_result = mysqli_query($conn, "SELECT id, name FROM categories ORDER 
 $brands_result = mysqli_query($conn, "SELECT id, name FROM brands ORDER BY name ASC");
 ?>
 
-<h2><?= $is_edit ? 'Edit Product' : 'Add New Product' ?></h2>
-<p><a href="products.php">&laquo; Back to Products</a></p>
+<div class="page-header">
+    <div>
+        <h2><?= $is_edit ? 'Edit Product' : 'Add New Product' ?></h2>
+        <p class="page-sub"><?= $is_edit ? 'Update the product details' : 'Create a new product listing' ?></p>
+    </div>
+    <a class="btn btn-gray" href="products.php"><i class="bi bi-arrow-left"></i> Back to Products</a>
+</div>
 
 <?php if (!empty($errors)): ?>
     <div class="msg-error">
@@ -167,7 +172,7 @@ $brands_result = mysqli_query($conn, "SELECT id, name FROM brands ORDER BY name 
     </div>
 <?php endif; ?>
 
-<div class="form-box" style="width:700px;">
+<div class="form-box" style="max-width:700px;">
     <form method="POST" action="add_product.php" enctype="multipart/form-data">
         <input type="hidden" name="edit_id" value="<?= htmlspecialchars($product['id']) ?>">
 
@@ -175,8 +180,8 @@ $brands_result = mysqli_query($conn, "SELECT id, name FROM brands ORDER BY name 
             <label>Product Image</label>
             <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp,.gif">
             <?php if (!empty($product['image'])): ?>
-                <div style="margin-top:5px;">
-                    <img src="../<?= htmlspecialchars($product['image']) ?>" alt="" style="width:60px; height:60px; border:1px solid #ddd;">
+                <div style="margin-top:10px; display:flex; align-items:center; gap:12px;">
+                    <img src="../<?= htmlspecialchars($product['image']) ?>" alt="" class="thumb">
                     <label style="font-weight:normal; font-size:12px;">
                         <input type="checkbox" name="remove_image" value="1"> Remove current image
                     </label>
@@ -244,8 +249,10 @@ $brands_result = mysqli_query($conn, "SELECT id, name FROM brands ORDER BY name 
             </select>
         </div>
 
-        <button type="submit" class="btn btn-green"><?= $is_edit ? 'Update Product' : 'Add Product' ?></button>
-        <a href="products.php" class="btn btn-gray">Cancel</a>
+        <div style="display:flex; gap:10px; margin-top:8px;">
+            <button type="submit" class="btn btn-green" style="flex:1;"><i class="bi bi-check-lg"></i> <?= $is_edit ? 'Update Product' : 'Add Product' ?></button>
+            <a href="products.php" class="btn btn-gray"><i class="bi bi-x-lg"></i> Cancel</a>
+        </div>
     </form>
 </div>
 
