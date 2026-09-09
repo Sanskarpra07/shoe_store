@@ -1,6 +1,6 @@
 # Software Requirements Specification (SRS)
 
-## StepStyle — Online Shoe Store Management System
+## MegaFoot — Online Shoe Store Management System
 
 **BCA 5th Semester — E-Business Course**
 
@@ -10,7 +10,7 @@
 | --------------------------- | -------------------------------------------------------------- |
 | **Document Version**        | 1.0                                                            |
 | **Date**                    | September 2026                                                |
-| **Project**                 | StepStyle — Online Shoe Store Management System               |
+| **Project**                 | MegaFoot — Online Shoe Store Management System               |
 | **Status**                  | Final                                                          |
 
 ---
@@ -31,11 +31,11 @@
 
 ### 1.1 Purpose
 
-This Software Requirements Specification (SRS) document defines the complete functional and non-functional requirements for the **StepStyle — Online Shoe Store Management System**. It serves as the basis for development, testing, and acceptance of the system. The document describes what the system will do, how it will behave, and the constraints within which it must operate.
+This Software Requirements Specification (SRS) document defines the complete functional and non-functional requirements for the **MegaFoot — Online Shoe Store Management System**. It serves as the basis for development, testing, and acceptance of the system. The document describes what the system will do, how it will behave, and the constraints within which it must operate.
 
 ### 1.2 Scope
 
-The StepStyle system is a web-based e-commerce platform for the buying and selling of footwear. It provides two primary interfaces:
+The MegaFoot system is a web-based e-commerce platform for the buying and selling of footwear. It provides two primary interfaces:
 
 1. **Customer-Facing Storefront**: Product browsing, search and filtering, shopping cart, checkout with multiple payment options, order tracking, account management, wishlist, and product reviews.
 
@@ -66,7 +66,7 @@ The system is a self-contained web application developed using PHP and MySQL, de
 
 ### 2.1 Product Perspective
 
-StepStyle is a new, standalone web application built from scratch for the BCA 5th Semester E-Business course. It does not depend on any existing system and is designed to be deployed on a local XAMPP server for demonstration and evaluation purposes. The system follows a three-tier architecture:
+MegaFoot is a new, standalone web application built from scratch for the BCA 5th Semester E-Business course. It does not depend on any existing system and is designed to be deployed on a local XAMPP server for demonstration and evaluation purposes. The system follows a three-tier architecture:
 
 - **Presentation Layer**: HTML5, CSS3, JavaScript, and Bootstrap 5.3 rendered in the web browser
 - **Business Logic Layer**: PHP scripts executing on the Apache server

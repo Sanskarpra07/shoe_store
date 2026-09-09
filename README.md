@@ -1,4 +1,4 @@
-# StepStyle - Online Shoe Store
+# MegaFoot - Online Shoe Store
 
 A complete **Online Shoe Store Management System** built as a final project for the
 BCA 5th-semester course *Management Information System*. It is custom-coded in
@@ -25,7 +25,7 @@ storefront and a full admin panel.
 
 ## 1. Introduction
 
-**StepStyle** is a web-based e-commerce system for buying and selling shoes online.
+**MegaFoot** is a web-based e-commerce system for buying and selling shoes online.
 Customers can browse shoes by category, brand or keyword, add items to a wishlist
 and shopping cart, place orders, and pay using **Cash on Delivery (COD)**, **eSewa**
 or **Khalti**. New accounts are verified with a **6-digit OTP sent to the email**,

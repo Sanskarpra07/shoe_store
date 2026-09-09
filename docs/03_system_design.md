@@ -1,4 +1,4 @@
-# System Design — StepStyle Online Shoe Store Management System
+# System Design — MegaFoot Online Shoe Store Management System
 
 **BCA 5th Semester — E-Business Course**
 
@@ -18,7 +18,7 @@
 
 ## 1. Introduction
 
-This document presents the system design for the StepStyle Online Shoe Store Management System. All diagrams are provided in **textual/ASCII notation** so they can be rendered as images later using any diagram tool (draw.io, Lucidchart, StarUML) or embedded directly as monospace text blocks in the final report.
+This document presents the system design for the MegaFoot Online Shoe Store Management System. All diagrams are provided in **textual/ASCII notation** so they can be rendered as images later using any diagram tool (draw.io, Lucidchart, StarUML) or embedded directly as monospace text blocks in the final report.
 
 The design follows a three-tier architecture:
 
@@ -296,7 +296,7 @@ Two external entities interact with the system: **Customer** and **Admin/Staff**
 ```
                       +---------------------------------------------+
                       |                                             |
-                      |     STEPSTYLE ONLINE SHOE STORE SYSTEM     |
+                      |     MEGAFOOT ONLINE SHOE STORE SYSTEM     |
                       |            (Level 0 / Context)            |
                       |                                             |
                       +---------------------------------------------+
@@ -340,7 +340,7 @@ Two external entities interact with the system: **Customer** and **Admin/Staff**
    |                                              |
    v                                              v
 +----------------------------------------------------------+
-|                       STEPSTYLE                           |
+|                       MEGAFOOT                           |
 |                ONLINE SHOE STORE SYSTEM                   |
 |                                                            |
 |   1.0   Customer Storefront        2.0   Admin Console    |
@@ -577,7 +577,7 @@ Two external entities interact with the system: **Customer** and **Admin/Staff**
 ### 5.4 Use Case Diagram (Textual)
 
 ```
-                          USE CASE DIAGRAM — STEPSTYLE
+                          USE CASE DIAGRAM — MEGAFOOT
                           ============================
 
         +---------------- SYSTEM BOUNDARY ------------------+
@@ -662,7 +662,7 @@ Two external entities interact with the system: **Customer** and **Admin/Staff**
 
 ## 6. Class Diagram (Conceptual)
 
-Although StepStyle uses procedural PHP (not OOP), the following conceptual class diagram documents the domain model behind the system for design clarity.
+Although MegaFoot uses procedural PHP (not OOP), the following conceptual class diagram documents the domain model behind the system for design clarity.
 
 ```
 +----------------+          +----------------+          +----------------+

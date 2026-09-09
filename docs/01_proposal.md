@@ -1,4 +1,4 @@
-# StepStyle — Online Shoe Store Management System
+# MegaFoot — Online Shoe Store Management System
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Field              | Details                                  |
 | ------------------ | ---------------------------------------- |
-| **Project Title**  | StepStyle — Online Shoe Store Management System |
+| **Project Title**  | MegaFoot — Online Shoe Store Management System |
 | **Course**         | BCA 5th Semester, E-Business             |
 | **Academic Year**  | 2025 / 2026                             |
 | **Technology**     | PHP 7.4, MySQL/MariaDB, Bootstrap 5.3   |
@@ -28,7 +28,7 @@ We also extend our thanks to the faculty and staff of the BCA department for the
 
 ## Abstract
 
-StepStyle is a web-based online shoe store management system designed and developed as part of the BCA 5th Semester E-Business course. The system provides a complete e-commerce solution for buying and selling footwear from premium brands such as Nike, Adidas, Puma, Reebok, and New Balance. Customers can browse a rich product catalog, filter by brand and category, manage a shopping cart, place orders with multiple payment options (Cash on Delivery, eSewa, and Khalti), track their orders, maintain wishlists, and submit product reviews and ratings. On the administration side, the system offers a comprehensive dashboard with key performance indicators (KPIs), product CRUD management, order processing workflows, customer management, category and brand administration, stock audit logging, review moderation, and date-range-filtered reporting with CSV export capabilities. The system is built using PHP 7.4 with MySQL/MariaDB as the database backend, Bootstrap 5.3 for responsive front-end design, and integrates with Nepal's popular digital payment gateways — eSewa and Khalti — in sandbox mode. Security measures include Cross-Site Request Forgery (CSRF) token protection, prepared SQL statements to prevent injection attacks, and password hashing using PHP's `password_hash()` function. The system follows a three-tier architecture with clear separation between the presentation layer, business logic layer, and data access layer, ensuring maintainability and scalability.
+MegaFoot is a web-based online shoe store management system designed and developed as part of the BCA 5th Semester E-Business course. The system provides a complete e-commerce solution for buying and selling footwear from premium brands such as Nike, Adidas, Puma, Reebok, and New Balance. Customers can browse a rich product catalog, filter by brand and category, manage a shopping cart, place orders with multiple payment options (Cash on Delivery, eSewa, and Khalti), track their orders, maintain wishlists, and submit product reviews and ratings. On the administration side, the system offers a comprehensive dashboard with key performance indicators (KPIs), product CRUD management, order processing workflows, customer management, category and brand administration, stock audit logging, review moderation, and date-range-filtered reporting with CSV export capabilities. The system is built using PHP 7.4 with MySQL/MariaDB as the database backend, Bootstrap 5.3 for responsive front-end design, and integrates with Nepal's popular digital payment gateways — eSewa and Khalti — in sandbox mode. Security measures include Cross-Site Request Forgery (CSRF) token protection, prepared SQL statements to prevent injection attacks, and password hashing using PHP's `password_hash()` function. The system follows a three-tier architecture with clear separation between the presentation layer, business logic layer, and data access layer, ensuring maintainability and scalability.
 
 ---
 
@@ -73,13 +73,13 @@ Physical shoe stores in Nepal face the following key challenges:
 6. **No Customer Reviews**: There is no mechanism for customers to share feedback or rate products, reducing trust for new buyers.
 7. **No Analytics**: Store owners lack data-driven insights into sales trends, popular products, and revenue patterns.
 
-StepStyle aims to address all these challenges by providing a comprehensive, web-based shoe store management system that serves both customers and administrators.
+MegaFoot aims to address all these challenges by providing a comprehensive, web-based shoe store management system that serves both customers and administrators.
 
 ---
 
 ## 2. Objectives
 
-The primary objectives of the StepStyle project are:
+The primary objectives of the MegaFoot project are:
 
 1. **Develop a user-friendly online shoe catalog** that allows customers to browse, search, and filter products by brand (Nike, Adidas, Puma, Reebok, New Balance) and category (Running, Casual, Sports, Formal, Boots).
 
@@ -161,17 +161,17 @@ Modern e-commerce platforms have evolved significantly from simple product listi
 ### 4.2 Existing Solutions
 
 #### Daraz Nepal
-Daraz is the largest e-commerce platform in Nepal, offering a wide range of products including footwear. However, it operates as a marketplace connecting multiple sellers, which can lead to inconsistent product quality, variable shipping times, and complex seller management. StepStyle differentiates itself by being a single-brand store with direct inventory control.
+Daraz is the largest e-commerce platform in Nepal, offering a wide range of products including footwear. However, it operates as a marketplace connecting multiple sellers, which can lead to inconsistent product quality, variable shipping times, and complex seller management. MegaFoot differentiates itself by being a single-brand store with direct inventory control.
 
 #### Sastodeal
-Sastodeal is another popular Nepali e-commerce platform. While it offers competitive pricing, its shoe collection is spread across multiple sellers, making quality control and consistent customer experience challenging. StepStyle focuses exclusively on footwear, allowing for a more curated and specialized experience.
+Sastodeal is another popular Nepali e-commerce platform. While it offers competitive pricing, its shoe collection is spread across multiple sellers, making quality control and consistent customer experience challenging. MegaFoot focuses exclusively on footwear, allowing for a more curated and specialized experience.
 
 #### Nike.com / Adidas.com
-International brand websites offer excellent product presentation and user experience but do not serve the Nepali market directly. They lack integration with local payment methods (eSewa, Khalti) and do not support local shipping infrastructure. StepStyle bridges this gap by combining international brand products with local payment and delivery capabilities.
+International brand websites offer excellent product presentation and user experience but do not serve the Nepali market directly. They lack integration with local payment methods (eSewa, Khalti) and do not support local shipping infrastructure. MegaFoot bridges this gap by combining international brand products with local payment and delivery capabilities.
 
-### 4.3 What StepStyle Improves
+### 4.3 What MegaFoot Improves
 
-| Aspect               | Existing Platforms                | StepStyle                          |
+| Aspect               | Existing Platforms                | MegaFoot                          |
 | -------------------- | --------------------------------- | ---------------------------------- |
 | Product Focus        | General marketplace               | Specialized footwear store         |
 | Payment Integration  | Limited local payment options     | COD + eSewa + Khalti               |
@@ -215,7 +215,7 @@ Each iteration builds upon the previous one, allowing for continuous feedback an
 
 ## 6. System Architecture
 
-StepStyle follows a **Three-Tier Architecture** pattern, separating the application into three distinct layers:
+MegaFoot follows a **Three-Tier Architecture** pattern, separating the application into three distinct layers:
 
 ### 6.1 Presentation Layer (Client-Side)
 
@@ -359,7 +359,7 @@ The project was developed over a 10-week period following an iterative approach:
 
 ## 9. Expected Outcomes
 
-Upon completion, the StepStyle project delivers:
+Upon completion, the MegaFoot project delivers:
 
 1. **A Fully Functional E-Commerce Website**: A responsive, visually appealing online shoe store with product catalog, shopping cart, checkout, and payment processing capabilities.
 
@@ -406,4 +406,4 @@ Upon completion, the StepStyle project delivers:
 ---
 
 *Prepared for BCA 5th Semester, E-Business Course*
-*StepStyle — Online Shoe Store Management System*
+*MegaFoot — Online Shoe Store Management System*
