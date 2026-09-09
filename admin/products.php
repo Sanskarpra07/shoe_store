@@ -116,10 +116,10 @@ $total_rows = mysqli_num_rows($result);
         </td>
         <td class="center">
             <a class="btn btn-small" href="add_product.php?id=<?= $row['id'] ?>"><i class="bi bi-pencil"></i> Edit</a>
-            <form method="POST" action="products.php" style="display:inline;" data-confirm="Are you sure you want to delete this product?">
+            <form method="POST" action="products.php" style="display:inline;">
                 <input type="hidden" name="delete_product" value="1">
                 <input type="hidden" name="delete_id" value="<?= $row['id'] ?>">
-                <button type="submit" class="btn btn-red btn-small"><i class="bi bi-trash"></i> Delete</button>
+                <button type="submit" class="btn btn-red btn-small" data-confirm="Are you sure you want to delete this product?"><i class="bi bi-trash"></i> Delete</button>
             </form>
         </td>
     </tr>
