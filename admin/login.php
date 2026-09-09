@@ -9,6 +9,8 @@ unset($_SESSION['error_message'], $_SESSION['success_message']);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Shoe Store</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

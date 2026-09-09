@@ -26,6 +26,8 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($page_title ?? 'Admin') ?> - Shoe Store Admin</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -36,7 +38,7 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
 <div class="admin-wrap">
     <div class="sidebar">
         <div class="side-brand">
-            <span class="brand-icon"><i class="bi bi-bag-heart"></i></span>
+            <img src="../assets/img/megafoot.jpg" alt="MegaFoot" class="brand-logo">
             <span>
                 <span class="brand-title">MegaFoot</span><br>
                 <span class="brand-sub">Admin Panel</span>
