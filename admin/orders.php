@@ -224,11 +224,11 @@ unset($_SESSION['error']);
     <?php if ($order_detail['payment_method'] === 'khalti' && $order_detail['payment_status'] === 'completed' && $order_detail['status'] !== 'cancelled'): ?>
     <h3 class="section-title">Payment Refund</h3>
     <div class="form-box" style="max-width:420px; margin:0;">
-        <form method="POST" action="orders.php" data-confirm="Process a full Khalti refund for this order? Stock will be restored.">
+        <form method="POST" action="orders.php">
             <input type="hidden" name="action" value="refund_khalti">
             <input type="hidden" name="id" value="<?= $order_detail['id'] ?>">
             <p class="small text-muted">Process a full refund of रु <?= number_format($order_detail['total_amount'], 2) ?> to the customer's Khalti wallet. Order will be cancelled and stock restored.</p>
-            <button type="submit" class="btn btn-red"><i class="bi bi-arrow-counterclockwise"></i> Refund via Khalti</button>
+            <button type="submit" class="btn btn-red" data-confirm="Process a full Khalti refund for this order? Stock will be restored."><i class="bi bi-arrow-counterclockwise"></i> Refund via Khalti</button>
         </form>
     </div>
     <?php endif; ?>
