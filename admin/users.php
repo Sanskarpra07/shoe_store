@@ -93,10 +93,10 @@ unset($_SESSION['success'], $_SESSION['error']);
             <?php if ($is_me): ?>
                 <span class="small text-muted">Cannot delete own account</span>
             <?php else: ?>
-                <form method="POST" action="users.php" style="display:inline;" data-confirm="Delete user: <?= htmlspecialchars($row['username']) ?>?">
+                <form method="POST" action="users.php" style="display:inline;">
                     <input type="hidden" name="delete_user" value="1">
                     <input type="hidden" name="user_id" value="<?= $row['id'] ?>">
-                    <button type="submit" class="btn btn-red btn-small"><i class="bi bi-trash"></i> Delete</button>
+                    <button type="submit" class="btn btn-red btn-small" data-confirm="Delete user: <?= htmlspecialchars($row['username']) ?>?"><i class="bi bi-trash"></i> Delete</button>
                 </form>
             <?php endif; ?>
         </td>
