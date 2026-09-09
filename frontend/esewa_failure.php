@@ -19,6 +19,8 @@ if ($order_id > 0) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <title>Payment Failed - MegaFoot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">

@@ -35,6 +35,8 @@ $items = mysqli_stmt_get_result($items_stmt);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <title>Invoice #<?= $order['oid'] ?> - MegaFoot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>

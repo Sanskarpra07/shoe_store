@@ -34,6 +34,8 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MegaFoot - Premium Shoe Store | Buy Shoes Online in Nepal</title>
     <meta name="description" content="Shop the latest running, casual, sports and formal shoes online. Top brands like Nike, Adidas, Puma and Reebok at MegaFoot.">

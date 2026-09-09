@@ -60,6 +60,8 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Shoes - MegaFoot</title>
     <meta name="description" content="Browse and filter our full collection of running, casual, sports, formal shoes and boots by category, brand, price and color.">
