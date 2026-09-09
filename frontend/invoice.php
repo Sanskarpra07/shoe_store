@@ -35,7 +35,7 @@ $items = mysqli_stmt_get_result($items_stmt);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Invoice #<?= $order['oid'] ?> - StepStyle</title>
+    <title>Invoice #<?= $order['oid'] ?> - MegaFoot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         @media print { .no-print { display: none !important; } body { font-size: 12px; } }
@@ -48,9 +48,9 @@ $items = mysqli_stmt_get_result($items_stmt);
 <div class="invoice-box">
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
-            <div class="brand">StepStyle</div>
+            <div class="brand">MegaFoot</div>
             <div class="small text-muted">Durbar Marg, Kathmandu, Nepal</div>
-            <div class="small text-muted">info@stepstyle.com | +977-1-456789</div>
+            <div class="small text-muted">info@megafoot.com | +977-1-456789</div>
         </div>
         <div class="text-end">
             <h4 class="fw-bold mb-1">INVOICE</h4>
@@ -95,7 +95,7 @@ $items = mysqli_stmt_get_result($items_stmt);
             <tr><td colspan="3" class="text-end fw-bold">Grand Total</td><td class="text-end fw-bold">रु <?= number_format($order['total_amount'], 2) ?></td></tr>
         </tfoot>
     </table>
-    <div class="text-center text-muted small mt-4">Thank you for shopping with StepStyle!</div>
+    <div class="text-center text-muted small mt-4">Thank you for shopping with MegaFoot!</div>
 </div>
 <div class="text-center no-print my-4">
     <button onclick="window.print()" class="btn btn-dark"><i class="bi bi-printer me-1"></i>Print Invoice</button>

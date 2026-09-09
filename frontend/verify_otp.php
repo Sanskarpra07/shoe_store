@@ -25,8 +25,8 @@ if (isset($_POST['resend'])) {
     mysqli_stmt_execute($stmt);
 
     $_SESSION['pending_otp_code'] = $otp;
-    @mail($email, "StepStyle Email Verification",
-        "Your new OTP verification code is: $otp\nIt expires in 10 minutes.\n\n- StepStyle");
+    @mail($email, "MegaFoot Email Verification",
+        "Your new OTP verification code is: $otp\nIt expires in 10 minutes.\n\n- MegaFoot");
     $success = "A new OTP has been sent to your email.";
     $demo_otp = $otp;
 }
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
         $_SESSION['customer_id']    = $customer['id'];
         $_SESSION['customer_name']  = $customer['full_name'];
         $_SESSION['customer_email'] = $customer['email'];
-        $_SESSION['login_success']  = "Your account has been verified successfully. Welcome to StepStyle!";
+        $_SESSION['login_success']  = "Your account has been verified successfully. Welcome to MegaFoot!";
         header("Location: my_account.php");
         exit();
     }
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $mode === 'reset' ? 'Verify OTP - Password Reset - StepStyle' : 'Verify OTP - StepStyle' ?></title>
+    <title><?= $mode === 'reset' ? 'Verify OTP - Password Reset - MegaFoot' : 'Verify OTP - MegaFoot' ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/css/frontend.css" rel="stylesheet">

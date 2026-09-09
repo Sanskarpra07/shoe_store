@@ -108,12 +108,12 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($row['product_name']) ?> - StepStyle</title>
+    <title><?= htmlspecialchars($row['product_name']) ?> - MegaFoot</title>
     <meta name="description" content="Buy <?= htmlspecialchars($row['product_name']) ?> online. <?= htmlspecialchars(mb_substr(strip_tags($row['description'] ?? ''), 0, 150)) ?><?= $row['brand_name'] ? ' ' . htmlspecialchars($row['brand_name']) . '.' : '' ?>">
     <meta name="keywords" content="<?= htmlspecialchars($row['product_name']) ?>, shoes, sneakers, <?= htmlspecialchars($row['brand_name'] ?? '') ?>, footwear">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="product">
-    <meta property="og:title" content="<?= htmlspecialchars($row['product_name']) ?> - StepStyle">
+    <meta property="og:title" content="<?= htmlspecialchars($row['product_name']) ?> - MegaFoot">
     <meta property="og:description" content="<?= htmlspecialchars(mb_substr(strip_tags($row['description'] ?? ''), 0, 150)) ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">

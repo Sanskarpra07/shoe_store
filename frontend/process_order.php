@@ -187,7 +187,7 @@ if ($payment === 'khalti') {
         'website_url' => base_url(''),
         'amount' => $khalti_total,
         'purchase_order_id' => "order_$order_id",
-        'purchase_order_name' => 'StepStyle Order #' . $order_id,
+        'purchase_order_name' => 'MegaFoot Order #' . $order_id,
         'customer_info' => [
             'name' => $name,
             'email' => $email,

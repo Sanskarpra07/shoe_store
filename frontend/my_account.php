@@ -88,7 +88,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Account - StepStyle</title>
+    <title>My Account - MegaFoot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/css/frontend.css" rel="stylesheet">
@@ -100,7 +100,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
 <div class="container py-5">
     <?php if (isset($_GET['verified'])): ?>
         <div class="alert alert-success alert-dismissible fade show">
-            <i class="bi bi-check-circle me-1"></i>Your email has been verified successfully! Welcome to StepStyle.
+            <i class="bi bi-check-circle me-1"></i>Your email has been verified successfully! Welcome to MegaFoot.
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>

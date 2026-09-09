@@ -26,8 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_bind_param($stmt, "ssi", $otp, $otp_expiry, $customer['id']);
             mysqli_stmt_execute($stmt);
 
-            @mail($email, "StepStyle Password Reset OTP",
-                "Your password reset OTP is: $otp\nIt expires in 10 minutes.\n\n- StepStyle");
+            @mail($email, "MegaFoot Password Reset OTP",
+                "Your password reset OTP is: $otp\nIt expires in 10 minutes.\n\n- MegaFoot");
 
             $_SESSION['pending_otp_email'] = $email;
             $_SESSION['pending_otp_code']  = $otp; // Demo display fallback
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - StepStyle</title>
+    <title>Forgot Password - MegaFoot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/css/frontend.css" rel="stylesheet">

@@ -19,7 +19,7 @@ if ($order_id > 0) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Payment Failed - StepStyle</title>
+    <title>Payment Failed - MegaFoot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/css/frontend.css" rel="stylesheet">

@@ -7,7 +7,7 @@ $active = 'contact';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - StepStyle</title>
+    <title>Contact Us - MegaFoot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/css/frontend.css" rel="stylesheet">
@@ -27,7 +27,7 @@ $active = 'contact';
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm h-100 p-4">
                     <h5 class="fw-bold mb-3"><i class="bi bi-envelope-fill text-primary me-2"></i>Email</h5>
-                    <p class="mb-1">info@stepstyle.com</p>
+                    <p class="mb-1">info@megafoot.com</p>
                 </div>
             </div>
             <div class="col-md-6">

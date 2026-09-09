@@ -40,8 +40,8 @@ if (!$customer['is_verified']) {
     mysqli_stmt_bind_param($stmt, "ssi", $otp, $otp_expiry, $customer['id']);
     mysqli_stmt_execute($stmt);
 
-    @mail($email, "StepStyle Email Verification",
-        "Your OTP verification code is: $otp\nIt expires in 10 minutes.\n\n- StepStyle");
+    @mail($email, "MegaFoot Email Verification",
+        "Your OTP verification code is: $otp\nIt expires in 10 minutes.\n\n- MegaFoot");
 
     $_SESSION['pending_otp_email'] = $email;
     $_SESSION['pending_otp_code']  = $otp; // Demo display fallback

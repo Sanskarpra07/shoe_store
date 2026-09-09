@@ -61,13 +61,13 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop Shoes - StepStyle</title>
+    <title>Shop Shoes - MegaFoot</title>
     <meta name="description" content="Browse and filter our full collection of running, casual, sports, formal shoes and boots by category, brand, price and color.">
     <meta name="keywords" content="shoes, sneakers, running shoes, casual shoes, sports shoes, footwear">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="<?= base_url('shop.php') ?>">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Shop Shoes - StepStyle">
+    <meta property="og:title" content="Shop Shoes - MegaFoot">
     <meta property="og:url" content="<?= base_url('shop.php') ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">

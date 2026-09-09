@@ -7,7 +7,7 @@ $active = 'about';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - StepStyle</title>
+    <title>About Us - MegaFoot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/css/frontend.css" rel="stylesheet">
@@ -15,13 +15,13 @@ $active = 'about';
 <body>
     <?php frontend_navbar('about'); ?>
     <div class="container py-5">
-        <h2 class="fw-bold mb-2">About StepStyle</h2>
+        <h2 class="fw-bold mb-2">About MegaFoot</h2>
         <p class="text-muted mb-4">Your one-stop destination for premium footwear.</p>
         <div class="row g-4">
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm h-100 p-4">
                     <h5 class="fw-bold mb-3"><i class="bi bi-bag-heart text-danger me-2"></i>Our Story</h5>
-                    <p class="mb-1">Founded in Kathmandu, StepStyle brings the world's best footwear brands to your doorstep. From everyday sneakers to premium formal wear, we curate shoes that match your style and comfort.</p>
+                    <p class="mb-1">Founded in Kathmandu, MegaFoot brings the world's best footwear brands to your doorstep. From everyday sneakers to premium formal wear, we curate shoes that match your style and comfort.</p>
                 </div>
             </div>
             <div class="col-md-6">
