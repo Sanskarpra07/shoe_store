@@ -149,9 +149,9 @@ $wishlist = mysqli_stmt_get_result($stmt);
                                     <button type="submit" name="move_to_cart" class="btn btn-sm btn-accent"><i class="bi bi-cart-plus me-1"></i>Move to Cart</button>
                                 </form>
                                 <a href="product.php?id=<?= $item['id'] ?>" class="btn btn-sm btn-outline-dark"><i class="bi bi-eye me-1"></i>View</a>
-                                <form method="POST" action="wishlist.php" class="d-inline" data-confirm="Remove from wishlist?">
+                                <form method="POST" action="wishlist.php" class="d-inline">
                                     <input type="hidden" name="product_id" value="<?= $item['id'] ?>">
-                                    <button type="submit" name="remove_wishlist" class="btn btn-sm btn-outline-danger"><i class="bi bi-heart-broken"></i></button>
+                                    <button type="submit" name="remove_wishlist" class="btn btn-sm btn-outline-danger" data-confirm="Remove from wishlist?"><i class="bi bi-heart-broken"></i></button>
                                 </form>
                             </td>
                         </tr>
