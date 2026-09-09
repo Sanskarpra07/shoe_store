@@ -140,10 +140,10 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots ORDER BY slot_time AS
                                 <i class="bi bi-power"></i> <?= $s['is_active'] ? 'Deactivate' : 'Activate' ?>
                             </button>
                         </form>
-                        <form method="POST" action="delivery_slots.php" style="display:inline;" data-confirm="Delete this delivery slot?">
+                        <form method="POST" action="delivery_slots.php" style="display:inline;">
                             <input type="hidden" name="slot_action" value="delete">
                             <input type="hidden" name="slot_id" value="<?= $s['id'] ?>">
-                            <button type="submit" class="btn btn-red btn-small"><i class="bi bi-trash"></i> Delete</button>
+                            <button type="submit" class="btn btn-red btn-small" data-confirm="Delete this delivery slot?"><i class="bi bi-trash"></i> Delete</button>
                         </form>
                     </div>
                 </td>
