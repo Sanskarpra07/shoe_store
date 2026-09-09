@@ -1,4 +1,4 @@
-/* StepStyle - SweetAlert2 notifications for flash messages and confirm dialogs */
+/* MegaFoot - SweetAlert2 notifications for flash messages and confirm dialogs */
 (function () {
     if (typeof Swal === 'undefined') {
         return;

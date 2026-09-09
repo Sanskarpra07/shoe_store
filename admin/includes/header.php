@@ -38,7 +38,7 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
         <div class="side-brand">
             <span class="brand-icon"><i class="bi bi-bag-heart"></i></span>
             <span>
-                <span class="brand-title">StepStyle</span><br>
+                <span class="brand-title">MegaFoot</span><br>
                 <span class="brand-sub">Admin Panel</span>
             </span>
         </div>

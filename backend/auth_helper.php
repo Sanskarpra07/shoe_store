@@ -80,7 +80,7 @@ function frontend_footer() {
         <div class="container">
             <div class="row gy-4">
                 <div class="col-lg-4 col-md-6 text-center text-md-start">
-                    <h5 class="mb-3"><i class="bi bi-bag-heart me-2"></i>StepStyle</h5>
+                    <h5 class="mb-3"><i class="bi bi-bag-heart me-2"></i>MegaFoot</h5>
                     <p class="small pe-lg-4">Your one-stop destination for premium footwear from the world's best brands. Quality you can feel, style you can trust.</p>
                     <div class="d-flex gap-2 justify-content-center justify-content-md-start mt-3">
                         <a href="https://facebook.com" class="social-link" title="Facebook" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
@@ -103,7 +103,7 @@ function frontend_footer() {
                 <div class="col-lg-4 col-md-12 text-center text-lg-start">
                     <h6 class="mb-3">Contact Us</h6>
                     <p class="small mb-2"><i class="bi bi-geo-alt me-2"></i>Durbar Marg, Kathmandu, Nepal</p>
-                    <p class="small mb-2"><i class="bi bi-envelope me-2"></i>info@stepstyle.com</p>
+                    <p class="small mb-2"><i class="bi bi-envelope me-2"></i>info@megafoot.com</p>
                     <p class="small mb-2"><i class="bi bi-telephone me-2"></i>+977-1-456789</p>
                     <p class="small"><i class="bi bi-clock me-2"></i>Sun - Fri: 9:00 AM - 8:00 PM</p>
                 </div>
@@ -111,7 +111,7 @@ function frontend_footer() {
         </div>
         <div class="border-top border-secondary mt-4 py-3">
             <div class="container">
-                <p class="text-center small mb-0">&copy; 2026 StepStyle. All rights reserved.</p>
+                <p class="text-center small mb-0">&copy; 2026 MegaFoot. All rights reserved.</p>
             </div>
         </div>
     </footer>

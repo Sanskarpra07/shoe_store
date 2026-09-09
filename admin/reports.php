@@ -61,7 +61,7 @@ if ($export === 'csv') {
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="sales_report_' . $from . '_to_' . $to . '.csv"');
     $out = fopen('php://output', 'w');
-    fputcsv($out, ['StepStyle Sales Report', $from, 'to', $to]);
+    fputcsv($out, ['MegaFoot Sales Report', $from, 'to', $to]);
     fputcsv($out, []);
     fputcsv($out, ['Metric', 'Value']);
     fputcsv($out, ['Orders', $range_orders]);

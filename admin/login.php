@@ -19,7 +19,7 @@ unset($_SESSION['error_message'], $_SESSION['success_message']);
     <div class="login-box">
         <div class="login-logo"><i class="bi bi-bag-heart"></i></div>
         <h2>Admin Login</h2>
-        <p class="login-sub">StepStyle Shoe Store administration</p>
+        <p class="login-sub">MegaFoot Shoe Store administration</p>
 
         <?php if ($error_message): ?>
             <div class="msg-error"><?= htmlspecialchars($error_message) ?></div>
