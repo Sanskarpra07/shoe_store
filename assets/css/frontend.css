@@ -40,10 +40,9 @@ body {
     font-size: 1.6rem;
 }
 .navbar-logo {
-    height: 42px;
+    height: 44px;
     width: auto;
-    border-radius: 50%;
-    object-fit: cover;
+    border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 .navbar-nav .nav-link {
