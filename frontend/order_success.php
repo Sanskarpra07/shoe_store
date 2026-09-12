@@ -1,15 +1,29 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Order Success - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Displays a confirmation message after a successful order, showing the
+ * order total, delivery slot, and quick links to track or continue shopping.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap ----------
 session_start();
+
+// ---------- Shared includes ----------
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
-$success = $_SESSION['order_success'] ?? '';
+// ---------- Retrieve & clear flash data ----------
+$success    = $_SESSION['order_success'] ?? '';
 unset($_SESSION['order_success']);
 $last_order = $_SESSION['last_order'] ?? null;
 unset($_SESSION['last_order']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== <head> ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -22,8 +36,10 @@ unset($_SESSION['last_order']);
 </head>
 <body>
 
+<!-- ======== Navbar ======== -->
 <?php frontend_navbar(); ?>
 
+<!-- ======== Order Confirmation ======== -->
 <div class="container py-5 text-center">
     <div class="card shadow-sm border-0 rounded-3 mx-auto" style="max-width: 500px;">
         <div class="card-body p-5">
@@ -47,6 +63,8 @@ unset($_SESSION['last_order']);
                     <i class="bi bi-receipt me-1"></i>View Invoice
                 </a><br>
             <?php endif; ?>
+
+            <!-- Quick Links -->
             <div class="mt-2 d-flex gap-2 justify-content-center">
                 <a href="track_order.php" class="btn btn-outline-success px-3"><i class="bi bi-box me-1"></i>Track Order</a>
                 <a href="shop.php" class="btn btn-accent px-4">Continue Shopping</a>
@@ -56,8 +74,10 @@ unset($_SESSION['last_order']);
     </div>
 </div>
 
+<!-- ======== Footer ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== Scripts ======== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
