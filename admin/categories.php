@@ -1,4 +1,15 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN CATEGORIES
+ * --------------------------------------------------------------------------
+ * Lists all product categories with their product counts and handles
+ * category deletion (blocked while products still use the category).
+ * Adding/editing a category is done on add_categories.php.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Categories';
 $current_page = 'categories';
@@ -6,6 +17,7 @@ require_once 'includes/header.php';
 
 $errors = [];
 
+// --- Handle category deletion (POST) ----------------------------------------------
 if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id'])) {
     $id = (int)$_POST['id'];
     $check = mysqli_fetch_assoc(
@@ -23,6 +35,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id
     exit();
 }
 
+// --- Add category via POST (legacy inline form handler) ----------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name        = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
@@ -31,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Category name is required.";
     }
 
+    // Insert the category when validation passes.
     if (empty($errors)) {
         $stmt = mysqli_prepare($conn, "INSERT INTO categories (name, description) VALUES (?, ?)");
         mysqli_stmt_bind_param($stmt, "ss", $name, $description);
@@ -44,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// --- Fetch all categories with their product counts --------------------------------
 $categories = mysqli_query($conn,
     "SELECT c.*, COUNT(p.id) AS product_count
      FROM categories c
@@ -52,11 +67,13 @@ $categories = mysqli_query($conn,
      ORDER BY c.created_at DESC"
 );
 
+// --- Flash messages -----------------------------------------------------------------
 $success = $_SESSION['success'] ?? '';
 $error   = $_SESSION['error'] ?? '';
 unset($_SESSION['success'], $_SESSION['error']);
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2>Categories</h2>
@@ -65,6 +82,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     <a class="btn btn-green" href="add_categories.php"><i class="bi bi-plus-lg"></i> Add Category</a>
 </div>
 
+<!-- Flash messages -->
 <?php if ($success): ?>
     <div class="msg-success"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
@@ -72,6 +90,8 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="msg-error"><?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 
+<!-- ======== CATEGORIES TABLE ======== -->
+<div class="table-responsive">
 <table class="table">
     <tr>
         <th>#</th>
@@ -108,5 +128,6 @@ unset($_SESSION['success'], $_SESSION['error']);
     </tr>
     <?php endwhile; ?>
 </table>
+</div>
 
 <?php require_once 'includes/footer.php'; ?>
