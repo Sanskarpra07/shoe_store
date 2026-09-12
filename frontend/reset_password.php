@@ -1,8 +1,19 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Reset Password - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Lets an OTP-verified customer set a new password, hashing the value and
+ * updating the record before redirecting to the login page.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap --------------------------------
 session_start();
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Guard: OTP must be verified first ----------------
 // Only allow this page after the OTP has been verified in the reset flow.
 if (empty($_SESSION['reset_otp_verified']) || empty($_SESSION['reset_email'])) {
     header("Location: login.php");
@@ -12,6 +23,7 @@ if (empty($_SESSION['reset_otp_verified']) || empty($_SESSION['reset_email'])) {
 $email = $_SESSION['reset_email'];
 $errors = [];
 
+// ---------- Handle new password submit -----------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $confirm  = $_POST['confirm_password'] ?? '';
@@ -34,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== HEAD ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -46,8 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
+<!-- ======== NAVBAR ======== -->
 <?php frontend_navbar(); ?>
 
+<!-- ======== PAGE CONTENT ======== -->
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
@@ -66,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         Account email: <strong><?= htmlspecialchars($email) ?></strong>
                     </p>
 
+                    <!-- ======== RESET PASSWORD FORM ======== -->
                     <form method="POST" action="reset_password.php">
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">New Password <span class="text-danger">*</span></label>
@@ -85,8 +101,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
+<!-- ======== FOOTER ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== SCRIPTS ======== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
