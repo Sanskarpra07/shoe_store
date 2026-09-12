@@ -1,14 +1,28 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Product Detail - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Shows a single product's full details, image, specs, add-to-cart form,
+ * up-sells, related products, and a customer reviews section with submission.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap ----------
 session_start();
+
+// ---------- Shared includes ----------
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Validate product ID ----------
 $id = (int)($_GET['id'] ?? 0);
 if ($id === 0) {
     header("Location: shop.php");
     exit();
 }
 
+// ---------- Fetch product with category & brand ----------
 $stmt = mysqli_prepare($conn,
     "SELECT p.*, c.name AS category_name, b.name AS brand_name
      FROM products p
@@ -26,6 +40,7 @@ if (!$row) {
     exit();
 }
 
+// ---------- Related products in same category ----------
 $related = mysqli_query($conn,
     "SELECT p.*, b.name AS brand_name
      FROM products p
@@ -34,7 +49,7 @@ $related = mysqli_query($conn,
      LIMIT 4"
 );
 
-// Up-selling: higher-value / premium alternatives in the same category
+// ---------- Up-selling: higher-value alternatives ----------
 $current_price = $row['discount_price'] ?: $row['price'];
 $upsell_stmt = mysqli_prepare($conn,
     "SELECT p.*, b.name AS brand_name
@@ -50,7 +65,7 @@ mysqli_stmt_bind_param($upsell_stmt, "iid", $cat_id, $id, $current_price);
 mysqli_stmt_execute($upsell_stmt);
 $upsell = mysqli_stmt_get_result($upsell_stmt);
 
-// ---- Reviews ----
+// ---------- Review metadata & approved reviews ----------
 $review_meta = mysqli_fetch_assoc(mysqli_query($conn,
     "SELECT COUNT(*) AS c, IFNULL(AVG(rating),0) AS avg, SUM(CASE WHEN rating=5 THEN 1 ELSE 0 END) AS r5,
             SUM(CASE WHEN rating=4 THEN 1 ELSE 0 END) AS r4, SUM(CASE WHEN rating=3 THEN 1 ELSE 0 END) AS r3,
@@ -66,7 +81,7 @@ $approved_reviews = mysqli_query($conn,
      WHERE r.product_id = $id AND r.status = 'approved'
      ORDER BY r.created_at DESC LIMIT 20");
 
-// Handle review submission
+// ---------- Handle review submission ----------
 $review_msg = '';
 $review_err = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
@@ -90,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
     }
 }
 
-// Check if current customer already reviewed this product
+// ---------- Check if customer already reviewed ----------
 $already_reviewed = false;
 if (is_customer_logged_in()) {
     $cid = (int)$_SESSION['customer_id'];
@@ -98,6 +113,7 @@ if (is_customer_logged_in()) {
     $already_reviewed = mysqli_num_rows($chk) > 0;
 }
 
+// ---------- Cart count for navbar badge ----------
 $cart_count = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     $cart_count = array_sum($_SESSION['cart']);
@@ -105,6 +121,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== <head> ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -123,9 +140,13 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 </head>
 <body>
 
+<!-- ======== Navbar ======== -->
 <?php frontend_navbar(); ?>
 
+<!-- ======== Product Detail ======== -->
 <div class="container py-5">
+
+    <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="index.php">Home</a></li>
@@ -184,17 +205,21 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                 <p class="mt-3"><?= nl2br(htmlspecialchars($row['description'])) ?></p>
             <?php endif; ?>
 
-            <table class="table detail-table mt-3" style="max-width: 430px;">
-                <?php if ($row['size']): ?>
-                    <tr><td class="fw-semibold">Size</td><td><?= htmlspecialchars($row['size']) ?></td></tr>
-                <?php endif; ?>
-                <?php if ($row['color']): ?>
-                    <tr><td class="fw-semibold">Color</td><td><?= htmlspecialchars($row['color']) ?></td></tr>
-                <?php endif; ?>
-                <tr><td class="fw-semibold">Brand</td><td><?= htmlspecialchars($row['brand_name'] ?? 'N/A') ?></td></tr>
-                <tr><td class="fw-semibold">Category</td><td><?= htmlspecialchars($row['category_name'] ?? 'N/A') ?></td></tr>
-            </table>
+            <!-- Product Specs Table -->
+            <div class="table-responsive mt-3" style="max-width: 430px;">
+                <table class="table detail-table">
+                    <?php if ($row['size']): ?>
+                        <tr><td class="fw-semibold">Size</td><td><?= htmlspecialchars($row['size']) ?></td></tr>
+                    <?php endif; ?>
+                    <?php if ($row['color']): ?>
+                        <tr><td class="fw-semibold">Color</td><td><?= htmlspecialchars($row['color']) ?></td></tr>
+                    <?php endif; ?>
+                    <tr><td class="fw-semibold">Brand</td><td><?= htmlspecialchars($row['brand_name'] ?? 'N/A') ?></td></tr>
+                    <tr><td class="fw-semibold">Category</td><td><?= htmlspecialchars($row['category_name'] ?? 'N/A') ?></td></tr>
+                </table>
+            </div>
 
+            <!-- Add to Cart Form -->
             <?php if ($row['stock'] > 0): ?>
             <form method="POST" action="add_to_cart.php" class="d-flex gap-3 align-items-center mt-4">
                 <input type="hidden" name="product_id" value="<?= $row['id'] ?>">
@@ -207,6 +232,8 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                 </button>
             </form>
             <?php endif; ?>
+
+            <!-- Wishlist Button -->
             <?php if (is_customer_logged_in()):
                 $wid = (int)$_SESSION['customer_id'];
                 $wchk = mysqli_query($conn, "SELECT id FROM wishlists WHERE customer_id = $wid AND product_id = {$row['id']}");
@@ -222,7 +249,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         </div>
     </div>
 
-    <!-- Up-selling: Premium / higher-value alternatives -->
+    <!-- ======== Up-selling: Premium Options ======== -->
     <?php if ($upsell && mysqli_num_rows($upsell) > 0): ?>
     <section class="mt-5 pt-5 border-top">
         <h3 class="section-title">Premium Options <small class="text-muted fs-6">Upgrade for more performance and style</small></h3>
@@ -248,7 +275,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     </section>
     <?php endif; ?>
 
-    <!-- Related Products -->
+    <!-- ======== Related Products ======== -->
     <?php if ($related && mysqli_num_rows($related) > 0): ?>
     <section class="mt-5 pt-5 border-top">
         <h3 class="section-title">Related Products</h3>
@@ -274,7 +301,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     </section>
     <?php endif; ?>
 
-    <!-- Reviews Section -->
+    <!-- ======== Reviews Section ======== -->
     <section class="mt-5 pt-5 border-top">
         <div class="row g-4">
             <div class="col-lg-4">
@@ -341,6 +368,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                     </div>
                 </div>
 
+                <!-- Recent Reviews List -->
                 <?php if ($review_count > 0): ?>
                 <div class="card shadow-sm border-0 rounded-3">
                     <div class="card-header bg-white fw-semibold py-3">
@@ -367,8 +395,10 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     </section>
 </div>
 
+<!-- ======== Footer ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== Scripts ======== -->
 <script>
 function fillStars(rating) {
     const labels = document.querySelectorAll('.star-input .star-label');
