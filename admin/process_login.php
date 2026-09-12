@@ -1,23 +1,38 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN LOGIN HANDLER
+ * --------------------------------------------------------------------------
+ * Validates the credentials submitted from admin/login.php.
+ * On success it regenerates the session and starts an admin/staff session;
+ * otherwise it stores a flash error and redirects back to the login page.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared database connection -------------------------
 session_start();
 require_once __DIR__ . '/../backend/db.php';
 
+// --- Read submitted credentials ----------------------------------------------
 $username = trim($_POST['username'] ?? '');
 $password = $_POST['password'] ?? '';
 
+// --- Basic empty-field validation ---------------------------------------------
 if ($username === '' || $password === '') {
     $_SESSION['error_message'] = 'Please enter both username and password';
     header("Location: login.php");
     exit();
 }
 
+// --- Look up the user ----------------------------------------------------------
 $stmt = mysqli_prepare($conn, "SELECT * FROM users WHERE username = ?");
 mysqli_stmt_bind_param($stmt, "s", $username);
 mysqli_stmt_execute($stmt);
 $user = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
+// --- Verify password and start the session --------------------------------------
 if ($user && password_verify($password, $user['password_eg'])) {
-    session_regenerate_id(true);
+    session_regenerate_id(true); // prevent session fixation
     $_SESSION['logged_in'] = true;
     $_SESSION['username']  = $user['username'];
     $_SESSION['role']      = $user['role'];
