@@ -1,12 +1,26 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Track Order - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Lets a customer look up an order by order number and email, then displays
+ * the order items, payment details, and a visual delivery status tracker.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap ----------
 session_start();
+
+// ---------- Shared includes ----------
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Initialise lookup state ----------
 $order_found = null;
 $items       = [];
 $searched    = false;
 
+// ---------- Handle order lookup POST ----------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $order_id = (int)($_POST['order_id'] ?? 0);
     $email    = trim($_POST['email'] ?? '');
@@ -32,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== <head> ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -44,12 +59,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
+<!-- ======== Navbar ======== -->
 <?php frontend_navbar('track'); ?>
 
+<!-- ======== Track Order Page ======== -->
 <div class="container py-5">
     <h2 class="section-title">Track Your Order</h2>
     <p class="text-muted">Enter your order number and the email you used at checkout to see the latest status.</p>
 
+    <!-- Lookup Form -->
     <div class="card shadow-sm border-0 rounded-3 mx-auto" style="max-width: 500px;">
         <div class="card-body p-4">
             <form method="POST" action="track_order.php">
@@ -70,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
+    <!-- ======== Lookup Results ======== -->
     <?php if ($searched && !$order_found): ?>
         <div class="alert alert-danger text-center mx-auto mt-4" style="max-width:500px;">
             <i class="bi bi-x-circle me-1"></i>
@@ -85,25 +104,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="row g-4">
                     <div class="col-md-5">
                         <h6 class="fw-semibold mb-3"><i class="bi bi-bag me-2"></i>Order Items</h6>
-                        <table class="table table-sm align-middle">
-                            <tbody>
-                            <?php foreach ($items as $item): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($item['product_name']) ?></td>
-                                    <td>x<?= $item['quantity'] ?></td>
-                                    <td class="text-end fw-semibold">रु <?= number_format($item['price'], 2) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="2" class="text-end fw-bold">Total</td>
-                                    <td class="text-end fw-bold text-success">रु <?= number_format($order_found['total_amount'], 2) ?></td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <tbody>
+                                <?php foreach ($items as $item): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($item['product_name']) ?></td>
+                                        <td>x<?= $item['quantity'] ?></td>
+                                        <td class="text-end fw-semibold">रु <?= number_format($item['price'], 2) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" class="text-end fw-bold">Total</td>
+                                        <td class="text-end fw-bold text-success">रु <?= number_format($order_found['total_amount'], 2) ?></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
 
+                    <!-- Delivery Status Tracker -->
                     <div class="col-md-7">
                         <h6 class="fw-semibold mb-3"><i class="bi bi-truck me-2"></i>Delivery Status</h6>
                         <?php
@@ -127,6 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         <?php endif; ?>
 
+                        <!-- Order Details -->
                         <hr>
                         <div class="row small">
                             <div class="col-6">
@@ -163,8 +186,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 </div>
 
+<!-- ======== Footer ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== Scripts ======== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
