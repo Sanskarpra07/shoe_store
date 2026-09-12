@@ -1,13 +1,25 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * OTP Verification - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Verifies the 6-digit email OTP used by both the registration and password
+ * reset flows, and lets the customer resend a fresh code when needed.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap --------------------------------
 session_start();
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Read pending OTP session data --------------------
 // OTP verification is used both during registration and password reset.
 $email = $_SESSION['pending_otp_email'] ?? '';
 $mode  = $_SESSION['pending_otp_mode'] ?? 'register';
 $demo_otp = $_SESSION['pending_otp_code'] ?? '';
 
+// ---------- Guard: require a pending OTP flow ----------------
 if (empty($email)) {
     header("Location: login.php");
     exit();
@@ -16,6 +28,7 @@ if (empty($email)) {
 $errors = [];
 $success = '';
 
+// ---------- Handle OTP resend request ------------------------
 // Resend the OTP
 if (isset($_POST['resend'])) {
     $otp        = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -31,6 +44,7 @@ if (isset($_POST['resend'])) {
     $demo_otp = $otp;
 }
 
+// ---------- Handle OTP verification --------------------------
 // Verify the entered OTP
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
     $entered = trim($_POST['otp'] ?? '');
@@ -76,6 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== HEAD ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -88,8 +103,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
 </head>
 <body>
 
+<!-- ======== NAVBAR ======== -->
 <?php frontend_navbar(); ?>
 
+<!-- ======== PAGE CONTENT ======== -->
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
@@ -118,6 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
                         <div class="alert alert-danger py-2 small"><?= htmlspecialchars($errors) ?></div>
                     <?php endif; ?>
 
+                    <!-- ======== OTP VERIFICATION FORM ======== -->
                     <form method="POST" action="verify_otp.php">
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Enter OTP Code <span class="text-danger">*</span></label>
@@ -144,8 +162,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
     </div>
 </div>
 
+<!-- ======== FOOTER ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== SCRIPTS ======== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
