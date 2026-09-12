@@ -56,14 +56,20 @@ $reviews = mysqli_query($conn,
     </div>
 </div>
 
-<!-- Flash success message -->
-<?php if ($success): ?>
-    <div class="msg-success"><?= htmlspecialchars($success) ?></div>
-<?php endif; ?>
+<!-- ======== REVIEWS TABLE (panel) ======== -->
+<div class="panel-card">
+    <div class="panel-header">
+        <h3><i class="bi bi-star"></i> All Reviews <span class="text-muted small">(<?= mysqli_num_rows($reviews) ?>)</span></h3>
+    </div>
+    <div class="panel-body">
 
-<!-- ======== REVIEWS TABLE ======== -->
-<div class="table-responsive">
-<table class="table">
+    <!-- Flash success message -->
+    <?php if ($success): ?>
+        <div class="msg-success"><?= htmlspecialchars($success) ?></div>
+    <?php endif; ?>
+
+    <div class="table-responsive">
+    <table class="table">
     <tr>
         <th>Customer</th>
         <th>Product</th>
@@ -107,7 +113,9 @@ $reviews = mysqli_query($conn,
     <?php if (mysqli_num_rows($reviews) === 0): ?>
     <tr><td colspan="6"><div class="empty-state"><i class="bi bi-inbox"></i>No reviews yet.</div></td></tr>
     <?php endif; ?>
-</table>
+    </table>
+    </div>
+    </div>
 </div>
 
 <?php require_once 'includes/footer.php'; ?>
