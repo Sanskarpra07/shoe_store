@@ -1,8 +1,19 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * My Wishlist - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Lists the customer's saved items and handles removing an item or moving it
+ * on to the shopping cart.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap --------------------------------
 session_start();
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Require customer login ---------------------------
 if (!is_customer_logged_in()) {
     $_SESSION['redirect_after_login'] = 'wishlist.php';
     header("Location: login.php");
@@ -11,6 +22,7 @@ if (!is_customer_logged_in()) {
 
 $customer_id = (int) $_SESSION['customer_id'];
 
+// ---------- Handle remove-from-wishlist action ---------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_wishlist'])) {
     $pid = (int)($_POST['product_id'] ?? 0);
     if ($pid > 0) {
@@ -23,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_wishlist'])) {
     exit();
 }
 
+// ---------- Handle move-to-cart action -----------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['move_to_cart'])) {
     $pid = (int)($_POST['product_id'] ?? 0);
     if ($pid > 0) {
@@ -52,9 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['move_to_cart'])) {
     exit();
 }
 
+// ---------- Read and clear wishlist flash message -----------
 $wishlist_action = $_SESSION['wishlist_action'] ?? '';
 unset($_SESSION['wishlist_action']);
 
+// ---------- Fetch wishlist items ----------------------------
 $stmt = mysqli_prepare($conn,
     "SELECT w.id AS wishlist_id, w.created_at, p.*
      FROM wishlists w
@@ -67,6 +82,7 @@ $wishlist = mysqli_stmt_get_result($stmt);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== HEAD ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -79,9 +95,12 @@ $wishlist = mysqli_stmt_get_result($stmt);
 </head>
 <body>
 
+<!-- ======== NAVBAR ======== -->
 <?php frontend_navbar(); ?>
 
+<!-- ======== PAGE CONTENT ======== -->
 <div class="container py-5">
+    <!-- ======== BREADCRUMB ======== -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="my_account.php">My Account</a></li>
@@ -91,6 +110,7 @@ $wishlist = mysqli_stmt_get_result($stmt);
 
     <h2 class="section-title">My Wishlist</h2>
 
+    <!-- ======== WISHLIST ALERTS ======== -->
     <?php if ($wishlist_action === 'added'): ?>
         <div class="alert alert-success">Item added to your wishlist.</div>
     <?php elseif ($wishlist_action === 'removed'): ?>
@@ -103,8 +123,10 @@ $wishlist = mysqli_stmt_get_result($stmt);
         <div class="alert alert-warning">Cannot add to cart: insufficient stock.</div>
     <?php endif; ?>
 
+    <!-- ======== WISHLIST TABLE ======== -->
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-body p-0">
+            <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-dark">
                     <tr>
@@ -166,6 +188,7 @@ $wishlist = mysqli_stmt_get_result($stmt);
                 <?php endif; ?>
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 
@@ -174,8 +197,10 @@ $wishlist = mysqli_stmt_get_result($stmt);
     </div>
 </div>
 
+<!-- ======== FOOTER ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== SCRIPTS ======== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
