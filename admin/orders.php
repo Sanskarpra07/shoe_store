@@ -194,8 +194,15 @@ unset($_SESSION['error']);
             ['pending'=>'warning','processing'=>'info','shipped'=>'primary','delivered'=>'success','cancelled'=>'danger'][$order_detail['status']] ?? 'secondary'
         ?>" style="font-size:14px; padding:8px 16px;"><i class="bi bi-circle-fill" style="font-size:8px;"></i> <?= ucfirst($order_detail['status']) ?></span>
     </div>
+
+    <!-- Customer + payment details panel -->
+    <div class="panel-card" style="max-width:640px;">
+        <div class="panel-header">
+            <h3><i class="bi bi-person-vcard"></i> Customer &amp; Payment Details</h3>
+        </div>
+        <div class="panel-body">
     <div style="overflow-x:auto;" class="table-responsive">
-    <table class="table detail" style="max-width:640px;">
+    <table class="table detail">
         <tr><td>Customer</td><td><strong><?= htmlspecialchars($order_detail['customer_name']) ?></strong></td></tr>
         <tr><td>Email</td><td><?= htmlspecialchars($order_detail['customer_email']) ?></td></tr>
         <tr><td>Phone</td><td><?= htmlspecialchars($order_detail['customer_phone'] ?? '-') ?></td></tr>
@@ -209,8 +216,15 @@ unset($_SESSION['error']);
         <tr><td>Order Date</td><td><?= date('d M Y, h:i A', strtotime($order_detail['created_at'])) ?></td></tr>
     </table>
     </div>
+        </div>
+    </div>
 
     <!-- ======== ORDER ITEMS TABLE ======== -->
+    <div class="panel-card">
+        <div class="panel-header">
+            <h3><i class="bi bi-bag-check"></i> Order Items <span class="text-muted small">(<?= count($order_items) ?>)</span></h3>
+        </div>
+        <div class="panel-body">
     <div class="table-responsive">
     <table class="table">
         <tr>
@@ -236,6 +250,8 @@ unset($_SESSION['error']);
             <td class="center"><strong style="font-size:16px;">रु <?= number_format($order_detail['total_amount'], 2) ?></strong></td>
         </tr>
     </table>
+    </div>
+        </div>
     </div>
 
     <!-- ======== UPDATE ORDER STATUS ======== -->
@@ -269,15 +285,20 @@ unset($_SESSION['error']);
     </div>
     <?php endif; ?>
 <?php else: ?>
-    <!-- ======== SEARCH BAR (order list) ======== -->
-    <form method="GET" action="orders.php" class="search-row">
-        <input type="text" name="search" placeholder="Search by customer name, email or order #..."
-               value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-        <button type="submit" class="btn btn-small"><i class="bi bi-search"></i> Search</button>
-        <?php if (!empty($search)): ?><a class="btn btn-gray btn-small" href="orders.php"><i class="bi bi-x-circle"></i> Clear</a><?php endif; ?>
-    </form>
-
-    <!-- ======== ORDERS TABLE ======== -->
+    <!-- ======== ORDERS TABLE (panel card) ======== -->
+    <div class="panel-card">
+        <div class="panel-header">
+            <h3><i class="bi bi-receipt-cutoff"></i> All Orders</h3>
+            <div class="panel-tools">
+                <form method="GET" action="orders.php" class="search-row" style="margin:0;">
+                    <input type="text" name="search" placeholder="Search by name, email or order #..."
+                           value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                    <button type="submit" class="btn btn-small"><i class="bi bi-search"></i> Search</button>
+                    <?php if (!empty($search)): ?><a class="btn btn-gray btn-small" href="orders.php"><i class="bi bi-x-circle"></i> Clear</a><?php endif; ?>
+                </form>
+            </div>
+        </div>
+        <div class="panel-body">
     <div class="table-responsive">
     <table class="table">
         <tr>
@@ -314,6 +335,8 @@ unset($_SESSION['error']);
         </tr>
         <?php endif; ?>
     </table>
+    </div>
+        </div>
     </div>
 <?php endif; ?>
 
