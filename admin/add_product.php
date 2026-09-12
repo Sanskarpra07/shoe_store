@@ -1,9 +1,21 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN ADD / EDIT PRODUCT
+ * --------------------------------------------------------------------------
+ * Both creates a new product and edits an existing one (when ?id= is set).
+ * Handles image upload/removal, validation, insert/update, and records
+ * stock changes in the stock_log table.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Add/Edit Product';
 $current_page = 'products';
 require_once 'includes/header.php';
 
+// --- Default empty product + validation store -----------------------------------
 $errors = [];
 $is_edit = false;
 $product = [
@@ -20,6 +32,7 @@ $product = [
     'brand_id'       => ''
 ];
 
+// --- Load product into the form for editing --------------------------------------
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = (int)$_GET['id'];
     $stmt = mysqli_prepare($conn, "SELECT * FROM products WHERE id = ?");
@@ -35,6 +48,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $is_edit = true;
 }
 
+// --- Handle form submission (create / update) -------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $product_name   = trim($_POST['product_name'] ?? '');
     $description    = trim($_POST['description'] ?? '');
@@ -48,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $edit_id        = (int)($_POST['edit_id'] ?? 0);
     $image          = $product['image'] ?? null;
 
-    // Handle file upload
+    // --- Handle new image upload -----------------------------------------------
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
         $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
@@ -72,15 +86,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image = null;
     }
 
+    // Basic field validation ----------------------------------------------------
     if (empty($product_name))              $errors[] = "Product name is required.";
     if (!is_numeric($price) || $price < 0) $errors[] = "Enter a valid price.";
     if (!is_numeric($stock) || $stock < 0) $errors[] = "Enter a valid stock quantity.";
 
+    // --- Save the product (update vs insert) + log the stock change ---------------
     if (empty($errors)) {
         $cat = $category_id ?: null;
         $brd = $brand_id ?: null;
 
         if ($edit_id > 0) {
+            // -- Update mode: remember the old stock to calculate the diff --
             $old       = mysqli_fetch_assoc(mysqli_query($conn, "SELECT stock FROM products WHERE id = $edit_id"));
             $old_stock = (int)$old['stock'];
 
@@ -90,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dprice = $discount_price !== null ? (float)$discount_price : null;
             $img = !empty($image) ? $image : null;
 
+            // Save the updated product.
             $stmt = mysqli_prepare($conn,
                 "UPDATE products
                  SET product_name=?, description=?, price=?, discount_price=?, stock=?, size=?, color=?, image=?, category_id=?, brand_id=?
@@ -104,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dprice = $discount_price !== null ? (float)$discount_price : null;
             $img = !empty($image) ? $image : null;
 
+            // -- Insert mode: create a brand-new product --
             $stmt = mysqli_prepare($conn,
                 "INSERT INTO products (product_name, description, price, discount_price, stock, size, color, image, category_id, brand_id)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -113,8 +132,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
         }
 
+        // --- Record the stock change in stock_log -----------------------------------
         if (mysqli_stmt_execute($stmt)) {
             if ($edit_id === 0) {
+                // New product: log the initial stock that was created with it.
                 $new_product_id = mysqli_insert_id($conn);
                 $log_reason     = "Initial stock on product creation";
                 $changed_by     = $_SESSION['username'];
@@ -125,6 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mysqli_stmt_bind_param($log_stmt, "iiss", $new_product_id, $stock_int, $log_reason, $changed_by);
                 mysqli_stmt_execute($log_stmt);
             } else {
+                // Existing product: log the difference between old and new stock.
                 $new_stock  = (int)$stock;
                 $stock_diff = $new_stock - $old_stock;
 
@@ -149,6 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Repopulate the form with the submitted values so nothing is lost.
     $product = [
         'id'             => $_POST['edit_id'] ?? '',
         'product_name'   => $product_name,
@@ -165,10 +188,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $is_edit = !empty($product['id']);
 }
 
+// --- Fetch category & brand options for the dropdowns ----------------------------
 $categories_result = mysqli_query($conn, "SELECT id, name FROM categories ORDER BY name ASC");
 $brands_result = mysqli_query($conn, "SELECT id, name FROM brands ORDER BY name ASC");
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2><?= $is_edit ? 'Edit Product' : 'Add New Product' ?></h2>
@@ -177,16 +202,19 @@ $brands_result = mysqli_query($conn, "SELECT id, name FROM brands ORDER BY name 
     <a class="btn btn-gray" href="products.php"><i class="bi bi-arrow-left"></i> Back to Products</a>
 </div>
 
+<!-- Validation errors -->
 <?php if (!empty($errors)): ?>
     <div class="msg-error">
         <?php foreach ($errors as $e) echo htmlspecialchars($e) . '<br>'; ?>
     </div>
 <?php endif; ?>
 
+<!-- ======== PRODUCT FORM ======== -->
 <div class="form-box" style="max-width:700px;">
     <form method="POST" action="add_product.php" enctype="multipart/form-data">
         <input type="hidden" name="edit_id" value="<?= htmlspecialchars($product['id']) ?>">
 
+        <!-- Image upload + current image preview -->
         <div class="form-group">
             <label>Product Image</label>
             <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp,.gif">
@@ -236,6 +264,7 @@ $brands_result = mysqli_query($conn, "SELECT id, name FROM brands ORDER BY name 
             <input type="text" name="color" value="<?= htmlspecialchars($product['color']) ?>" placeholder="e.g. Black">
         </div>
 
+        <!-- Category + brand dropdowns -->
         <div class="form-group">
             <label>Category</label>
             <select name="category_id">
@@ -260,6 +289,7 @@ $brands_result = mysqli_query($conn, "SELECT id, name FROM brands ORDER BY name 
             </select>
         </div>
 
+        <!-- Submit / cancel buttons -->
         <div style="display:flex; gap:10px; margin-top:8px;">
             <button type="submit" class="btn btn-green" style="flex:1;"><i class="bi bi-check-lg"></i> <?= $is_edit ? 'Update Product' : 'Add Product' ?></button>
             <a href="products.php" class="btn btn-gray"><i class="bi bi-x-lg"></i> Cancel</a>
