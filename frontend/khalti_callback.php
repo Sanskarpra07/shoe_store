@@ -1,11 +1,23 @@
 <?php
-// Khalti KPG-2 callback - verifies the transaction via Lookup API and completes the order
-// Docs: https://docs.khalti.com/khalti-epayment/#payment-verification-lookup
+/**
+ * --------------------------------------------------------------------------
+ * Khalti Callback - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Handles the Khalti KPG-2 callback after payment. Looks up the
+ * transaction via the Khalti Lookup API for final verification, then
+ * completes the order and decrements stock on success.
+ * Docs: https://docs.khalti.com/khalti-epayment/#payment-verification-lookup
+ * --------------------------------------------------------------------------
+ */
+// ---------- Session bootstrap ----------
 session_start();
+
+// ---------- Shared requires ----------
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/payment_config.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Parse callback parameters ----------
 $order_id = (int)($_GET['order_id'] ?? 0);
 $pidx     = $_GET['pidx'] ?? '';
 $cb_status = $_GET['status'] ?? '';
@@ -15,12 +27,14 @@ if ($order_id === 0) {
     die("Missing order reference.");
 }
 
+// ---------- Load order ----------
 $order = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM orders WHERE id = $order_id"));
 if (!$order) {
     die("Order not found.");
 }
 
-// Helper to call the Khalti Lookup API (recommended final validation per docs)
+// ---------- Khalti Lookup API helper ----------
+// Calls the Khalti Lookup API (recommended final validation per docs)
 function khalti_lookup($pidx) {
     $ch = curl_init(KHALTI_LOOKUP_URL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -35,6 +49,7 @@ function khalti_lookup($pidx) {
     return json_decode($response, true);
 }
 
+// ---------- Call Lookup API ----------
 // The docs require the merchant to hit the Lookup API for final validation.
 // Only status "Completed" must be treated as success.
 $lookup = null;
@@ -47,7 +62,7 @@ $txn_id     = $lookup['transaction_id'] ?? $cb_txn;
 $paid_paisa = $lookup['total_amount'] ?? 0;
 $expected_paisa = (int)round((float)$order['total_amount'] * 100);
 
-// ----- Idempotency: skip if order already completed -----
+// ---------- Idempotency guard ----------
 if ($order['payment_status'] === 'completed') {
     $_SESSION['cart'] = [];
     $_SESSION['order_success'] = "Payment already confirmed for Order #$order_id. Total: रु " . number_format($order['total_amount'], 2);
@@ -55,7 +70,7 @@ if ($order['payment_status'] === 'completed') {
     exit();
 }
 
-// ----- Handle user canceled / expired callbacks (no pidx or lookup pending) -----
+// ---------- Handle canceled / expired ----------
 if ($status === 'User canceled' || $status === 'user canceled' || $status === 'Expired' || (!empty($cb_status) && strtolower($cb_status) === 'canceled')) {
     mysqli_query($conn, "UPDATE orders SET payment_status = 'failed' WHERE id = $order_id");
     $_SESSION['checkout_errors'] = ["Khalti payment was canceled. Your order was not completed. You can try again or choose a different payment method."];
@@ -63,14 +78,14 @@ if ($status === 'User canceled' || $status === 'user canceled' || $status === 'E
     exit();
 }
 
-// ----- Handle pending / initiated statuses (hold, do not provide service) -----
+// ---------- Handle pending / initiated ----------
 if ($status === 'Pending' || $status === 'Initiated') {
     $_SESSION['checkout_errors'] = ["Your Khalti payment is still pending. We will confirm once the payment is completed."];
     header("Location: cart.php");
     exit();
 }
 
-// ----- Success only when Lookup API reports Completed -----
+// ---------- Success: Lookup API reports Completed ----------
 if ($status === 'Completed' || $status === 'completed') {
     // Verify the paid amount matches the order total (must equal, paisa)
     if ((int)$paid_paisa !== $expected_paisa) {
@@ -80,7 +95,7 @@ if ($status === 'Completed' || $status === 'completed') {
         exit();
     }
 
-    // Use transaction for atomic stock decrement
+    // ---------- Complete order and decrement stock atomically ----------
     mysqli_begin_transaction($conn);
     try {
         $stmt = mysqli_prepare($conn,
@@ -101,11 +116,13 @@ if ($status === 'Completed' || $status === 'completed') {
         mysqli_rollback($conn);
     }
 
+    // ---------- Redirect to order success ----------
     $_SESSION['cart'] = [];
     $_SESSION['order_success'] = "Payment successful via Khalti! Order #$order_id confirmed. Total: रु " . number_format($order['total_amount'], 2);
     header("Location: order_success.php");
     exit();
 } else {
+    // ---------- Verification failed ----------
     // Lookup failed / no pidx / unknown status - do NOT mark paid
     mysqli_query($conn, "UPDATE orders SET payment_status = 'failed' WHERE id = $order_id");
     $_SESSION['checkout_errors'] = ["Khalti payment verification failed. Your order was not completed. Please try again or choose a different payment method."];
