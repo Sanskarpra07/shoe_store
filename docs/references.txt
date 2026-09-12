@@ -1,0 +1,74 @@
+Reference
+
+[1] M. Fowler, E-Commerce: Buying and Selling Online. [Online]. Available:
+https://www.techtarget.com/searchcio/definition/e-commerce
+
+[2] L. Welling and L. Thomson, PHP and MySQL Web Development, 5th ed.
+Addison-Wesley Professional, 2016. [Online]. Available:
+https://www.informit.com/store/php-and-mysql-web-development-9780321833891
+
+[3] C. Darie and E. Balanescu, Beginning PHP and MySQL E-Commerce: From
+Novice to Professional, 2nd ed. Apress, 2008. [Online]. Available:
+https://doi.org/10.1007/978-1-4302-0291-2
+
+[4] PHP Documentation, "PHP: Hypertext Preprocessor." [Online]. Available:
+https://www.php.net/docs.php
+
+[5] Oracle, "MySQL 8.0 Reference Manual." [Online]. Available:
+https://dev.mysql.com/doc/
+
+[6] Mozilla Developer Network (MDN), "HTML: HyperText Markup Language."
+[Online]. Available: https://developer.mozilla.org/en-US/docs/Web/HTML
+
+[7] S. Farah Fakhirah et al., "Design and Development of an E-Commerce
+Website Using the Waterfall Method with the Laravel Framework," Jurnal
+Teknologi dan Open Source, vol. 8, no. 2, 2025. [Online]. Available:
+https://doi.org/10.36378/jtos.v8i2.4570
+
+[8] W3Schools, "HTML and CSS Tutorial." [Online]. Available:
+https://www.w3schools.com/htmlcss
+
+[9] W3Schools, "PHP Tutorial." [Online]. Available:
+https://www.w3schools.com/php/
+
+[10] OWASP Foundation, "OWASP Top Ten 2021." [Online]. Available:
+https://owasp.org/Top10/2021
+
+[11] P. Grassi et al., "Digital Identity Guidelines: Authentication and
+Lifecycle Management," NIST Special Publication 800-63B, June 2017.
+[Online]. Available: https://doi.org/10.6028/NIST.SP.800-63b
+
+[12] Mozilla Developer Network (MDN), "Session Management - Web Security."
+[Online]. Available:
+https://developer.mozilla.org/en-US/docs/Web/Security/Authentication/Session_management
+
+[13] Khalti, "Payment Gateway - Drive Sales to Your Startup Website in
+Nepal with Khalti." [Online]. Available:
+https://blog.khalti.com/merchant/drive-sales-to-your-startup-website-in-nepal-with-khalti-payment-gateway
+
+[14] eSewa, "Digital Wallet in Nepal for Online Payment Services."
+[Online]. Available: https://www.esewa.com.np/
+
+[15] S. Bhatta, "Adoption of Digital Payment in Nepal: An Overview,"
+Khalti Digital Wallet Blog, Feb. 2022. [Online]. Available:
+https://blog.khalti.com/fintech-trends/adoption-of-digital-payment-in-nepal-an-overview
+
+[16] W. Stallings, Cryptography and Network Security: Principles and
+Practice, 8th ed. Pearson, 2020. [Online]. Available:
+https://www.pearson.com/en-us/pearsonplus/p/9780135764213
+
+[17] E. Gamma, R. Helm, R. Johnson, and J. Vlissides, Design Patterns:
+Elements of Reusable Object-Oriented Software. Addison-Wesley
+Professional, 1994. [Online]. Available:
+https://doi.org/10.1145/186897.186915
+
+[18] S. McConnell, Code Complete: A Practical Handbook of Software
+Construction, 2nd ed. Microsoft Press, 2004. [Online]. Available:
+https://www.oreilly.com/library/view/code-complete-2nd/0735619670
+
+[19] I. Sommerville, Software Engineering, 10th ed. Pearson, 2015.
+[Online]. Available:
+https://www.pearson.com/en-us/subject-catalog/p/software-engineering/P200000003258/9780137503148
+
+[20] Apache Friends, "XAMPP Apache + MariaDB + PHP + Perl." [Online].
+Available: https://www.apachefriends.org/
