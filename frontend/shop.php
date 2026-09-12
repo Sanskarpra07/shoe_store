@@ -1,15 +1,29 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Shop - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Displays the full product catalogue with search, category, and brand
+ * filters. Supports dynamic query building for customer-driven browsing.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap ----------
 session_start();
+
+// ---------- Shared includes ----------
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
-$search = trim($_GET['search'] ?? '');
+// ---------- Filter parameters ----------
+$search         = trim($_GET['search'] ?? '');
 $category_filter = trim($_GET['category'] ?? '');
-$brand_filter = trim($_GET['brand'] ?? '');
+$brand_filter   = trim($_GET['brand'] ?? '');
 
-$where = [];
+// ---------- Build WHERE clause ----------
+$where  = [];
 $params = [];
-$types = '';
+$types  = '';
 
 if (!empty($search)) {
     $where[] = "(p.product_name LIKE ? OR p.description LIKE ?)";
@@ -29,6 +43,7 @@ if (!empty($brand_filter)) {
     $types .= 's';
 }
 
+// ---------- Build & execute product query ----------
 $sql = "SELECT p.*, c.name AS category_name, b.name AS brand_name
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.id
@@ -48,9 +63,11 @@ if (!empty($params)) {
     $products = mysqli_query($conn, $sql);
 }
 
-$categories = mysqli_query($conn, "SELECT * FROM categories ORDER BY name ASC");
+// ---------- Fetch categories & brands for filters ----------
+$categories  = mysqli_query($conn, "SELECT * FROM categories ORDER BY name ASC");
 $brands_list = mysqli_query($conn, "SELECT * FROM brands ORDER BY name ASC");
 
+// ---------- Cart count for navbar badge ----------
 $cart_count = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     $cart_count = array_sum($_SESSION['cart']);
@@ -58,6 +75,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== <head> ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -77,9 +95,10 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 </head>
 <body>
 
-<!-- Navbar -->
+<!-- ======== Navbar ======== -->
 <?php frontend_navbar('shop'); ?>
 
+<!-- ======== Page Header & Filters ======== -->
 <div class="container py-5">
     <h2 class="section-title">Shop Our Collection</h2>
 
@@ -130,7 +149,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         </p>
     <?php endif; ?>
 
-    <!-- Products Grid -->
+    <!-- ======== Products Grid ======== -->
     <div class="row g-4">
         <?php while ($p = mysqli_fetch_assoc($products)): ?>
         <div class="col-md-6 col-lg-3">
@@ -184,9 +203,10 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     </div>
 </div>
 
-<!-- Footer -->
+<!-- ======== Footer ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== Scripts ======== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
