@@ -133,8 +133,11 @@ $logs = mysqli_query($conn,
     </div>
 
     <!-- Recent adjustments history -->
-    <div>
-        <h3 class="section-title">Recent Adjustments</h3>
+    <div class="panel-card">
+        <div class="panel-header">
+            <h3><i class="bi bi-clock-history"></i> Recent Adjustments <span class="text-muted small">(last 50)</span></h3>
+        </div>
+        <div class="panel-body">
         <div class="table-responsive">
         <table class="table">
             <tr>
@@ -163,6 +166,7 @@ $logs = mysqli_query($conn,
             <tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i>No stock adjustments recorded yet.</div></td></tr>
             <?php endif; ?>
         </table>
+        </div>
         </div>
     </div>
 </div>
