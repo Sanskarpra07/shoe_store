@@ -1,4 +1,14 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN STOCK LOG
+ * --------------------------------------------------------------------------
+ * Lets staff add or remove stock for any product (recording the reason and
+ * who made the change) and shows the latest 50 adjustments in a history table.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Stock Log';
 $current_page = 'stock_log';
@@ -7,6 +17,7 @@ require_once 'includes/header.php';
 $errors = [];
 $success = "";
 
+// --- Handle stock adjustment form (POST) ------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $product_id    = (int)($_POST['product_id'] ?? 0);
     $change_amount = (int)($_POST['change_amount'] ?? 0);
@@ -14,15 +25,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $reason        = trim($_POST['reason'] ?? '');
     $changed_by    = $_SESSION['username'];
 
+    // Normalize the amount: negative for remove, positive for add.
     if ($type === 'remove') {
         $change_amount = -abs($change_amount);
     } else {
         $change_amount = abs($change_amount);
     }
 
+    // Basic validation.
     if ($product_id === 0)    $errors[] = "Please select a product.";
     if ($change_amount === 0) $errors[] = "Please enter a valid amount.";
 
+    // Apply the adjustment when valid.
     if (empty($errors)) {
         $current = mysqli_fetch_assoc(
             mysqli_query($conn, "SELECT stock FROM products WHERE id = $product_id")
@@ -30,13 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $new_stock = $current['stock'] + $change_amount;
 
+        // Block removals that would push stock below zero.
         if ($new_stock < 0) {
             $errors[] = "Cannot remove more than current stock ({$current['stock']} units).";
         } else {
+            // Update the product's stock.
             $stmt = mysqli_prepare($conn, "UPDATE products SET stock = ? WHERE id = ?");
             mysqli_stmt_bind_param($stmt, "ii", $new_stock, $product_id);
             mysqli_stmt_execute($stmt);
 
+            // Record the change in the stock_log table.
             $stmt = mysqli_prepare($conn,
                 "INSERT INTO stock_log (product_id, change_amount, reason, changed_by) VALUES (?, ?, ?, ?)");
             mysqli_stmt_bind_param($stmt, "iiss", $product_id, $change_amount, $reason, $changed_by);
@@ -47,8 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// --- Fetch product choices for the dropdown ---------------------------------------
 $products = mysqli_query($conn, "SELECT id, product_name, stock FROM products ORDER BY product_name ASC");
 
+// --- Fetch the latest 50 stock adjustments ------------------------------------------
 $logs = mysqli_query($conn,
     "SELECT sl.*, p.product_name
      FROM stock_log sl
@@ -57,6 +76,7 @@ $logs = mysqli_query($conn,
      LIMIT 50");
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2>Stock Adjustment Log</h2>
@@ -64,17 +84,21 @@ $logs = mysqli_query($conn,
     </div>
 </div>
 
+<!-- Validation errors -->
 <?php if (!empty($errors)): ?>
     <div class="msg-error">
         <?php foreach ($errors as $e) echo htmlspecialchars($e) . '<br>'; ?>
     </div>
 <?php endif; ?>
 
+<!-- Flash success message -->
 <?php if ($success): ?>
     <div class="msg-success"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 
+<!-- ======== EVENLY SPLIT: ADJUSTMENT FORM + LOG ======== -->
 <div class="split">
+    <!-- Stock adjustment form -->
     <div class="form-box">
         <h3>Adjust Stock</h3>
         <form method="POST" action="stock_log.php">
@@ -108,8 +132,10 @@ $logs = mysqli_query($conn,
         </form>
     </div>
 
+    <!-- Recent adjustments history -->
     <div>
         <h3 class="section-title">Recent Adjustments</h3>
+        <div class="table-responsive">
         <table class="table">
             <tr>
                 <th>Product</th>
@@ -137,6 +163,7 @@ $logs = mysqli_query($conn,
             <tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i>No stock adjustments recorded yet.</div></td></tr>
             <?php endif; ?>
         </table>
+        </div>
     </div>
 </div>
 
