@@ -1,9 +1,22 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN DASHBOARD
+ * --------------------------------------------------------------------------
+ * Home page of the admin panel. Displays key business metrics as stat cards
+ * (users, products, categories, brands, orders, customers, low stock,
+ * pending orders, revenue) plus the five most recent products and orders.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Dashboard';
 $current_page = 'dashboard';
 require_once 'includes/header.php';
 
+// --- Fetch summary metrics -----------------------------------------------------
+// Aggregated counts shown in the stat cards at the top of the page.
 $total_users    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM users"))['c'];
 $total_products = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM products"))['c'];
 $total_categories = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM categories"))['c'];
@@ -14,6 +27,7 @@ $low_stock      = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c F
 $pending_orders = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM orders WHERE status='pending'"))['c'];
 $total_revenue  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT IFNULL(SUM(total_amount),0) AS r FROM orders WHERE payment_status='completed'"))['r'];
 
+// --- Fetch the 5 most recently added products ----------------------------------
 $recent = mysqli_query($conn,
     "SELECT p.product_name, p.price, p.stock, c.name AS category, b.name AS brand
      FROM products p
@@ -23,6 +37,7 @@ $recent = mysqli_query($conn,
      LIMIT 5"
 );
 
+// --- Fetch the 5 most recent orders ----------------------------------------------
 $recent_orders = mysqli_query($conn,
     "SELECT o.id, o.customer_name, o.total_amount, o.status, o.created_at
      FROM orders o
@@ -31,6 +46,7 @@ $recent_orders = mysqli_query($conn,
 );
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2>Dashboard</h2>
@@ -38,6 +54,7 @@ $recent_orders = mysqli_query($conn,
     </div>
 </div>
 
+<!-- ======== STAT CARDS GRID ======== -->
 <div class="stat-grid">
     <?php if ($_SESSION['role'] === 'admin'): ?>
         <div class="stat-card">
@@ -99,6 +116,7 @@ $recent_orders = mysqli_query($conn,
     </div>
 </div>
 
+<!-- ======== REVENUE CARD ======== -->
 <div class="stat-grid">
     <div class="stat-card">
         <div class="stat-icon icon-green"><i class="bi bi-currency-dollar"></i></div>
@@ -109,7 +127,9 @@ $recent_orders = mysqli_query($conn,
     </div>
 </div>
 
+<!-- ======== RECENTLY ADDED PRODUCTS ======== -->
 <h3 class="section-title">Recently Added Products</h3>
+<div class="table-responsive">
 <table class="table">
     <tr>
         <th>Product</th>
@@ -134,9 +154,12 @@ $recent_orders = mysqli_query($conn,
     </tr>
     <?php endwhile; ?>
 </table>
+</div>
 
+<!-- ======== RECENT ORDERS ======== -->
 <?php if ($recent_orders && mysqli_num_rows($recent_orders) > 0): ?>
 <h3 class="section-title">Recent Orders</h3>
+<div class="table-responsive">
 <table class="table">
     <tr>
         <th>Order #</th>
@@ -152,6 +175,7 @@ $recent_orders = mysqli_query($conn,
         <td class="center">रु <?= number_format($o['total_amount'], 2) ?></td>
         <td class="center">
             <?php
+            // Map each order status to the correct badge color.
             $status_badge = [
                 'pending'    => 'badge-warning',
                 'processing' => 'badge-info',
@@ -166,6 +190,7 @@ $recent_orders = mysqli_query($conn,
     </tr>
     <?php endwhile; ?>
 </table>
+</div>
 <?php endif; ?>
 
 <?php require_once 'includes/footer.php'; ?>
