@@ -1,12 +1,22 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN PRODUCTS
+ * --------------------------------------------------------------------------
+ * Lists all products in a searchable table with image thumbnails, price,
+ * stock and edit/delete actions. Product deletion is handled here via a
+ * POST form (with a SweetAlert confirmation). Add/edit is done on
+ * add_product.php.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Products';
 $current_page = 'products';
 require_once 'includes/header.php';
 
-// Product deletion handled via POST form below
-
-// Product deletion via POST
+// --- Handle product deletion (POST) ----------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_product'])) {
     $id = (int)$_POST['delete_id'];
     $stmt = mysqli_prepare($conn, "DELETE FROM products WHERE id = ?");
@@ -17,9 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_product'])) {
     exit();
 }
 
+// --- Read the search query (GET) ---------------------------------------------------
 $search = trim($_GET['search'] ?? '');
 
+// --- Fetch products, optionally filtered by search ----------------------------------
 if (!empty($search)) {
+    // Search across product name, category name and brand name.
     $stmt = mysqli_prepare($conn,
         "SELECT p.*, c.name AS category_name, b.name AS brand_name
          FROM products p
@@ -33,6 +46,7 @@ if (!empty($search)) {
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 } else {
+    // No search - return every product with its category/brand names.
     $result = mysqli_query($conn,
         "SELECT p.*, c.name AS category_name, b.name AS brand_name
          FROM products p
@@ -42,13 +56,15 @@ if (!empty($search)) {
     );
 }
 
+// --- Flash success message -----------------------------------------------------------
 $success = $_SESSION['success'] ?? '';
 unset($_SESSION['success']);
 
-// Store row count before the while loop consumes the result
+// Store row count before the while loop consumes the result.
 $total_rows = mysqli_num_rows($result);
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2>Products</h2>
@@ -57,6 +73,7 @@ $total_rows = mysqli_num_rows($result);
     <a class="btn btn-green" href="add_product.php"><i class="bi bi-plus-lg"></i> Add Product</a>
 </div>
 
+<!-- ======== SEARCH BAR ======== -->
 <form method="GET" action="products.php" class="search-row">
     <input type="text" name="search" placeholder="Search by name, category or brand..."
            value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
@@ -64,15 +81,19 @@ $total_rows = mysqli_num_rows($result);
     <?php if (!empty($search)): ?><a class="btn btn-gray btn-small" href="products.php"><i class="bi bi-x-circle"></i> Clear</a><?php endif; ?>
 </form>
 
+<!-- Search result summary -->
 <?php if (!empty($search)): ?>
     <p class="small text-muted" style="margin-bottom:10px;">Showing <?= $total_rows ?> result(s) for
         "<strong><?= htmlspecialchars($search) ?></strong>"</p>
 <?php endif; ?>
 
+<!-- Flash success message -->
 <?php if ($success): ?>
     <div class="msg-success"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 
+<!-- ======== PRODUCTS TABLE ======== -->
+<div class="table-responsive">
 <table class="table">
     <tr>
         <th>#</th>
@@ -124,11 +145,14 @@ $total_rows = mysqli_num_rows($result);
         </td>
     </tr>
     <?php endwhile; ?>
+
+    <!-- Empty state when no products match -->
     <?php if ($total_rows === 0): ?>
     <tr>
         <td colspan="10"><div class="empty-state"><i class="bi bi-inbox"></i>No products found. <a href="add_product.php">Add one?</a></div></td>
     </tr>
     <?php endif; ?>
 </table>
+</div>
 
 <?php require_once 'includes/footer.php'; ?>
