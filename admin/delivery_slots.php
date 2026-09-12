@@ -124,8 +124,11 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots ORDER BY slot_time AS
         </form>
     </div>
 
-    <div>
-        <h3 class="section-title">Available Slots</h3>
+    <div class="panel-card">
+        <div class="panel-header">
+            <h3><i class="bi bi-clock-history"></i> Available Slots <span class="text-muted small">(<?= mysqli_num_rows($slots) ?>)</span></h3>
+        </div>
+        <div class="panel-body">
         <div class="table-responsive">
         <table class="table">
             <tr>
@@ -168,6 +171,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots ORDER BY slot_time AS
             <tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i>No delivery slots added yet.</div></td></tr>
             <?php endif; ?>
         </table>
+        </div>
         </div>
     </div>
 </div>
