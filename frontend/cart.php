@@ -1,8 +1,19 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * SHOPPING CART
+ * --------------------------------------------------------------------------
+ * Renders the session-based cart: list products, allow quantity updates,
+ * item removal, cart clear, and show an order summary before checkout.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared requires ------------------------------------
 session_start();
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// --- Handle item removal -------------------------------------------------------
 if (isset($_GET['remove'])) {
     $remove_id = (int) $_GET['remove'];
     unset($_SESSION['cart'][$remove_id]);
@@ -10,12 +21,14 @@ if (isset($_GET['remove'])) {
     exit();
 }
 
+// --- Handle clearing the whole cart -------------------------------------------
 if (isset($_GET['clear'])) {
     $_SESSION['cart'] = [];
     header("Location: cart.php");
     exit();
 }
 
+// --- Handle quantity updates -----------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_cart'])) {
     foreach ($_POST['quantity'] as $pid => $qty) {
         $qty = max(1, (int)$qty);
@@ -25,11 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_cart'])) {
     exit();
 }
 
+// --- Load the products in the cart + compute totals ------------------------------
 $cart = $_SESSION['cart'] ?? [];
 $cart_items = [];
 $total = 0;
 
 if (!empty($cart)) {
+    // Fetch every product that is currently in the cart session.
     $ids = array_keys($cart);
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
     $types = str_repeat('i', count($ids));
@@ -37,6 +52,8 @@ if (!empty($cart)) {
     mysqli_stmt_bind_param($stmt, $types, ...$ids);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
+
+    // Enrich each product row with quantity and line total.
     while ($row = mysqli_fetch_assoc($result)) {
         $qty = $cart[$row['id']] ?? 1;
         $price = $row['discount_price'] ?: $row['price'];
@@ -52,6 +69,7 @@ $cart_count = array_sum($cart);
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- ======== DOCUMENT META + STYLES ======== -->
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
@@ -63,6 +81,7 @@ $cart_count = array_sum($cart);
 </head>
 <body>
 
+<!-- ======== NAVBAR ======== -->
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="index.php">
@@ -89,9 +108,11 @@ $cart_count = array_sum($cart);
     </div>
 </nav>
 
+<!-- ======== CART CONTENT ======== -->
 <div class="container py-5">
     <h2 class="section-title">Shopping Cart</h2>
 
+    <!-- Cart error flash -->
     <?php if (!empty($_SESSION['cart_error'])): ?>
         <div class="alert alert-danger">
             <?= htmlspecialchars($_SESSION['cart_error']) ?>
@@ -99,6 +120,7 @@ $cart_count = array_sum($cart);
         <?php unset($_SESSION['cart_error']); ?>
     <?php endif; ?>
 
+    <!-- Empty cart state -->
     <?php if (empty($cart_items)): ?>
         <div class="text-center py-5">
             <i class="bi bi-cart-x fs-1 text-muted"></i>
@@ -106,6 +128,7 @@ $cart_count = array_sum($cart);
             <a href="shop.php" class="btn btn-accent mt-2">Start Shopping</a>
         </div>
     <?php else: ?>
+        <!-- Cart items update form -->
         <form method="POST" action="cart.php">
             <input type="hidden" name="update_cart" value="1">
             <div class="table-responsive">
@@ -171,7 +194,7 @@ $cart_count = array_sum($cart);
             </div>
         </form>
 
-        <!-- Order Summary -->
+        <!-- ======== ORDER SUMMARY SIDEBAR ======== -->
         <div class="row justify-content-end mt-4">
             <div class="col-md-4">
                 <div class="summary-card">
@@ -202,6 +225,7 @@ $cart_count = array_sum($cart);
 
 <?php frontend_footer(); ?>
 
+<!-- ======== SCRIPTS ======== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
