@@ -1,4 +1,14 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN PRODUCT REVIEWS
+ * --------------------------------------------------------------------------
+ * Reviews the customer reviews table: approve, reject or delete each
+ * submission so only approved reviews are shown on the product pages.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Reviews';
 $current_page = 'reviews';
@@ -7,17 +17,21 @@ require_once 'includes/header.php';
 $success = $_SESSION['success'] ?? '';
 unset($_SESSION['success']);
 
-// Approve / reject / delete actions
+// --- Handle approve / reject / delete actions (POST) ----------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $rid = (int)($_POST['review_id'] ?? 0);
+
     if ($action === 'approve') {
+        // Make the review visible on the storefront.
         mysqli_query($conn, "UPDATE reviews SET status='approved' WHERE id=$rid");
         $_SESSION['success'] = "Review approved.";
     } elseif ($action === 'reject') {
+        // Hide the review from the storefront.
         mysqli_query($conn, "UPDATE reviews SET status='rejected' WHERE id=$rid");
         $_SESSION['success'] = "Review rejected.";
     } elseif ($action === 'delete') {
+        // Remove the review permanently.
         mysqli_query($conn, "DELETE FROM reviews WHERE id=$rid");
         $_SESSION['success'] = "Review deleted.";
     }
@@ -25,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 
+// --- Fetch all reviews with product and customer info ----------------------------
 $reviews = mysqli_query($conn,
     "SELECT r.*, p.product_name, c.full_name, c.email
      FROM reviews r
@@ -33,6 +48,7 @@ $reviews = mysqli_query($conn,
      ORDER BY r.created_at DESC");
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2>Product Reviews</h2>
@@ -40,11 +56,13 @@ $reviews = mysqli_query($conn,
     </div>
 </div>
 
+<!-- Flash success message -->
 <?php if ($success): ?>
     <div class="msg-success"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 
-<div style="overflow-x:auto;">
+<!-- ======== REVIEWS TABLE ======== -->
+<div class="table-responsive">
 <table class="table">
     <tr>
         <th>Customer</th>
@@ -61,6 +79,7 @@ $reviews = mysqli_query($conn,
             <span class="small text-muted"><?= htmlspecialchars($r['email'] ?? '') ?></span>
         </td>
         <td><?= htmlspecialchars($r['product_name']) ?></td>
+        <!-- Star rating display -->
         <td class="center"><span class="stars"><?= str_repeat('&#9733;', (int)$r['rating']) ?><?= str_repeat('&#9734;', 5 - (int)$r['rating']) ?></span></td>
         <td style="max-width:340px;"><?= htmlspecialchars($r['comment'] ?? '-') ?></td>
         <td class="center">
@@ -83,6 +102,8 @@ $reviews = mysqli_query($conn,
         </td>
     </tr>
     <?php endwhile; ?>
+
+    <!-- Empty state -->
     <?php if (mysqli_num_rows($reviews) === 0): ?>
     <tr><td colspan="6"><div class="empty-state"><i class="bi bi-inbox"></i>No reviews yet.</div></td></tr>
     <?php endif; ?>
