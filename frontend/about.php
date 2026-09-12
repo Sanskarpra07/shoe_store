@@ -1,9 +1,19 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * About Us - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Static informational page describing the MegaFoot brand story, mission,
+ * and key reasons customers should choose the store.
+ * --------------------------------------------------------------------------
+ */
+// ---------- Shared bootstrap ----------
 require_once __DIR__ . '/../backend/auth_helper.php';
 $active = 'about';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== <head> ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -15,9 +25,12 @@ $active = 'about';
     <link href="assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
+    <!-- ======== Navbar ======== -->
     <?php frontend_navbar('about'); ?>
-    <div class="container py-5">
-        <h2 class="fw-bold mb-2">About MegaFoot</h2>
+
+    <!-- ======== Page Content ======== -->
+    <div class="container py-4">
+        <h2 class="section-title">About MegaFoot</h2>
         <p class="text-muted mb-4">Your one-stop destination for premium footwear.</p>
         <div class="row g-4">
             <div class="col-md-6">
@@ -46,7 +59,11 @@ $active = 'about';
             </div>
         </div>
     </div>
+
+    <!-- ======== Footer ======== -->
     <?php frontend_footer(); ?>
+
+    <!-- ======== Scripts ======== -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
