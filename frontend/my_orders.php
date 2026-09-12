@@ -1,8 +1,19 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * My Orders - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Lists the customer's order history and, when a specific order is requested,
+ * shows its detail view with items, timeline and payment information.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap --------------------------------
 session_start();
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Require customer login ---------------------------
 if (!is_customer_logged_in()) {
     $_SESSION['redirect_after_login'] = 'my_orders.php';
     header("Location: login.php");
@@ -11,6 +22,7 @@ if (!is_customer_logged_in()) {
 
 $customer_id = (int) $_SESSION['customer_id'];
 
+// ---------- Handle view-order GET action ---------------------
 $view_order_id = isset($_GET['view']) ? (int)$_GET['view'] : 0;
 $order_detail  = null;
 $order_items   = null;
@@ -32,6 +44,7 @@ if ($view_order_id > 0) {
     }
 }
 
+// ---------- Fetch order list --------------------------------
 $orders = mysqli_query($conn,
     "SELECT o.*, (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id) AS item_count
      FROM orders o WHERE o.customer_id = $customer_id ORDER BY o.created_at DESC"
@@ -39,6 +52,7 @@ $orders = mysqli_query($conn,
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== HEAD ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -51,9 +65,12 @@ $orders = mysqli_query($conn,
 </head>
 <body>
 
+<!-- ======== NAVBAR ======== -->
 <?php frontend_navbar(); ?>
 
+<!-- ======== PAGE CONTENT ======== -->
 <div class="container py-5">
+    <!-- ======== BREADCRUMB ======== -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="my_account.php">My Account</a></li>
@@ -62,7 +79,7 @@ $orders = mysqli_query($conn,
     </nav>
 
     <?php if ($order_detail && $order_items): ?>
-    <!-- Order Detail View -->
+    <!-- ======== ORDER DETAIL VIEW ======== -->
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="card shadow-sm border-0 rounded-3">
@@ -74,6 +91,7 @@ $orders = mysqli_query($conn,
                     </div>
                 </div>
                 <div class="card-body">
+                    <div class="table-responsive">
                     <table class="table align-middle">
                         <thead class="table-light">
                             <tr>
@@ -102,6 +120,7 @@ $orders = mysqli_query($conn,
                             </tr>
                         </tfoot>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -180,10 +199,11 @@ $orders = mysqli_query($conn,
     </div>
 
     <?php else: ?>
-    <!-- Order List View -->
+    <!-- ======== ORDER LIST VIEW ======== -->
     <h2 class="section-title">My Orders</h2>
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-body p-0">
+            <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-dark">
                     <tr>
@@ -223,13 +243,16 @@ $orders = mysqli_query($conn,
                 <?php endif; ?>
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
     <?php endif; ?>
 </div>
 
+<!-- ======== FOOTER ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== SCRIPTS ======== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
