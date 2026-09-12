@@ -1,25 +1,41 @@
+/* =========================================================
+   MegaFoot - Customer Storefront Theme
+   Modern, responsive theme built on top of Bootstrap 5.
+   It customizes the navbar, hero, product/featured cards,
+   footer and all storefront pages so the shop keeps a
+   consistent brand look and feel.
+   ========================================================= */
+
+/* ---------- Design tokens (CSS variables) ----------
+   Central place for brand colors, radius and shadows so the
+   whole theme can be tuned from a single spot. */
 :root {
-    --primary: #1a1a2e;
-    --primary-dark: #0f0f1d;
-    --accent: #f5470d;
-    --accent-2: #ff7a1a;
-    --accent-gradient: linear-gradient(135deg, #f5470d 0%, #ff7a1a 100%);
-    --light-bg: #f8f9fa;
-    --text-muted: #6c757d;
-    --card-radius: 16px;
-    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
-    --shadow-md: 0 8px 24px rgba(0,0,0,0.10);
-    --shadow-lg: 0 16px 40px rgba(0,0,0,0.14);
+    --primary: #1a1a2e;          /* Main brand navy (navbar / headings) */
+    --primary-dark: #0f0f1d;     /* Deepest navy used for footer / hero */
+    --accent: #f5470d;           /* Signature orange (CTAs, price) */
+    --accent-2: #ff7a1a;         /* Lighter shade of the accent color */
+    --accent-gradient: linear-gradient(135deg, #f5470d 0%, #ff7a1a 100%); /* Brand gradient */
+    --light-bg: #f8f9fa;         /* Light section background */
+    --text-muted: #6c757d;       /* Muted secondary text */
+    --card-radius: 16px;         /* Rounded corners for cards */
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);  /* Subtle resting shadow */
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.10);  /* Hover elevation shadow */
+    --shadow-lg: 0 16px 40px rgba(0,0,0,0.14); /* Large overlay shadow */
     --font-display: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
+/* ---------- Base body styling ---------- */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #fafafa;
     color: #212529;
 }
 
-/* ===== NAVBAR ===== */
+/* ==================================================================
+   NAVBAR
+   Sticky translucent top bar with brand logo, menu links and the
+   shopping cart badge.
+   ================================================================== */
 .navbar {
     background: rgba(26, 26, 46, 0.97) !important;
     backdrop-filter: blur(10px);
