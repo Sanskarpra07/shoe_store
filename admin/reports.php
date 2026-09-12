@@ -154,9 +154,14 @@ if ($export === 'csv') {
     </div>
 </div>
 
-<h3 class="section-title">Orders by Status</h3>
-<div style="overflow-x:auto;">
-<table class="table" style="max-width:400px;">
+<!-- ======== ORDERS BY STATUS (panel) ======== -->
+<div class="panel-card" style="max-width:400px;">
+    <div class="panel-header">
+        <h3><i class="bi bi-bar-chart"></i> Orders by Status</h3>
+    </div>
+    <div class="panel-body">
+    <div style="overflow-x:auto;">
+    <table class="table">
     <tr>
         <th>Status</th>
         <th>Orders</th>
@@ -171,12 +176,19 @@ if ($export === 'csv') {
         <td class="center"><?= $s['c'] ?></td>
     </tr>
     <?php endwhile; ?>
-</table>
+    </table>
+    </div>
+    </div>
 </div>
 
-<h3 class="section-title">Payment Methods</h3>
-<div style="overflow-x:auto;">
-<table class="table" style="max-width:520px;">
+<!-- ======== PAYMENT METHODS (panel) ======== -->
+<div class="panel-card" style="max-width:520px;">
+    <div class="panel-header">
+        <h3><i class="bi bi-credit-card"></i> Payment Methods</h3>
+    </div>
+    <div class="panel-body">
+    <div style="overflow-x:auto;">
+    <table class="table">
     <tr>
         <th>Method</th>
         <th>Orders</th>
@@ -189,12 +201,19 @@ if ($export === 'csv') {
         <td class="center">रु <?= number_format($p['rev'], 2) ?></td>
     </tr>
     <?php endwhile; ?>
-</table>
+    </table>
+    </div>
+    </div>
 </div>
 
-<h3 class="section-title">Top Selling Products</h3>
-<div style="overflow-x:auto;">
-<table class="table" style="max-width:620px;">
+<!-- ======== TOP SELLING PRODUCTS (panel) ======== -->
+<div class="panel-card" style="max-width:620px;">
+    <div class="panel-header">
+        <h3><i class="bi bi-trophy"></i> Top Selling Products</h3>
+    </div>
+    <div class="panel-body">
+    <div style="overflow-x:auto;">
+    <table class="table">
     <tr>
         <th>#</th>
         <th>Product</th>
@@ -212,7 +231,9 @@ if ($export === 'csv') {
     <?php if (mysqli_num_rows($top_products) === 0): ?>
     <tr><td colspan="4"><div class="empty-state"><i class="bi bi-inbox"></i>No sales in this period.</div></td></tr>
     <?php endif; ?>
-</table>
+    </table>
+    </div>
+    </div>
 </div>
 
 <?php require_once 'includes/footer.php'; ?>
