@@ -1,4 +1,15 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN ADD / EDIT CATEGORY
+ * --------------------------------------------------------------------------
+ * Creates a new product category or edits an existing one (when
+ * ?action=edit&id= is set). Includes a Font Awesome icon field with a
+ * live preview so the storefront can show a matching icon per category.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Add/Edit Category';
 $current_page = 'categories';
@@ -8,6 +19,7 @@ $errors = [];
 $is_edit = false;
 $category = ['id' => '', 'name' => '', 'description' => '', 'icon' => ''];
 
+// --- Load category into the form for editing --------------------------------------
 if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) {
     $id = (int)$_GET['id'];
     $res = mysqli_query($conn, "SELECT * FROM categories WHERE id = $id");
@@ -17,12 +29,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) 
     }
 }
 
+// --- Handle form submission (create / update) -------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
     $icon = trim($_POST['icon'] ?? '');
     $cat_id = $_POST['category_id'] ?? '';
 
+    // Sanitize the icon: keep length + allowed characters.
     if (strlen($icon) > 100) {
         $icon = substr($icon, 0, 100);
     }
@@ -30,10 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $icon = '';
     }
 
+    // Validate the category name.
     if (empty($name)) {
         $errors[] = "Category name is required.";
     }
 
+    // Insert or update the category.
     if (empty($errors)) {
         if (!empty($cat_id)) {
             $stmt = mysqli_prepare($conn, "UPDATE categories SET name = ?, description = ?, icon = ? WHERE id = ?");
@@ -53,9 +69,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// --- Choose the icon to display in the form preview --------------------------------
 $selected_icon = $is_edit ? ($category['icon'] ?? '') : ($_POST['icon'] ?? '');
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2><?= $is_edit ? 'Edit Category' : 'Add New Category' ?></h2>
@@ -70,10 +88,12 @@ $selected_icon = $is_edit ? ($category['icon'] ?? '') : ($_POST['icon'] ?? '');
     </div>
 <?php endif; ?>
 
+<!-- ======== CATEGORY FORM ======== -->
 <div class="form-box">
     <form method="POST" action="add_categories.php">
         <input type="hidden" name="category_id" value="<?= $category['id'] ?>">
 
+        <!-- Category name -->
         <div class="form-group">
             <label>Category Name *</label>
             <input type="text" name="name" required value="<?= htmlspecialchars($is_edit ? $category['name'] : ($_POST['name'] ?? '')) ?>">
@@ -99,6 +119,7 @@ $selected_icon = $is_edit ? ($category['icon'] ?? '') : ($_POST['icon'] ?? '');
             </div>
         </div>
 
+        <!-- Submit / cancel buttons -->
         <div style="display:flex; gap:10px; margin-top:8px;">
             <button type="submit" class="btn" style="flex:1;"><i class="bi bi-check-lg"></i> <?= $is_edit ? 'Update Category' : 'Add Category' ?></button>
             <?php if ($is_edit): ?>
@@ -108,7 +129,9 @@ $selected_icon = $is_edit ? ($category['icon'] ?? '') : ($_POST['icon'] ?? '');
     </form>
 </div>
 
+<!-- ======== SCRIPTS ======== -->
 <script>
+// Update the icon preview as the user types the Font Awesome class.
 function previewIcon() {
     var input = document.getElementById('icon-input');
     var p = document.getElementById('icon-preview');
