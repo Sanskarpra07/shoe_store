@@ -1,4 +1,14 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN DELIVERY SLOTS
+ * --------------------------------------------------------------------------
+ * Manages the delivery time slots offered at checkout. Admins can add, edit,
+ * toggle (activate/deactivate) and delete slots on a single screen.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Delivery Slots';
 $current_page = 'delivery_slots';
@@ -8,7 +18,7 @@ $errors = [];
 $success = $_SESSION['success'] ?? '';
 unset($_SESSION['success']);
 
-// Actions: toggle active / delete
+// --- Handle quick actions: toggle active / delete (POST) -------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['slot_action'])) {
     $id = (int)($_POST['slot_id'] ?? 0);
 
@@ -27,13 +37,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['slot_action'])) {
     exit();
 }
 
-// Load a slot into the form for editing
+// --- Load a slot into the form for editing -------------------------------------
 $edit_slot = null;
 if (isset($_GET['edit'])) {
     $edit_id = (int)$_GET['edit'] ?: 0;
     $edit_slot = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM delivery_slots WHERE id = $edit_id"));
 }
 
+// --- Handle form submission (create / update) -----------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $slot_name = trim($_POST['slot_name'] ?? '');
     $slot_time = trim($_POST['slot_time'] ?? '');
@@ -60,9 +71,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// --- Fetch all delivery slots ----------------------------------------------------
 $slots = mysqli_query($conn, "SELECT * FROM delivery_slots ORDER BY slot_time ASC");
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2>Delivery Slots</h2>
@@ -80,6 +93,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots ORDER BY slot_time AS
     <div class="msg-success"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 
+<!-- ======== EVENLY SPLIT: FORM + SLOT LIST ======== -->
 <div class="split">
     <div class="form-box">
         <h3><i class="bi bi-clock"></i> <?= $edit_slot ? 'Edit Slot' : 'Add New Slot' ?></h3>
@@ -112,6 +126,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots ORDER BY slot_time AS
 
     <div>
         <h3 class="section-title">Available Slots</h3>
+        <div class="table-responsive">
         <table class="table">
             <tr>
                 <th>#</th>
@@ -153,6 +168,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots ORDER BY slot_time AS
             <tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i>No delivery slots added yet.</div></td></tr>
             <?php endif; ?>
         </table>
+        </div>
     </div>
 </div>
 
