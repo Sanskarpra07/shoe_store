@@ -1,9 +1,19 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Contact Us - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Displays store contact details including address, email, phone, and
+ * business hours so customers can reach out for support.
+ * --------------------------------------------------------------------------
+ */
+// ---------- Shared bootstrap ----------
 require_once __DIR__ . '/../backend/auth_helper.php';
 $active = 'contact';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== <head> ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -15,9 +25,12 @@ $active = 'contact';
     <link href="assets/css/frontend.css" rel="stylesheet">
 </head>
 <body>
+    <!-- ======== Navbar ======== -->
     <?php frontend_navbar('contact'); ?>
-    <div class="container py-5">
-        <h2 class="fw-bold mb-2">Contact Us</h2>
+
+    <!-- ======== Page Content ======== -->
+    <div class="container py-4">
+        <h2 class="section-title">Contact Us</h2>
         <p class="text-muted mb-4">Have a question? Reach out to us anytime.</p>
         <div class="row g-4">
             <div class="col-md-6">
@@ -46,7 +59,11 @@ $active = 'contact';
             </div>
         </div>
     </div>
+
+    <!-- ======== Footer ======== -->
     <?php frontend_footer(); ?>
+
+    <!-- ======== Scripts ======== -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
