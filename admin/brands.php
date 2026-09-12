@@ -163,7 +163,12 @@ unset($_SESSION['success'], $_SESSION['error']);
         </form>
     </div>
 
-    <div>
+    <div class="panel-card">
+        <div class="panel-header">
+            <h3><i class="bi bi-buildings"></i> All Brands <span class="text-muted small">(<?= mysqli_num_rows($brands) ?>)</span></h3>
+        </div>
+        <div class="panel-body">
+        <div class="table-responsive">
         <table class="table">
             <tr>
                 <th>#</th>
@@ -203,6 +208,8 @@ unset($_SESSION['success'], $_SESSION['error']);
             <tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i>No brands added yet.</div></td></tr>
             <?php endif; ?>
         </table>
+        </div>
+        </div>
     </div>
 </div>
 
