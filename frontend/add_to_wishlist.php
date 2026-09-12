@@ -1,15 +1,29 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Add to Wishlist - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Toggles a product in the logged-in customer's wishlist: adds it if absent,
+ * removes it if already present. Redirects back to the referring page.
+ * --------------------------------------------------------------------------
+ */
+// ---------- Session bootstrap ----------
 session_start();
+
+// ---------- Shared requires ----------
 require_once __DIR__ . '/../backend/db.php';
 
+// ---------- Auth guard ----------
 if (!isset($_SESSION['customer_id'])) {
     header("Location: login.php");
     exit();
 }
 
+// ---------- Parse input ----------
 $product_id = (int)($_POST['product_id'] ?? 0);
 $customer_id = (int)$_SESSION['customer_id'];
 
+// ---------- Toggle wishlist entry ----------
 if ($product_id > 0) {
     $check = mysqli_prepare($conn, "SELECT id FROM wishlists WHERE customer_id = ? AND product_id = ?");
     mysqli_stmt_bind_param($check, "ii", $customer_id, $product_id);
@@ -29,6 +43,7 @@ if ($product_id > 0) {
     mysqli_stmt_free_result($check);
 }
 
+// ---------- Redirect to referring page ----------
 $referer = $_SERVER['HTTP_REFERER'] ?? '';
 // Sanitize: only allow same-site redirects
 if (empty($referer) || parse_url($referer, PHP_URL_HOST) !== $_SERVER['HTTP_HOST']) {
