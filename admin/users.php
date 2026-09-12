@@ -1,17 +1,30 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN USERS MANAGEMENT
+ * --------------------------------------------------------------------------
+ * Admin-only page that lists administrator/staff accounts (with delete)
+ * and all registered storefront customers (with their order counts).
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Users';
 $current_page = 'users';
 require_once 'includes/header.php';
 
+// --- Role guard: only administrators may manage users --------------------------
 if ($_SESSION['role'] !== 'admin') {
     header("Location: dashboard.php");
     exit();
 }
 
+// --- Handle user deletion (POST) ----------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
     $id = (int)($_POST['user_id'] ?? 0);
 
+    // Find the currently logged-in user so they cannot delete themselves.
     $stmt = mysqli_prepare($conn, "SELECT id FROM users WHERE username = ?");
     mysqli_stmt_bind_param($stmt, "s", $_SESSION['username']);
     mysqli_stmt_execute($stmt);
@@ -29,9 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
     exit();
 }
 
+// --- Fetch admin / staff users --------------------------------------------------
 $users = mysqli_query($conn, "SELECT id, username, role, created_at FROM users ORDER BY created_at DESC");
 
-// Registered customers (online store accounts)
+// --- Fetch registered customers (online store accounts) -------------------------
 $customers = mysqli_query($conn,
     "SELECT c.id, c.full_name, c.email, c.phone, c.is_verified, c.created_at,
             COUNT(o.id) AS order_count
@@ -41,11 +55,13 @@ $customers = mysqli_query($conn,
      ORDER BY c.created_at DESC"
 );
 
+// --- Flash messages ----------------------------------------------------------------
 $success = $_SESSION['success'] ?? '';
 $error   = $_SESSION['error'] ?? '';
 unset($_SESSION['success'], $_SESSION['error']);
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2>Users Management</h2>
@@ -61,8 +77,9 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="msg-error"><?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 
+<!-- ======== ADMIN / STAFF USERS TABLE ======== -->
 <h3 class="section-title">Admin / Staff Users</h3>
-<div style="overflow-x:auto;">
+<div class="table-responsive">
 <table class="table" style="max-width:760px;">
     <tr>
         <th>#</th>
@@ -105,8 +122,9 @@ unset($_SESSION['success'], $_SESSION['error']);
 </table>
 </div>
 
+<!-- ======== REGISTERED CUSTOMERS TABLE ======== -->
 <h3 class="section-title">Registered Customers</h3>
-<div style="overflow-x:auto;">
+<div class="table-responsive">
 <table class="table">
     <tr>
         <th>#</th>
