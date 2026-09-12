@@ -1,7 +1,18 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Invoice - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Generates a printable order invoice for a given order. The logged-in
+ * customer can view their own orders; completed orders are also accessible
+ * via tracking links.
+ * --------------------------------------------------------------------------
+ */
+// ---------- Shared requires ----------
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Load order ----------
 $order_id = (int)($_GET['order_id'] ?? 0);
 if ($order_id <= 0) { header("Location: index.php"); exit(); }
 
@@ -11,7 +22,8 @@ mysqli_stmt_execute($stmt);
 $order = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 if (!$order) { header("Location: index.php"); exit(); }
 
-// Auth check: logged-in customer can view own orders, or anyone with tracking email match
+// ---------- Auth check ----------
+// Logged-in customer can view own orders, or anyone with tracking email match
 $is_owner = false;
 if (isset($_SESSION['customer_id'])) {
     $is_owner = ((int)$order['customer_id'] === (int)$_SESSION['customer_id']);
@@ -24,6 +36,7 @@ if (!$is_owner) {
     }
 }
 
+// ---------- Fetch order items ----------
 $items_stmt = mysqli_prepare($conn,
     "SELECT oi.*, p.product_name, p.image FROM order_items oi
      JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
@@ -33,6 +46,7 @@ $items = mysqli_stmt_get_result($items_stmt);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== <head> ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -47,7 +61,9 @@ $items = mysqli_stmt_get_result($items_stmt);
     </style>
 </head>
 <body>
+<!-- ======== Invoice Content ======== -->
 <div class="invoice-box">
+    <!-- ======== Invoice Header ======== -->
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
             <div class="brand">MegaFoot</div>
@@ -61,6 +77,8 @@ $items = mysqli_stmt_get_result($items_stmt);
         </div>
     </div>
     <hr>
+
+    <!-- ======== Billing & Payment Info ======== -->
     <div class="row my-4">
         <div class="col-6">
             <h6 class="text-muted">BILL TO</h6>
@@ -79,26 +97,34 @@ $items = mysqli_stmt_get_result($items_stmt);
             <?php endif; ?>
         </div>
     </div>
-    <table class="table">
-        <thead class="table-light">
-            <tr><th>Item</th><th class="text-center">Qty</th><th class="text-end">Unit Price</th><th class="text-end">Total</th></tr>
-        </thead>
-        <tbody>
-        <?php while ($item = mysqli_fetch_assoc($items)): ?>
-            <tr>
-                <td><?= htmlspecialchars($item['product_name']) ?></td>
-                <td class="text-center"><?= $item['quantity'] ?></td>
-                <td class="text-end">रु <?= number_format($item['price'], 2) ?></td>
-                <td class="text-end line-total">रु <?= number_format($item['price'] * $item['quantity'], 2) ?></td>
-            </tr>
-        <?php endwhile; ?>
-        </tbody>
-        <tfoot>
-            <tr><td colspan="3" class="text-end fw-bold">Grand Total</td><td class="text-end fw-bold">रु <?= number_format($order['total_amount'], 2) ?></td></tr>
-        </tfoot>
-    </table>
+
+    <!-- ======== Order Items Table ======== -->
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="table-light">
+                <tr><th>Item</th><th class="text-center">Qty</th><th class="text-end">Unit Price</th><th class="text-end">Total</th></tr>
+            </thead>
+            <tbody>
+            <?php while ($item = mysqli_fetch_assoc($items)): ?>
+                <tr>
+                    <td><?= htmlspecialchars($item['product_name']) ?></td>
+                    <td class="text-center"><?= $item['quantity'] ?></td>
+                    <td class="text-end">रु <?= number_format($item['price'], 2) ?></td>
+                    <td class="text-end line-total">रु <?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+                </tr>
+            <?php endwhile; ?>
+            </tbody>
+            <tfoot>
+                <tr><td colspan="3" class="text-end fw-bold">Grand Total</td><td class="text-end fw-bold">रु <?= number_format($order['total_amount'], 2) ?></td></tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- ======== Thank You ======== -->
     <div class="text-center text-muted small mt-4">Thank you for shopping with MegaFoot!</div>
 </div>
+
+<!-- ======== Print / Back Actions ======== -->
 <div class="text-center no-print my-4">
     <button onclick="window.print()" class="btn btn-dark"><i class="bi bi-printer me-1"></i>Print Invoice</button>
     <a href="my_orders.php" class="btn btn-outline-secondary ms-2">Back to My Orders</a>
