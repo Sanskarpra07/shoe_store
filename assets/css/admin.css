@@ -1,34 +1,41 @@
 /* =========================================================
    MegaFoot - Admin Panel Theme
-   Modern redesign of the admin dashboard
+   Hand-crafted dashboard theme layered on top of Bootstrap 5.
+   Provides the sidebar, stat cards, tables, forms, badges and
+   the login screen used across the whole admin module.
    ========================================================= */
 
+/* ---------- Design tokens (CSS variables) ----------
+   Single source of truth for brand colors, radii and shadows
+   used by every admin page. */
 :root {
-    --primary: #1a1a2e;
-    --primary-2: #16213e;
-    --accent: #f5470d;
-    --accent-2: #ff7a1a;
-    --accent-gradient: linear-gradient(135deg, #f5470d 0%, #ff7a1a 100%);
-    --bg: #f1f5f9;
-    --surface: #ffffff;
-    --border: #e5e9ef;
-    --text: #1e293b;
-    --text-muted: #64748b;
-    --success: #10b981;
-    --success-dark: #059669;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --danger-dark: #dc2626;
-    --info: #0ea5e9;
-    --radius: 14px;
-    --radius-sm: 9px;
-    --shadow-sm: 0 1px 3px rgba(16, 24, 40, .08), 0 1px 2px rgba(16, 24, 40, .04);
-    --shadow-md: 0 8px 24px rgba(16, 24, 40, .10);
+    --primary: #1a1a2e;          /* Sidebar / primary dark navy */
+    --primary-2: #16213e;        /* Secondary dark navy shade */
+    --accent: #f5470d;           /* Signature orange accent */
+    --accent-2: #ff7a1a;         /* Lighter accent orange */
+    --accent-gradient: linear-gradient(135deg, #f5470d 0%, #ff7a1a 100%); /* Brand gradient */
+    --bg: #f1f5f9;               /* Page background gray */
+    --surface: #ffffff;          /* Card / panel surface color */
+    --border: #e5e9ef;           /* Hairline borders */
+    --text: #1e293b;             /* Main text color */
+    --text-muted: #64748b;       /* Muted secondary text */
+    --success: #10b981;          /* Success green */
+    --success-dark: #059669;     /* Darker success green */
+    --warning: #f59e0b;          /* Warning amber */
+    --danger: #ef4444;           /* Danger red */
+    --danger-dark: #dc2626;      /* Darker danger red */
+    --info: #0ea5e9;             /* Info sky blue */
+    --radius: 14px;              /* Large rounded corners for cards */
+    --radius-sm: 9px;            /* Smaller radius for buttons/inputs */
+    --shadow-sm: 0 1px 3px rgba(16, 24, 40, .08), 0 1px 2px rgba(16, 24, 40, .04); /* Resting shadow */
+    --shadow-md: 0 8px 24px rgba(16, 24, 40, .10);   /* Hover elevation shadow */
     --font: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
 }
 
+/* ---------- Global reset ---------- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* ---------- Base body styling ---------- */
 body {
     font-family: var(--font);
     font-size: 14px;
@@ -37,18 +44,24 @@ body {
     line-height: 1.5;
 }
 
+/* ---------- Base links & images ---------- */
 a { color: var(--accent); text-decoration: none; }
 a:hover { color: #d63d06; }
 img { border: 0; }
 
 /* ---------- Layout wrapper ---------- */
+/* .admin-wrap is a flex container that keeps the sticky sidebar
+   beside the scrollable main content area. */
 .admin-wrap {
     display: flex;
     min-height: 100vh;
     width: 100%;
 }
 
-/* ---------- Sidebar ---------- */
+/* ---------- Sidebar ----------
+   Fixed-height vertical navigation on the left. Holds the brand
+   block, menu links and the logged-in user footer. On small
+   screens it collapses into a horizontal icon bar. */
 .sidebar {
     width: 252px;
     flex-shrink: 0;
@@ -197,7 +210,9 @@ img { border: 0; }
     background: var(--accent-gradient);
 }
 
-/* ---------- Stat cards ---------- */
+/* ---------- Stat cards ----------
+   Dashboard summary tiles used on the admin dashboard. The grid
+   auto-flows, and each tile pairs a gradient icon with a value. */
 .stat-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
@@ -579,7 +594,10 @@ ul.error-list li { margin-bottom: 2px; }
     font-size: 13px;
 }
 
-/* ---------- Responsive ---------- */
+/* ---------- Responsive ----------
+   Adjustments so the admin layout works on tablets and phones:
+   split forms collapse to one column, the sidebar becomes a
+   horizontal bar and content padding shrinks. */
 @media (max-width: 900px) {
     .split { grid-template-columns: 1fr; }
 }
