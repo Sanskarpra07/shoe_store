@@ -77,10 +77,14 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="msg-error"><?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 
-<!-- ======== ADMIN / STAFF USERS TABLE ======== -->
-<h3 class="section-title">Admin / Staff Users</h3>
-<div class="table-responsive">
-<table class="table" style="max-width:760px;">
+<!-- ======== ADMIN / STAFF USERS TABLE (panel) ======== -->
+<div class="panel-card" style="max-width:760px;">
+    <div class="panel-header">
+        <h3><i class="bi bi-shield-lock"></i> Admin / Staff Users <span class="text-muted small">(<?= mysqli_num_rows($users) ?>)</span></h3>
+    </div>
+    <div class="panel-body">
+    <div class="table-responsive">
+    <table class="table">
     <tr>
         <th>#</th>
         <th>Username</th>
@@ -119,13 +123,19 @@ unset($_SESSION['success'], $_SESSION['error']);
         </td>
     </tr>
     <?php endwhile; ?>
-</table>
+    </table>
+    </div>
+    </div>
 </div>
 
-<!-- ======== REGISTERED CUSTOMERS TABLE ======== -->
-<h3 class="section-title">Registered Customers</h3>
-<div class="table-responsive">
-<table class="table">
+<!-- ======== REGISTERED CUSTOMERS TABLE (panel) ======== -->
+<div class="panel-card">
+    <div class="panel-header">
+        <h3><i class="bi bi-people"></i> Registered Customers <span class="text-muted small">(<?= mysqli_num_rows($customers) ?>)</span></h3>
+    </div>
+    <div class="panel-body">
+    <div class="table-responsive">
+    <table class="table">
     <tr>
         <th>#</th>
         <th>Full Name</th>
@@ -153,7 +163,9 @@ unset($_SESSION['success'], $_SESSION['error']);
     <?php if (mysqli_num_rows($customers) === 0): ?>
     <tr><td colspan="7"><div class="empty-state"><i class="bi bi-inbox"></i>No customers registered yet.</div></td></tr>
     <?php endif; ?>
-</table>
+    </table>
+    </div>
+    </div>
 </div>
 
 <?php require_once 'includes/footer.php'; ?>
