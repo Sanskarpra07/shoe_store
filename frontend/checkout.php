@@ -1,24 +1,38 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Checkout - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Collects shipping details, delivery slot, and payment method, then shows
+ * an order summary sidebar before the customer places the final order.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap ----------
 session_start();
+
+// ---------- Shared includes ----------
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Guard: redirect if cart is empty ----------
 $cart = $_SESSION['cart'] ?? [];
 if (empty($cart)) {
     header("Location: cart.php");
     exit();
 }
 
-// Checkout requires a logged-in customer account
+// ---------- Guard: must be logged in ----------
 if (!is_customer_logged_in()) {
     $_SESSION['redirect_after_login'] = 'checkout.php';
     header("Location: login.php");
     exit();
 }
 
+// ---------- Build cart items & compute total ----------
 $cart_items = [];
-$total = 0;
-$ids = array_keys($cart);
+$total      = 0;
+$ids        = array_keys($cart);
 $placeholders = implode(',', array_fill(0, count($ids), '?'));
 $types = str_repeat('i', count($ids));
 $stmt = mysqli_prepare($conn, "SELECT * FROM products WHERE id IN ($placeholders)");
@@ -26,19 +40,20 @@ mysqli_stmt_bind_param($stmt, $types, ...$ids);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 while ($row = mysqli_fetch_assoc($result)) {
-    $qty = $cart[$row['id']] ?? 1;
-    $price = $row['discount_price'] ?: $row['price'];
-    $row['qty'] = $qty;
+    $qty          = $cart[$row['id']] ?? 1;
+    $price        = $row['discount_price'] ?: $row['price'];
+    $row['qty']   = $qty;
     $row['line_total'] = $price * $qty;
     $total += $row['line_total'];
     $cart_items[] = $row;
 }
 
-$errors    = $_SESSION['checkout_errors'] ?? [];
-$prev      = $_SESSION['checkout_data'] ?? [];
+// ---------- Restore flash data from previous submission ----------
+$errors = $_SESSION['checkout_errors'] ?? [];
+$prev   = $_SESSION['checkout_data'] ?? [];
 unset($_SESSION['checkout_errors'], $_SESSION['checkout_data']);
 
-// Pre-fill from logged-in customer
+// ---------- Pre-fill form from logged-in customer ----------
 if (is_customer_logged_in()) {
     $cid = (int)$_SESSION['customer_id'];
     $stmt = mysqli_prepare($conn, "SELECT * FROM customers WHERE id = ?");
@@ -60,10 +75,12 @@ if (is_customer_logged_in()) {
 $selected_payment = $prev['payment'] ?? 'cod';
 $selected_slot    = $prev['delivery_slot'] ?? '';
 
+// ---------- Fetch active delivery slots ----------
 $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 ORDER BY slot_time ASC");
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== <head> ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -82,11 +99,14 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
 </head>
 <body>
 
+<!-- ======== Navbar ======== -->
 <?php frontend_navbar(); ?>
 
+<!-- ======== Checkout Page ======== -->
 <div class="container py-5">
     <h2 class="section-title">Checkout</h2>
 
+    <!-- Validation Errors -->
     <?php if (!empty($errors)): ?>
         <div class="alert alert-danger">
             <ul class="mb-0">
@@ -128,7 +148,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
                                       placeholder="Street, City, State, ZIP, Country"><?= htmlspecialchars($address) ?></textarea>
                         </div>
 
-                        <!-- Delivery Slot -->
+                        <!-- ======== Delivery Slot ======== -->
                         <h6 class="fw-bold mt-4 mb-3"><i class="bi bi-clock me-2 text-success"></i>Delivery Slot</h6>
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Preferred Delivery Time</label>
@@ -144,7 +164,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
                             <small class="text-muted">Choose when you would like your order delivered.</small>
                         </div>
 
-                        <!-- Payment Method -->
+                        <!-- ======== Payment Method ======== -->
                         <h6 class="fw-bold mt-4 mb-3"><i class="bi bi-credit-card me-2 text-primary"></i>Select Payment Method</h6>
 
                         <div class="row g-3 mb-4">
@@ -189,6 +209,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
                             </div>
                         </div>
 
+                        <!-- ======== Place Order Button ======== -->
                         <button type="submit" class="btn btn-accent btn-lg w-100">
                             <i class="bi bi-shield-check me-1"></i>
                             Place Order - रु <?= number_format($total, 2) ?>
@@ -201,6 +222,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
             </div>
         </div>
 
+        <!-- ======== Order Summary Sidebar ======== -->
         <div class="col-lg-5">
             <div class="summary-card">
                 <div class="card-header"><i class="bi bi-bag me-2"></i>Order Summary</div>
@@ -240,6 +262,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
                 </div>
             </div>
 
+            <!-- Security Note -->
             <div class="card shadow-sm border-0 rounded-3 mt-3">
                 <div class="card-body small text-muted py-3">
                     <i class="bi bi-shield-check text-success me-1"></i>
@@ -250,8 +273,10 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
     </div>
 </div>
 
+<!-- ======== Footer ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== Scripts ======== -->
 <script>
 // Hightlight selected payment option
 document.querySelectorAll('.payment-option input').forEach(input => {
