@@ -82,17 +82,23 @@ unset($_SESSION['success'], $_SESSION['error']);
     <a class="btn btn-green" href="add_categories.php"><i class="bi bi-plus-lg"></i> Add Category</a>
 </div>
 
-<!-- Flash messages -->
-<?php if ($success): ?>
-    <div class="msg-success"><?= htmlspecialchars($success) ?></div>
-<?php endif; ?>
-<?php if ($error): ?>
-    <div class="msg-error"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
+<!-- ======== CATEGORIES TABLE (panel card) ======== -->
+<div class="panel-card">
+    <div class="panel-header">
+        <h3><i class="bi bi-tags"></i> All Categories <span class="text-muted small">(<?= mysqli_num_rows($categories) ?>)</span></h3>
+    </div>
+    <div class="panel-body">
 
-<!-- ======== CATEGORIES TABLE ======== -->
-<div class="table-responsive">
-<table class="table">
+        <!-- Flash messages -->
+        <?php if ($success): ?>
+            <div class="msg-success"><?= htmlspecialchars($success) ?></div>
+        <?php endif; ?>
+        <?php if ($error): ?>
+            <div class="msg-error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <div class="table-responsive">
+        <table class="table">
     <tr>
         <th>#</th>
         <th>Name</th>
@@ -128,6 +134,8 @@ unset($_SESSION['success'], $_SESSION['error']);
     </tr>
     <?php endwhile; ?>
 </table>
+        </div>
+    </div>
 </div>
 
 <?php require_once 'includes/footer.php'; ?>
