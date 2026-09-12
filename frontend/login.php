@@ -1,13 +1,25 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Customer Login - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Renders the customer login form, redirects already-logged-in customers to
+ * their account, and surfaces any login errors or success messages.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap --------------------------------
 session_start();
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Redirect logged-in customers --------------------
 if (is_customer_logged_in()) {
     header("Location: my_account.php");
     exit();
 }
 
+// ---------- Read and clear flash messages -------------------
 $errors = $_SESSION['login_error'] ?? '';
 unset($_SESSION['login_error']);
 if (!empty($errors) && !is_array($errors)) {
@@ -21,6 +33,7 @@ unset($_SESSION['login_success']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== HEAD ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -33,8 +46,10 @@ unset($_SESSION['login_success']);
 </head>
 <body>
 
+<!-- ======== NAVBAR ======== -->
 <?php frontend_navbar(); ?>
 
+<!-- ======== PAGE CONTENT ======== -->
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
@@ -58,6 +73,7 @@ unset($_SESSION['login_success']);
                         </div>
                     <?php endif; ?>
 
+                    <!-- ======== LOGIN FORM ======== -->
                     <form method="POST" action="process_customer_login.php">
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Email Address <span class="text-danger">*</span></label>
@@ -93,8 +109,10 @@ unset($_SESSION['login_success']);
     </div>
 </div>
 
+<!-- ======== FOOTER ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== SCRIPTS ======== -->
 <script>
 function togglePassword() {
     const field = document.getElementById("password");
