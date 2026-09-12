@@ -73,28 +73,34 @@ $total_rows = mysqli_num_rows($result);
     <a class="btn btn-green" href="add_product.php"><i class="bi bi-plus-lg"></i> Add Product</a>
 </div>
 
-<!-- ======== SEARCH BAR ======== -->
-<form method="GET" action="products.php" class="search-row">
-    <input type="text" name="search" placeholder="Search by name, category or brand..."
-           value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-    <button type="submit" class="btn btn-small"><i class="bi bi-search"></i> Search</button>
-    <?php if (!empty($search)): ?><a class="btn btn-gray btn-small" href="products.php"><i class="bi bi-x-circle"></i> Clear</a><?php endif; ?>
-</form>
+<!-- ======== PRODUCTS TABLE (panel card) ======== -->
+<div class="panel-card">
+    <div class="panel-header">
+        <h3><i class="bi bi-box-seam"></i> Products <span class="text-muted small">(<?= $total_rows ?>)</span></h3>
+        <div class="panel-tools">
+            <form method="GET" action="products.php" class="search-row" style="margin:0;">
+                <input type="text" name="search" placeholder="Search by name, category or brand..."
+                       value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                <button type="submit" class="btn btn-small"><i class="bi bi-search"></i> Search</button>
+                <?php if (!empty($search)): ?><a class="btn btn-gray btn-small" href="products.php"><i class="bi bi-x-circle"></i> Clear</a><?php endif; ?>
+            </form>
+        </div>
+    </div>
+    <div class="panel-body">
 
-<!-- Search result summary -->
-<?php if (!empty($search)): ?>
-    <p class="small text-muted" style="margin-bottom:10px;">Showing <?= $total_rows ?> result(s) for
-        "<strong><?= htmlspecialchars($search) ?></strong>"</p>
-<?php endif; ?>
+        <!-- Search result summary -->
+        <?php if (!empty($search)): ?>
+            <p class="small text-muted" style="margin:12px 0 0;">Showing <?= $total_rows ?> result(s) for
+                "<strong><?= htmlspecialchars($search) ?></strong>"</p>
+        <?php endif; ?>
 
-<!-- Flash success message -->
-<?php if ($success): ?>
-    <div class="msg-success"><?= htmlspecialchars($success) ?></div>
-<?php endif; ?>
+        <!-- Flash success message -->
+        <?php if ($success): ?>
+            <div class="msg-success"><?= htmlspecialchars($success) ?></div>
+        <?php endif; ?>
 
-<!-- ======== PRODUCTS TABLE ======== -->
-<div class="table-responsive">
-<table class="table">
+        <div class="table-responsive">
+        <table class="table">
     <tr>
         <th>#</th>
         <th>Image</th>
@@ -153,6 +159,8 @@ $total_rows = mysqli_num_rows($result);
     </tr>
     <?php endif; ?>
 </table>
+        </div>
+    </div>
 </div>
 
 <?php require_once 'includes/footer.php'; ?>
