@@ -1,18 +1,33 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Process Customer Login - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Authenticates a customer via email and password. Handles unverified
+ * accounts by generating an OTP, and on success establishes the session
+ * and redirects to the intended page.
+ * --------------------------------------------------------------------------
+ */
+// ---------- Session bootstrap ----------
 session_start();
+
+// ---------- Shared requires ----------
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Already logged in ----------
 if (is_customer_logged_in()) {
     header("Location: my_account.php");
     exit();
 }
 
+// ---------- Enforce POST ----------
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: login.php");
     exit();
 }
 
+// ---------- Parse and validate input ----------
 $email    = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
 
@@ -22,17 +37,20 @@ if (empty($email) || empty($password)) {
     exit();
 }
 
+// ---------- Look up customer ----------
 $stmt = mysqli_prepare($conn, "SELECT * FROM customers WHERE email = ?");
 mysqli_stmt_bind_param($stmt, "s", $email);
 mysqli_stmt_execute($stmt);
 $customer = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
+// ---------- Verify credentials ----------
 if (!$customer || !password_verify($password, $customer['password_eg'])) {
     $_SESSION['login_error'] = "Invalid email or password.";
     header("Location: login.php");
     exit();
 }
 
+// ---------- Handle unverified email ----------
 if (!$customer['is_verified']) {
     $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     $otp_expiry = date('Y-m-d H:i:s', strtotime('+10 minutes'));
@@ -50,11 +68,13 @@ if (!$customer['is_verified']) {
     exit();
 }
 
+// ---------- Establish session ----------
 session_regenerate_id(true);
 $_SESSION['customer_id']    = $customer['id'];
 $_SESSION['customer_name']  = $customer['full_name'];
 $_SESSION['customer_email'] = $customer['email'];
 
+// ---------- Redirect to intended page ----------
 $redirect = $_SESSION['redirect_after_login'] ?? 'my_account.php';
 unset($_SESSION['redirect_after_login']);
 header("Location: " . $redirect);
