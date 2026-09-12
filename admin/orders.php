@@ -1,11 +1,23 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN ORDERS
+ * --------------------------------------------------------------------------
+ * Lists all customer orders with search, shows a full order-detail view,
+ * updates order status, cancels orders (restoring stock for paid orders)
+ * and processes Khalti wallet refunds for completed Khalti payments.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Orders';
 $current_page = 'orders';
 require_once 'includes/header.php';
 require_once __DIR__ . '/../backend/payment_config.php';
 
-// Restore stock helper when order is cancelled
+// --- Helper: restore sold quantities back into stock ---------------------------
+// Used when an order is cancelled/refunded so the inventory is updated.
 function restore_order_stock($conn, $order_id) {
     $items = mysqli_query($conn, "SELECT product_id, quantity FROM order_items WHERE order_id = $order_id");
     while ($it = mysqli_fetch_assoc($items)) {
@@ -15,7 +27,11 @@ function restore_order_stock($conn, $order_id) {
     }
 }
 
+// ==============================================================================
+// POST ACTIONS: Khalti refund / cancel order / update status
+// ==============================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // --- Action 1: Process a Khalti wallet refund -----------------------------------
     if (($_POST['action'] ?? '') === 'refund_khalti' && isset($_POST['id'])) {
         $id = (int)$_POST['id'];
         $stmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE id = ?");
@@ -58,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    // --- Action 2: Cancel an order (invalidate it) -----------------------------------
     if (($_POST['action'] ?? '') === 'delete' && isset($_POST['id'])) {
         $id = (int)$_POST['id'];
         $stmt = mysqli_prepare($conn, "UPDATE orders SET status = 'cancelled' WHERE id = ?");
@@ -74,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    // --- Action 3: Update the order lifecycle status ----------------------------------
     if (($_POST['action'] ?? '') === 'update_status' && isset($_POST['id']) && isset($_POST['status'])) {
         $id     = (int)$_POST['id'];
         $status = $_POST['status'];
@@ -97,17 +115,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Order detail view
+// ==============================================================================
+// ORDER DETAIL VIEW (when ?view=<id> is provided)
+// ==============================================================================
 $view_order_id = isset($_GET['view']) ? (int)$_GET['view'] : 0;
 $order_detail  = null;
 $order_items   = [];
 
 if ($view_order_id > 0) {
+    // Load the order header.
     $stmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE id = ?");
     mysqli_stmt_bind_param($stmt, "i", $view_order_id);
     mysqli_stmt_execute($stmt);
     $order_detail = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
+    // Load the order line items when the order exists.
     if ($order_detail) {
         $oi = mysqli_query($conn,
             "SELECT oi.*, p.product_name, p.size, p.color
@@ -119,9 +141,13 @@ if ($view_order_id > 0) {
     }
 }
 
+// ==============================================================================
+// ORDER LIST (with optional search)
+// ==============================================================================
 $search = trim($_GET['search'] ?? '');
 
 if (!empty($search)) {
+    // Search across customer name, email and order number.
     $stmt = mysqli_prepare($conn,
         "SELECT * FROM orders WHERE customer_name LIKE ? OR customer_email LIKE ? OR id LIKE ? ORDER BY created_at DESC");
     $like = "%$search%";
@@ -129,15 +155,18 @@ if (!empty($search)) {
     mysqli_stmt_execute($stmt);
     $orders = mysqli_stmt_get_result($stmt);
 } else {
+    // No search - list every order newest first.
     $orders = mysqli_query($conn, "SELECT * FROM orders ORDER BY created_at DESC");
 }
 
+// --- Flash messages ----------------------------------------------------------------
 $success = $_SESSION['success'] ?? '';
 unset($_SESSION['success']);
 $error = $_SESSION['error'] ?? '';
 unset($_SESSION['error']);
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2>Orders</h2>
@@ -154,6 +183,8 @@ unset($_SESSION['error']);
 
 <?php if ($order_detail): ?>
     <a class="breadcrumb-back" href="orders.php"><i class="bi bi-arrow-left"></i> Back to Orders</a>
+
+    <!-- ======== ORDER DETAIL HEADER ======== -->
     <div class="page-header">
         <div>
             <h2>Order #<?= $order_detail['id'] ?> Details</h2>
@@ -163,7 +194,7 @@ unset($_SESSION['error']);
             ['pending'=>'warning','processing'=>'info','shipped'=>'primary','delivered'=>'success','cancelled'=>'danger'][$order_detail['status']] ?? 'secondary'
         ?>" style="font-size:14px; padding:8px 16px;"><i class="bi bi-circle-fill" style="font-size:8px;"></i> <?= ucfirst($order_detail['status']) ?></span>
     </div>
-    <div style="overflow-x:auto;">
+    <div style="overflow-x:auto;" class="table-responsive">
     <table class="table detail" style="max-width:640px;">
         <tr><td>Customer</td><td><strong><?= htmlspecialchars($order_detail['customer_name']) ?></strong></td></tr>
         <tr><td>Email</td><td><?= htmlspecialchars($order_detail['customer_email']) ?></td></tr>
@@ -179,6 +210,8 @@ unset($_SESSION['error']);
     </table>
     </div>
 
+    <!-- ======== ORDER ITEMS TABLE ======== -->
+    <div class="table-responsive">
     <table class="table">
         <tr>
             <th>Product</th>
@@ -203,7 +236,9 @@ unset($_SESSION['error']);
             <td class="center"><strong style="font-size:16px;">रु <?= number_format($order_detail['total_amount'], 2) ?></strong></td>
         </tr>
     </table>
+    </div>
 
+    <!-- ======== UPDATE ORDER STATUS ======== -->
     <h3 class="section-title">Update Status</h3>
     <div class="form-box" style="max-width:420px; margin:0;">
         <form method="POST" action="orders.php">
@@ -221,6 +256,7 @@ unset($_SESSION['error']);
         </form>
     </div>
 
+    <!-- ======== KHALTI REFUND ======== -->
     <?php if ($order_detail['payment_method'] === 'khalti' && $order_detail['payment_status'] === 'completed' && $order_detail['status'] !== 'cancelled'): ?>
     <h3 class="section-title">Payment Refund</h3>
     <div class="form-box" style="max-width:420px; margin:0;">
@@ -233,6 +269,7 @@ unset($_SESSION['error']);
     </div>
     <?php endif; ?>
 <?php else: ?>
+    <!-- ======== SEARCH BAR (order list) ======== -->
     <form method="GET" action="orders.php" class="search-row">
         <input type="text" name="search" placeholder="Search by customer name, email or order #..."
                value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
@@ -240,6 +277,8 @@ unset($_SESSION['error']);
         <?php if (!empty($search)): ?><a class="btn btn-gray btn-small" href="orders.php"><i class="bi bi-x-circle"></i> Clear</a><?php endif; ?>
     </form>
 
+    <!-- ======== ORDERS TABLE ======== -->
+    <div class="table-responsive">
     <table class="table">
         <tr>
             <th>#</th>
@@ -275,6 +314,7 @@ unset($_SESSION['error']);
         </tr>
         <?php endif; ?>
     </table>
+    </div>
 <?php endif; ?>
 
 <?php require_once 'includes/footer.php'; ?>
