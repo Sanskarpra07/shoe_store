@@ -1,14 +1,27 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * Customer Registration - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Validates the registration form and creates a customer record with an OTP
+ * for email verification, then redirects to the OTP verification page.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap --------------------------------
 session_start();
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Redirect logged-in customers --------------------
 if (is_customer_logged_in()) {
     header("Location: my_account.php");
     exit();
 }
 
 $errors = [];
+
+// ---------- Handle registration form submit -----------------
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $full_name = trim($_POST['full_name'] ?? '');
@@ -60,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== HEAD ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -72,8 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
+<!-- ======== NAVBAR ======== -->
 <?php frontend_navbar(); ?>
 
+<!-- ======== PAGE CONTENT ======== -->
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
@@ -88,6 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     <?php endif; ?>
 
+                    <!-- ======== REGISTER FORM ======== -->
                     <form method="POST" action="register.php">
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Full Name <span class="text-danger">*</span></label>
@@ -125,8 +142,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
+<!-- ======== FOOTER ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== SCRIPTS ======== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
