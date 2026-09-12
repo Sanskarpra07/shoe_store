@@ -1,15 +1,27 @@
 <?php
-// process_order.php - Creates the order and routes to the chosen payment method
+/**
+ * --------------------------------------------------------------------------
+ * Process Order - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Creates the order record from checkout data and routes the customer to
+ * the chosen payment method (COD, eSewa, or Khalti).
+ * --------------------------------------------------------------------------
+ */
+// ---------- Session bootstrap ----------
 session_start();
+
+// ---------- Shared requires ----------
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/payment_config.php';
 
+// ---------- Validate cart ----------
 $cart = $_SESSION['cart'] ?? [];
 if (empty($cart)) {
     header("Location: cart.php");
     exit();
 }
 
+// ---------- Auth guard ----------
 // Order placement requires a logged-in customer account (guards direct POSTs)
 if (empty($_SESSION['customer_id'])) {
     $_SESSION['redirect_after_login'] = 'checkout.php';
@@ -17,7 +29,7 @@ if (empty($_SESSION['customer_id'])) {
     exit();
 }
 
-// --- Gather shipping data ---
+// ---------- Gather shipping data ----------
 $name    = trim($_POST['name'] ?? '');
 $email   = trim($_POST['email'] ?? '');
 $phone   = trim($_POST['phone'] ?? '');
@@ -27,13 +39,14 @@ $payment = $_POST['payment_method'] ?? 'cod';
 
 $customer_id = isset($_SESSION['customer_id']) ? (int)$_SESSION['customer_id'] : null;
 
+// ---------- Validate inputs ----------
 $errors = [];
 if (empty($name))    $errors[] = "Name is required.";
 if (empty($email))   $errors[] = "Email is required.";
 if (empty($address)) $errors[] = "Address is required.";
 if (!in_array($payment, ['cod', 'esewa', 'khalti'])) $payment = 'cod';
 
-// --- Calculate cart total ---
+// ---------- Calculate cart total ----------
 $cart_items = [];
 $total = 0;
 foreach ($cart as $pid => $qty) {
@@ -60,6 +73,7 @@ if ($total <= 0) {
     $errors[] = "Order total cannot be zero.";
 }
 
+// ---------- Redirect back on validation errors ----------
 if (!empty($errors)) {
     $_SESSION['checkout_errors'] = $errors;
     $_SESSION['checkout_data'] = [
@@ -70,7 +84,7 @@ if (!empty($errors)) {
     exit();
 }
 
-// Validate stock before placing order
+// ---------- Validate stock ----------
 foreach ($cart_items as $item) {
     if ($item['qty'] > $item['stock']) {
         $_SESSION['checkout_errors'] = ["Insufficient stock for {$item['product_name']}. Only {$item['stock']} available."];
@@ -79,7 +93,7 @@ foreach ($cart_items as $item) {
     }
 }
 
-// --- Create the order record ---
+// ---------- Create the order record ----------
 $payment_status = ($payment === 'cod') ? 'completed' : 'pending';
 $stmt = mysqli_prepare($conn,
     "INSERT INTO orders (customer_id, customer_name, customer_email, customer_phone, customer_address,
@@ -91,7 +105,8 @@ mysqli_stmt_bind_param($stmt, "issssdsss",
 mysqli_stmt_execute($stmt);
 $order_id = mysqli_insert_id($conn);
 
-// --- Insert order items (store unit price, not line total) ---
+// ---------- Insert order items ----------
+// Store unit price, not line total
 foreach ($cart_items as $item) {
     $unit_price = $item['discount_price'] ?: $item['price'];
     $istmt = mysqli_prepare($conn,
@@ -100,7 +115,7 @@ foreach ($cart_items as $item) {
     mysqli_stmt_execute($istmt);
 }
 
-// For online payments, hold the stock until payment completes
+// ---------- COD: reduce stock and redirect ----------
 if ($payment === 'cod') {
     // Reduce stock atomically for COD
     mysqli_begin_transaction($conn);
@@ -119,7 +134,7 @@ if ($payment === 'cod') {
     exit();
 }
 
-// Save the order id so payment callbacks can update this order
+// ---------- Save order id for payment callbacks ----------
 $_SESSION['order_id_on_payment'] = $order_id;
 
 // ---------- eSewa (ePay V2) ----------
@@ -196,6 +211,7 @@ if ($payment === 'khalti') {
         'product_details' => $product_details
     ];
 
+    // ---------- Call Khalti initiate API ----------
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, KHALTI_INITIATE_URL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -211,11 +227,13 @@ if ($payment === 'khalti') {
 
     $data = json_decode($response, true);
 
+    // ---------- Redirect to Khalti payment page ----------
     if (!empty($data['payment_url'])) {
         header("Location: " . $data['payment_url']);
         exit();
     }
 
+    // ---------- Khalti error handling ----------
     // Surface the actual error message if available
     $khalti_error = $data['detail'] ?? $data['error_key'] ?? '';
     $msg = "Khalti payment gateway could not be reached.";
