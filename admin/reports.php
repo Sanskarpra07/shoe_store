@@ -1,10 +1,23 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN SALES REPORTS
+ * --------------------------------------------------------------------------
+ * Shows sales metrics for a selectable date range: revenue, pending
+ * payments, orders, average order value, orders by status, payment method
+ * breakdown, and top selling products. Also exports the same data as a CSV.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared database connection -------------------------
 session_start();
 $page_title = 'Sales Reports';
 $current_page = 'reports';
 require_once __DIR__ . '/../backend/db.php';
 
-// Date range filter
+// --- Date range filter ------------------------------------------------------
+// Defaults to the current month; converts dates into full timestamps so the
+// BETWEEN comparison also covers the end of the "to" day.
 $from = $_GET['from'] ?? date('Y-m-01');
 $to   = $_GET['to']   ?? date('Y-m-d');
 $from_s = date('Y-m-d 00:00:00', strtotime($from));
@@ -12,6 +25,7 @@ $to_s   = date('Y-m-d 23:59:59', strtotime($to));
 
 $export = $_GET['export'] ?? '';
 
+// --- Helper: count rows for a parameterized query -----------------------------
 function row_count($conn, $sql, $from_s, $to_s) {
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
@@ -19,7 +33,7 @@ function row_count($conn, $sql, $from_s, $to_s) {
     return mysqli_fetch_assoc(mysqli_stmt_get_result($stmt))['c'];
 }
 
-// Metrics within range
+// --- Metrics within the selected range --------------------------------------
 $range_orders   = row_count($conn, "SELECT COUNT(*) AS c FROM orders WHERE created_at BETWEEN ? AND ?", $from_s, $to_s);
 $stmt = mysqli_prepare($conn, "SELECT IFNULL(SUM(total_amount),0) AS r FROM orders WHERE created_at BETWEEN ? AND ? AND payment_status='completed'");
 mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
@@ -31,19 +45,19 @@ mysqli_stmt_execute($stmt);
 $range_pending_pay = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt))['r'];
 $avg_order_value = $range_orders > 0 ? $range_revenue / $range_orders : 0;
 
-// Orders by status
+// --- Orders grouped by status ---------------------------------------------------
 $stmt = mysqli_prepare($conn, "SELECT status, COUNT(*) AS c FROM orders WHERE created_at BETWEEN ? AND ? GROUP BY status");
 mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
 mysqli_stmt_execute($stmt);
 $status_data = mysqli_stmt_get_result($stmt);
 
-// Payment method breakdown
+// --- Payment method breakdown -----------------------------------------------------
 $stmt = mysqli_prepare($conn, "SELECT payment_method, COUNT(*) AS c, IFNULL(SUM(total_amount),0) AS rev FROM orders WHERE created_at BETWEEN ? AND ? GROUP BY payment_method");
 mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
 mysqli_stmt_execute($stmt);
 $payment_data = mysqli_stmt_get_result($stmt);
 
-// Top selling products
+// --- Top selling products ----------------------------------------------------------
 $stmt = mysqli_prepare($conn,
     "SELECT p.product_name, SUM(oi.quantity) AS qty_sold, SUM(oi.quantity * oi.price) AS revenue
      FROM order_items oi
@@ -56,7 +70,7 @@ mysqli_stmt_bind_param($stmt, "ss", $from_s, $to_s);
 mysqli_stmt_execute($stmt);
 $top_products = mysqli_stmt_get_result($stmt);
 
-// CSV Export
+// --- CSV export ---------------------------------------------------------------------
 if ($export === 'csv') {
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="sales_report_' . $from . '_to_' . $to . '.csv"');
@@ -88,6 +102,7 @@ if ($export === 'csv') {
 
 <?php require_once 'includes/header.php'; ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2>Sales Reports</h2>
@@ -95,6 +110,7 @@ if ($export === 'csv') {
     </div>
 </div>
 
+<!-- ======== DATE RANGE FILTER ======== -->
 <div class="card" style="padding:16px 20px;">
     <form method="GET" action="reports.php" class="report-filter">
         <label>From:</label>
@@ -106,6 +122,7 @@ if ($export === 'csv') {
     </form>
 </div>
 
+<!-- ======== REPORT METRIC CARDS ======== -->
 <div class="stat-grid">
     <div class="stat-card">
         <div class="stat-icon icon-green"><i class="bi bi-currency-dollar"></i></div>
