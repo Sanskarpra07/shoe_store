@@ -1,9 +1,20 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN ADD USER
+ * --------------------------------------------------------------------------
+ * Admin-only form to create a new admin or staff account. Passwords are
+ * hashed with password_hash() before being stored.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Add User';
 $current_page = 'users';
 require_once 'includes/header.php';
 
+// --- Role guard: only administrators may register users --------------------------
 if ($_SESSION['role'] !== 'admin') {
     header("Location: dashboard.php");
     exit();
@@ -12,16 +23,19 @@ if ($_SESSION['role'] !== 'admin') {
 $errors = [];
 $success = "";
 
+// --- Handle user creation (POST) ----------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     $role     = $_POST['role'] ?? 'staff';
 
+    // Basic validation.
     if (empty($username)) $errors[] = "Username is required.";
     if (empty($password)) $errors[] = "Password is required.";
     if (!in_array($role, ['admin', 'staff'])) $role = 'staff';
 
     if (empty($errors)) {
+        // Make sure the username is not already taken.
         $stmt = mysqli_prepare($conn, "SELECT id FROM users WHERE username = ?");
         mysqli_stmt_bind_param($stmt, "s", $username);
         mysqli_stmt_execute($stmt);
@@ -30,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (mysqli_stmt_num_rows($stmt) > 0) {
             $errors[] = "Username already taken.";
         } else {
+            // Hash the password and insert the new account.
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             $stmt = mysqli_prepare($conn, "INSERT INTO users (username, password_eg, role) VALUES (?, ?, ?)");
             mysqli_stmt_bind_param($stmt, "sss", $username, $hashed_password, $role);
@@ -44,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2>Add New User</h2>
@@ -62,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="msg-success"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 
+<!-- ======== ADD USER FORM ======== -->
 <div class="form-box" style="max-width:420px;">
     <form method="POST" action="register.php">
         <div class="form-group">
