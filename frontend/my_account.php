@@ -1,20 +1,33 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * My Account - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Displays the logged-in customer's profile, account stats, edit forms and
+ * recent orders, and handles profile and password updates in the same page.
+ * --------------------------------------------------------------------------
+ */
+
+// ---------- Session bootstrap --------------------------------
 session_start();
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Require customer login ---------------------------
 if (!is_customer_logged_in()) {
     $_SESSION['redirect_after_login'] = 'my_account.php';
     header("Location: login.php");
     exit();
 }
 
+// ---------- Fetch customer record ----------------------------
 $customer_id = (int) $_SESSION['customer_id'];
 $stmt = mysqli_prepare($conn, "SELECT * FROM customers WHERE id = ?");
 mysqli_stmt_bind_param($stmt, "i", $customer_id);
 mysqli_stmt_execute($stmt);
 $customer = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
+// ---------- Guard: invalid customer record -------------------
 if (!$customer) {
     session_destroy();
     header("Location: login.php");
@@ -24,6 +37,7 @@ if (!$customer) {
 $errors = [];
 $success = "";
 
+// ---------- Handle profile update ----------------------------
 // Update profile
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'profile') {
     $full_name = trim($_POST['full_name'] ?? '');
@@ -44,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// ---------- Handle password change ---------------------------
 // Change password
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'password') {
     $current = $_POST['current_password'] ?? '';
@@ -69,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// ---------- Fetch dashboard stats ----------------------------
 // Recent orders for dashboard
 $recent_orders = mysqli_query($conn,
     "SELECT o.*, (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id) AS item_count
@@ -85,6 +101,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- ======== HEAD ======== -->
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -97,8 +114,10 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
 </head>
 <body>
 
+<!-- ======== NAVBAR ======== -->
 <?php frontend_navbar(); ?>
 
+<!-- ======== PAGE CONTENT ======== -->
 <div class="container py-5">
     <?php if (isset($_GET['verified'])): ?>
         <div class="alert alert-success alert-dismissible fade show">
@@ -124,6 +143,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
         </div>
     <?php endif; ?>
 
+    <!-- ======== ACCOUNT SIDEBAR ======== -->
     <div class="row g-4">
         <div class="col-lg-3">
             <div class="card shadow-sm border-0 rounded-3">
@@ -147,6 +167,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
         </div>
 
         <div class="col-lg-9">
+            <!-- ======== ACCOUNT STATS ======== -->
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
                     <div class="card stat-card border-0 shadow-sm p-3">
@@ -188,6 +209,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
                 </div>
             </div>
 
+            <!-- ======== EDIT PROFILE FORM ======== -->
             <div class="card shadow-sm border-0 rounded-3 mb-4">
                 <div class="card-header bg-white fw-semibold py-3">
                     <i class="bi bi-person-lines-fill me-2 text-primary"></i>Edit Profile
@@ -221,6 +243,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
                 </div>
             </div>
 
+            <!-- ======== CHANGE PASSWORD FORM ======== -->
             <div class="card shadow-sm border-0 rounded-3 mb-4">
                 <div class="card-header bg-white fw-semibold py-3">
                     <i class="bi bi-key me-2 text-warning"></i>Change Password
@@ -247,12 +270,14 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
                 </div>
             </div>
 
+            <!-- ======== RECENT ORDERS ======== -->
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                     <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-secondary"></i>Recent Orders</h6>
                     <a href="my_orders.php" class="btn btn-sm btn-outline-dark">View All</a>
                 </div>
                 <div class="card-body p-0">
+                    <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
@@ -280,14 +305,17 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
                         <?php endif; ?>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ======== FOOTER ======== -->
 <?php frontend_footer(); ?>
 
+<!-- ======== SCRIPTS ======== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
