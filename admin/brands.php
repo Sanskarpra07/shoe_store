@@ -1,4 +1,15 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * ADMIN BRANDS
+ * --------------------------------------------------------------------------
+ * Full brand manager on one screen: add / edit / delete brands and view the
+ * product count per brand. Includes a Font Awesome icon field with a live
+ * preview. Deleting is blocked while products still use the brand.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared layout header --------------------------------
 session_start();
 $page_title = 'Brands';
 $current_page = 'brands';
@@ -8,6 +19,7 @@ $errors = [];
 $is_edit = false;
 $brand = ['id' => '', 'name' => '', 'description' => '', 'icon' => ''];
 
+// --- Handle brand deletion (POST) ------------------------------------------------
 if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id'])) {
     $id = (int)$_POST['id'];
     $check = mysqli_fetch_assoc(
@@ -25,6 +37,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['id
     exit();
 }
 
+// --- Load brand into the form when editing --------------------------------------------
 if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) {
     $id = (int)$_GET['id'];
     $res = mysqli_query($conn, "SELECT * FROM brands WHERE id = $id");
@@ -34,6 +47,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) 
     }
 }
 
+// --- Handle form submission (create / update) ----------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $brand_id    = $_POST['brand_id'] ?? '';
     $name        = trim($_POST['name'] ?? '');
@@ -42,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $is_edit     = !empty($brand_id);
     $brand       = ['id' => $brand_id, 'name' => $name, 'description' => $description, 'icon' => $icon];
 
+    // Sanitize the icon field (length + allowed characters).
     if (strlen($icon) > 100) {
         $icon = substr($icon, 0, 100);
     }
@@ -49,10 +64,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $icon = '';
     }
 
+    // Validate the brand name.
     if (empty($name)) {
         $errors[] = "Brand name is required.";
     }
 
+    // Insert or update the brand.
     if (empty($errors)) {
         if ($is_edit) {
             $stmt = mysqli_prepare($conn, "UPDATE brands SET name = ?, description = ?, icon = ? WHERE id = ?");
@@ -76,6 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// --- Fetch all brands with product counts ---------------------------------------------
 $brands = mysqli_query($conn,
     "SELECT b.*, COUNT(p.id) AS product_count
      FROM brands b
@@ -84,11 +102,13 @@ $brands = mysqli_query($conn,
      ORDER BY b.created_at DESC"
 );
 
+// --- Flash messages --------------------------------------------------------------------
 $success = $_SESSION['success'] ?? '';
 $error   = $_SESSION['error'] ?? '';
 unset($_SESSION['success'], $_SESSION['error']);
 ?>
 
+<!-- ======== PAGE HEADER ======== -->
 <div class="page-header">
     <div>
         <h2>Brands</h2>
