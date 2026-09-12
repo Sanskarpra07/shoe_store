@@ -296,6 +296,104 @@ img { border: 0; }
     background: var(--accent-gradient);
 }
 
+/* ---------- Panel cards (Bootstrap-style boxed tables) ----------
+   A reusable header + body wrapper used to turn admin data tables into
+   clean, boxed panels with a titled header bar on every list page. */
+.panel-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 22px;
+    overflow: hidden;
+}
+.panel-card .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 15px 20px;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border);
+}
+.panel-card .panel-header h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--text);
+}
+.panel-card .panel-header h3 i { color: var(--accent); font-size: 17px; }
+.panel-card .panel-header .panel-tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.panel-card .panel-body { padding: 4px 20px 14px; }
+.panel-card .panel-body .table {
+    border: none;
+    box-shadow: none;
+    margin: 8px 0 0;
+    border-radius: 0;
+}
+.panel-card .panel-body .search-row { margin: 14px 0 0; }
+
+/* ---------- Dashboard panels ----------
+   Two-column card grid (Recent Products / Recent Orders) plus the
+   revenue chart card shown on the admin dashboard. */
+.dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    align-items: start;
+    margin-bottom: 22px;
+}
+@media (max-width: 900px) {
+    .dash-grid { grid-template-columns: 1fr; }
+}
+
+/* Row list used inside the recent-content panels */
+.dash-list { padding: 4px 0; }
+.dash-list .list-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 2px;
+    border-bottom: 1px solid var(--border);
+}
+.dash-list .list-row:last-child { border-bottom: none; }
+.dash-list .list-thumb {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dash-list .list-main { flex: 1; min-width: 0; }
+.dash-list .list-main .list-title {
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.dash-list .list-main .list-meta { font-size: 12px; color: var(--text-muted); }
+.dash-list .list-side { text-align: right; flex-shrink: 0; }
+
+/* Revenue chart card */
+.chart-card .panel-body { padding-top: 12px; }
+.revenue-chart-wrap { position: relative; height: 320px; padding: 4px 2px; }
+
 /* ---------- Tables ---------- */
 .table {
     width: 100%;
