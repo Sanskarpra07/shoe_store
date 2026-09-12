@@ -1,11 +1,22 @@
 <?php
-// eSewa ePay V2 success callback - verifies the signed response and confirms
-// the transaction via the status API before completing the order.
+/**
+ * --------------------------------------------------------------------------
+ * eSewa Success Callback - MegaFoot Storefront
+ * --------------------------------------------------------------------------
+ * Handles the eSewa ePay V2 success redirect: verifies the HMAC-SHA256
+ * signature on the response, cross-checks the amount, then calls the
+ * eSewa status API for final confirmation before completing the order.
+ * --------------------------------------------------------------------------
+ */
+// ---------- Session bootstrap ----------
 session_start();
+
+// ---------- Shared requires ----------
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/payment_config.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// ---------- Parse eSewa response data ----------
 $data = $_GET['data'] ?? '';
 if ($data === '') {
     die("Missing payment parameters.");
@@ -20,7 +31,7 @@ if (!is_array($response) || empty($response['transaction_uuid'])) {
     die("Invalid payment response.");
 }
 
-// ---- Step 1: verify the HMAC-SHA256 signature on the response ----
+// ---------- Step 1: verify HMAC-SHA256 signature ----------
 // eSewa signs every field listed in signed_field_names (excluding "signature").
 $signed_parts = [];
 foreach (explode(',', $response['signed_field_names'] ?? '') as $field) {
@@ -34,7 +45,7 @@ if (!hash_equals($expected, $response['signature'] ?? '')) {
     die("Payment signature verification failed.");
 }
 
-// ---- Step 2: resolve the order from our transaction_uuid (ord-{id}-{nonce}) ----
+// ---------- Step 2: resolve order from transaction_uuid ----------
 if (!preg_match('/^ord-(\d+)-/', (string)$response['transaction_uuid'], $m)) {
     die("Unknown transaction reference.");
 }
@@ -45,14 +56,14 @@ if (!$order) {
     die("Order not found.");
 }
 
-// ---- Step 3: cross-check the paid amount matches the order total ----
+// ---------- Step 3: cross-check paid amount ----------
 $paid = (float)($response['total_amount'] ?? 0);
 if (abs($paid - (float)$order['total_amount']) > 0.01) {
     mysqli_query($conn, "UPDATE orders SET payment_status = 'failed' WHERE id = $order_id");
     die("Payment amount mismatch detected. Please contact support.");
 }
 
-// ---- Idempotency: skip if the order was already completed ----
+// ---------- Idempotency guard ----------
 if ($order['payment_status'] === 'completed') {
     $_SESSION['cart'] = [];
     $_SESSION['order_success'] = "Payment already confirmed for Order #$order_id. Total: रु " . number_format($order['total_amount'], 2);
@@ -60,7 +71,7 @@ if ($order['payment_status'] === 'completed') {
     exit();
 }
 
-// ---- Step 4: confirm with the eSewa status API (defence in depth) ----
+// ---------- Step 4: confirm with eSewa status API ----------
 $status_url = ESEWA_STATUS_URL . '?' . http_build_query([
     'product_code'     => ESEWA_MERCHANT_CODE,
     'total_amount'     => $response['total_amount'],
@@ -79,7 +90,7 @@ if (($status['status'] ?? '') !== 'COMPLETE' || $ref_id === '') {
     exit();
 }
 
-// ---- Step 5: complete the order and decrement stock atomically ----
+// ---------- Step 5: complete order and decrement stock atomically ----------
 mysqli_begin_transaction($conn);
 try {
     $stmt = mysqli_prepare($conn,
@@ -99,6 +110,7 @@ try {
     mysqli_rollback($conn);
 }
 
+// ---------- Redirect to order success ----------
 $_SESSION['cart'] = [];
 $_SESSION['order_success'] = "Payment successful via eSewa! Order #$order_id confirmed. Total: रु " . number_format($order['total_amount'], 2);
 header("Location: order_success.php");
