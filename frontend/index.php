@@ -1,8 +1,19 @@
 <?php
+/**
+ * --------------------------------------------------------------------------
+ * MEGA FOOT HOMEPAGE
+ * --------------------------------------------------------------------------
+ * The storefront landing page. Shows the hero, trust bar, hot-deal / new
+ * arrival product cards, category and brand grids, then the shared footer.
+ * --------------------------------------------------------------------------
+ */
+
+// --- Session bootstrap + shared requires ------------------------------------
 session_start();
 require_once __DIR__ . '/../backend/db.php';
 require_once __DIR__ . '/../backend/auth_helper.php';
 
+// --- Fetch featured (discounted) products ------------------------------------
 $featured = mysqli_query($conn,
     "SELECT p.*, c.name AS category_name, b.name AS brand_name
      FROM products p
@@ -13,6 +24,7 @@ $featured = mysqli_query($conn,
      LIMIT 4"
 );
 
+// --- Fetch the newest arrivals -----------------------------------------------
 $new_arrivals = mysqli_query($conn,
     "SELECT p.*, c.name AS category_name, b.name AS brand_name
      FROM products p
@@ -22,9 +34,11 @@ $new_arrivals = mysqli_query($conn,
      LIMIT 8"
 );
 
+// --- Fetch categories & brands for the grids -----------------------------------
 $categories = mysqli_query($conn, "SELECT * FROM categories ORDER BY name ASC");
 $brands = mysqli_query($conn, "SELECT * FROM brands ORDER BY name ASC");
 
+// --- Track the cart count for the navbar badge ----------------------------------
 $cart_count = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     $cart_count = array_sum($_SESSION['cart']);
@@ -33,6 +47,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- ======== DOCUMENT META + SEO ======== -->
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
@@ -46,6 +61,8 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     <meta property="og:title" content="MegaFoot - Premium Shoe Store">
     <meta property="og:description" content="Discover the latest trends in footwear from top brands worldwide.">
     <meta property="og:url" content="<?= base_url('') ?>">
+
+    <!-- ======== STYLESHEETS ======== -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -251,6 +268,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 <!-- Footer -->
 <?php frontend_footer(); ?>
 
+<!-- ======== SCRIPTS ======== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
