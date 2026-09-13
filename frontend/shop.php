@@ -174,10 +174,10 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                     <?php endif; ?>
                     <div class="mt-2">
                         <?php if ($p['discount_price']): ?>
-                            <span class="price">रु <?= number_format($p['discount_price'], 2) ?></span>
-                            <span class="old-price ms-2">रु <?= number_format($p['price'], 2) ?></span>
+                            <span class="price">NPR <?= number_format($p['discount_price'], 2) ?></span>
+                            <span class="old-price ms-2">NPR <?= number_format($p['price'], 2) ?></span>
                         <?php else: ?>
-                            <span class="price">रु <?= number_format($p['price'], 2) ?></span>
+                            <span class="price">NPR <?= number_format($p['price'], 2) ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="mt-2 mb-3">
