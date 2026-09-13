@@ -111,14 +111,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <tr>
                                         <td><?= htmlspecialchars($item['product_name']) ?></td>
                                         <td>x<?= $item['quantity'] ?></td>
-                                        <td class="text-end fw-semibold">रु <?= number_format($item['price'], 2) ?></td>
+                                        <td class="text-end fw-semibold">NPR <?= number_format($item['price'], 2) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td colspan="2" class="text-end fw-bold">Total</td>
-                                        <td class="text-end fw-bold text-success">रु <?= number_format($order_found['total_amount'], 2) ?></td>
+                                        <td class="text-end fw-bold text-success">NPR <?= number_format($order_found['total_amount'], 2) ?></td>
                                     </tr>
                                 </tfoot>
                             </table>
