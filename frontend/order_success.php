@@ -57,7 +57,7 @@ unset($_SESSION['last_order']);
                     <?php if (!empty($last_order['slot'])): ?>
                         <strong>Delivery Slot:</strong> <?= htmlspecialchars($last_order['slot']) ?><br>
                     <?php endif; ?>
-                    <strong>Order Total:</strong> रु <?= number_format($last_order['total'], 2) ?>
+                    <strong>Order Total:</strong> NPR <?= number_format($last_order['total'], 2) ?>
                 </p>
                 <a href="invoice.php?order_id=<?= $last_order['id'] ?>" target="_blank" class="btn btn-outline-dark btn-sm px-3 mb-3">
                     <i class="bi bi-receipt me-1"></i>View Invoice
