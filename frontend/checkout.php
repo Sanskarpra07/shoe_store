@@ -212,7 +212,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
                         <!-- ======== Place Order Button ======== -->
                         <button type="submit" class="btn btn-accent btn-lg w-100">
                             <i class="bi bi-shield-check me-1"></i>
-                            Place Order - रु <?= number_format($total, 2) ?>
+                            Place Order - NPR <?= number_format($total, 2) ?>
                         </button>
                         <p class="text-muted text-center small mt-2 mb-0">
                             <i class="bi bi-lock me-1"></i>Secure checkout. Your payment details are protected.
@@ -242,13 +242,13 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
                                     <small class="text-muted">x<?= $item['qty'] ?></small>
                                 </div>
                             </div>
-                            <span class="fw-bold">रु <?= number_format($item['line_total'], 2) ?></span>
+                            <span class="fw-bold">NPR <?= number_format($item['line_total'], 2) ?></span>
                         </div>
                     <?php endforeach; ?>
                     <hr>
                     <div class="d-flex justify-content-between mb-1">
                         <span>Subtotal</span>
-                        <span>रु <?= number_format($total, 2) ?></span>
+                        <span>NPR <?= number_format($total, 2) ?></span>
                     </div>
                     <div class="d-flex justify-content-between mb-1">
                         <span>Shipping</span>
@@ -257,7 +257,7 @@ $slots = mysqli_query($conn, "SELECT * FROM delivery_slots WHERE is_active = 1 O
                     <hr>
                     <div class="d-flex justify-content-between fw-bold fs-5">
                         <span>Total</span>
-                        <span class="text-success">रु <?= number_format($total, 2) ?></span>
+                        <span class="text-success">NPR <?= number_format($total, 2) ?></span>
                     </div>
                 </div>
             </div>
