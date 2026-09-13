@@ -109,13 +109,13 @@ $items = mysqli_stmt_get_result($items_stmt);
                 <tr>
                     <td><?= htmlspecialchars($item['product_name']) ?></td>
                     <td class="text-center"><?= $item['quantity'] ?></td>
-                    <td class="text-end">रु <?= number_format($item['price'], 2) ?></td>
-                    <td class="text-end line-total">रु <?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+                    <td class="text-end">NPR <?= number_format($item['price'], 2) ?></td>
+                    <td class="text-end line-total">NPR <?= number_format($item['price'] * $item['quantity'], 2) ?></td>
                 </tr>
             <?php endwhile; ?>
             </tbody>
             <tfoot>
-                <tr><td colspan="3" class="text-end fw-bold">Grand Total</td><td class="text-end fw-bold">रु <?= number_format($order['total_amount'], 2) ?></td></tr>
+                <tr><td colspan="3" class="text-end fw-bold">Grand Total</td><td class="text-end fw-bold">NPR <?= number_format($order['total_amount'], 2) ?></td></tr>
             </tfoot>
         </table>
     </div>
