@@ -127,7 +127,7 @@ if ($payment === 'cod') {
     }
     mysqli_commit($conn);
     $_SESSION['cart'] = []; // clear the cart
-    $_SESSION['order_success'] = "Order #$order_id placed successfully! Total: रु " . number_format($total, 2)
+    $_SESSION['order_success'] = "Order #$order_id placed successfully! Total: NPR " . number_format($total, 2)
         . ". You will pay <strong>Cash on Delivery</strong> when your order arrives.";
     $_SESSION['last_order'] = ['id' => $order_id, 'slot' => $slot, 'total' => $total];
     header("Location: order_success.php");
