@@ -127,9 +127,9 @@ $total_rows = mysqli_num_rows($result);
         <td class="center"><?= htmlspecialchars($row['brand_name'] ?? 'N/A') ?></td>
         <td class="center"><?= htmlspecialchars($row['category_name'] ?? 'Uncategorized') ?></td>
         <td class="center">
-            <strong>रु <?= number_format($row['price'], 2) ?></strong>
+            <strong>NPR <?= number_format($row['price'], 2) ?></strong>
             <?php if ($row['discount_price']): ?>
-                <br><span class="text-success">रु <?= number_format($row['discount_price'], 2) ?></span>
+                <br><span class="text-success">NPR <?= number_format($row['discount_price'], 2) ?></span>
             <?php endif; ?>
         </td>
         <td class="center"><?= htmlspecialchars($row['size'] ?? '-') ?></td>
