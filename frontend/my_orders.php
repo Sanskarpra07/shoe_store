@@ -108,15 +108,15 @@ $orders = mysqli_query($conn,
                                     <?php if ($item['size']): ?><small class="text-muted d-block">Size: <?= htmlspecialchars($item['size']) ?></small><?php endif; ?>
                                 </td>
                                 <td><?= $item['quantity'] ?></td>
-                                <td>रु <?= number_format($item['price'], 2) ?></td>
-                                <td class="fw-bold">रु <?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+                                <td>NPR <?= number_format($item['price'], 2) ?></td>
+                                <td class="fw-bold">NPR <?= number_format($item['price'] * $item['quantity'], 2) ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
                         <tfoot>
                             <tr>
                                 <td colspan="3" class="text-end fw-semibold">Order Total</td>
-                                <td class="fw-bold fs-5 text-success">रु <?= number_format($order_detail['total_amount'], 2) ?></td>
+                                <td class="fw-bold fs-5 text-success">NPR <?= number_format($order_detail['total_amount'], 2) ?></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -222,7 +222,7 @@ $orders = mysqli_query($conn,
                         <td class="ps-4 fw-semibold">#<?= $o['id'] ?></td>
                         <td class="small"><?= date('d M Y, h:i A', strtotime($o['created_at'])) ?></td>
                         <td><?= $o['item_count'] ?></td>
-                        <td class="fw-bold">रु <?= number_format($o['total_amount'], 2) ?></td>
+                        <td class="fw-bold">NPR <?= number_format($o['total_amount'], 2) ?></td>
                         <td>
                             <span class="badge bg-secondary text-uppercase"><?= htmlspecialchars($o['payment_method']) ?></span>
                         </td>
