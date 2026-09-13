@@ -66,7 +66,7 @@ if (abs($paid - (float)$order['total_amount']) > 0.01) {
 // ---------- Idempotency guard ----------
 if ($order['payment_status'] === 'completed') {
     $_SESSION['cart'] = [];
-    $_SESSION['order_success'] = "Payment already confirmed for Order #$order_id. Total: रु " . number_format($order['total_amount'], 2);
+    $_SESSION['order_success'] = "Payment already confirmed for Order #$order_id. Total: NPR " . number_format($order['total_amount'], 2);
     header("Location: order_success.php");
     exit();
 }
@@ -112,6 +112,6 @@ try {
 
 // ---------- Redirect to order success ----------
 $_SESSION['cart'] = [];
-$_SESSION['order_success'] = "Payment successful via eSewa! Order #$order_id confirmed. Total: रु " . number_format($order['total_amount'], 2);
+$_SESSION['order_success'] = "Payment successful via eSewa! Order #$order_id confirmed. Total: NPR " . number_format($order['total_amount'], 2);
 header("Location: order_success.php");
 exit();
