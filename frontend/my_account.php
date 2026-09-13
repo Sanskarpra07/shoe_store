@@ -184,7 +184,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
                     <div class="card stat-card border-0 shadow-sm p-3">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <div class="fs-3 fw-bold">रु <?= number_format($total_spent, 2) ?></div>
+                                <div class="fs-3 fw-bold">NPR <?= number_format($total_spent, 2) ?></div>
                                 <div class="text-muted small">Total Spent</div>
                             </div>
                             <i class="bi bi-cash-stack fs-2 text-success"></i>
@@ -295,7 +295,7 @@ $order_count = mysqli_fetch_assoc(mysqli_query($conn,
                                     <a href="my_orders.php?view=<?= $o['id'] ?>" class="text-decoration-none">#<?= $o['id'] ?></a>
                                 </td>
                                 <td class="small"><?= date('d M Y, h:i A', strtotime($o['created_at'])) ?></td>
-                                <td class="fw-bold">रु <?= number_format($o['total_amount'], 2) ?></td>
+                                <td class="fw-bold">NPR <?= number_format($o['total_amount'], 2) ?></td>
                                 <td><span class="badge bg-secondary"><?= strtoupper($o['payment_method']) ?></span></td>
                                 <td><span class="badge order-status-<?= $o['status'] ?>"><?= ucfirst($o['status']) ?></span></td>
                             </tr>
