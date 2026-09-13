@@ -157,7 +157,7 @@ $wishlist = mysqli_stmt_get_result($stmt);
                                     </div>
                                 </div>
                             </td>
-                            <td class="fw-bold">रु <?= number_format($item['discount_price'] ?: $item['price'], 2) ?></td>
+                            <td class="fw-bold">NPR <?= number_format($item['discount_price'] ?: $item['price'], 2) ?></td>
                             <td>
                                 <?php if ($item['stock'] > 0): ?>
                                     <span class="badge bg-success">In Stock (<?= $item['stock'] ?>)</span>
