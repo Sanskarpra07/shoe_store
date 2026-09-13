@@ -165,12 +165,12 @@ $cart_count = array_sum($cart);
                                     </div>
                                 </div>
                             </td>
-                            <td>रु <?= number_format($item['discount_price'] ?: $item['price'], 2) ?></td>
+                            <td>NPR <?= number_format($item['discount_price'] ?: $item['price'], 2) ?></td>
                             <td>
                                 <input type="number" name="quantity[<?= $item['id'] ?>]" class="form-control form-control-sm"
                                        value="<?= $item['qty'] ?>" min="1" max="<?= $item['stock'] ?>">
                             </td>
-                            <td class="fw-bold">रु <?= number_format($item['line_total'], 2) ?></td>
+                            <td class="fw-bold">NPR <?= number_format($item['line_total'], 2) ?></td>
                             <td class="text-center">
                                 <a href="cart.php?remove=<?= $item['id'] ?>" class="btn btn-sm btn-outline-danger"
                                    data-confirm="Remove this item?">
@@ -202,7 +202,7 @@ $cart_count = array_sum($cart);
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal (<?= $cart_count ?> items)</span>
-                            <span>रु <?= number_format($total, 2) ?></span>
+                            <span>NPR <?= number_format($total, 2) ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Shipping</span>
@@ -211,7 +211,7 @@ $cart_count = array_sum($cart);
                         <hr>
                         <div class="d-flex justify-content-between fw-bold fs-5">
                             <span>Total</span>
-                            <span class="text-success">रु <?= number_format($total, 2) ?></span>
+                            <span class="text-success">NPR <?= number_format($total, 2) ?></span>
                         </div>
                         <a href="checkout.php" class="btn btn-accent w-100 mt-3 btn-lg">
                             Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i>
