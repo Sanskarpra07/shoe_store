@@ -241,13 +241,13 @@ unset($_SESSION['error']);
             <td class="center"><?= htmlspecialchars($item['size'] ?? '-') ?></td>
             <td class="center"><?= htmlspecialchars($item['color'] ?? '-') ?></td>
             <td class="center"><?= $item['quantity'] ?></td>
-            <td class="center">रु <?= number_format($item['price'], 2) ?></td>
-            <td class="center">रु <?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+            <td class="center">NPR <?= number_format($item['price'], 2) ?></td>
+            <td class="center">NPR <?= number_format($item['price'] * $item['quantity'], 2) ?></td>
         </tr>
         <?php endforeach; ?>
         <tr>
             <td colspan="5" class="text-right"><strong>Order Total</strong></td>
-            <td class="center"><strong style="font-size:16px;">रु <?= number_format($order_detail['total_amount'], 2) ?></strong></td>
+            <td class="center"><strong style="font-size:16px;">NPR <?= number_format($order_detail['total_amount'], 2) ?></strong></td>
         </tr>
     </table>
     </div>
@@ -279,7 +279,7 @@ unset($_SESSION['error']);
         <form method="POST" action="orders.php">
             <input type="hidden" name="action" value="refund_khalti">
             <input type="hidden" name="id" value="<?= $order_detail['id'] ?>">
-            <p class="small text-muted">Process a full refund of रु <?= number_format($order_detail['total_amount'], 2) ?> to the customer's Khalti wallet. Order will be cancelled and stock restored.</p>
+            <p class="small text-muted">Process a full refund of NPR <?= number_format($order_detail['total_amount'], 2) ?> to the customer's Khalti wallet. Order will be cancelled and stock restored.</p>
             <button type="submit" class="btn btn-red" data-confirm="Process a full Khalti refund for this order? Stock will be restored."><i class="bi bi-arrow-counterclockwise"></i> Refund via Khalti</button>
         </form>
     </div>
@@ -316,7 +316,7 @@ unset($_SESSION['error']);
             <td class="center"><strong>#<?= $row['id'] ?></strong></td>
             <td><?= htmlspecialchars($row['customer_name']) ?></td>
             <td><?= htmlspecialchars($row['customer_email']) ?></td>
-            <td class="center"><strong>रु <?= number_format($row['total_amount'], 2) ?></strong></td>
+            <td class="center"><strong>NPR <?= number_format($row['total_amount'], 2) ?></strong></td>
             <td class="center"><span class="badge badge-secondary"><?= strtoupper($row['payment_method']) ?></span></td>
             <td class="center">
                 <span class="badge badge-<?=
