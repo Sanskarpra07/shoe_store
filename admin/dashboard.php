@@ -151,7 +151,7 @@ $trend_total   = number_format(array_sum($chart_revenue), 2);
     <div class="stat-card">
         <div class="stat-icon icon-green"><i class="bi bi-currency-dollar"></i></div>
         <div>
-            <div class="stat-value">रु <?= number_format($total_revenue, 2) ?></div>
+            <div class="stat-value">NPR <?= number_format($total_revenue, 2) ?></div>
             <div class="stat-label">Revenue (Paid Orders)</div>
         </div>
     </div>
@@ -160,7 +160,7 @@ $trend_total   = number_format(array_sum($chart_revenue), 2);
 <div class="panel-card chart-card">
     <div class="panel-header">
         <h3><i class="bi bi-graph-up"></i> Revenue Trend (Last 30 Days)</h3>
-        <span class="badge badge-success">रु <?= $trend_total ?> in 30 days</span>
+        <span class="badge badge-success">NPR <?= $trend_total ?> in 30 days</span>
     </div>
     <div class="panel-body">
         <div class="revenue-chart-wrap">
@@ -194,7 +194,7 @@ $trend_total   = number_format(array_sum($chart_revenue), 2);
                         <div class="list-meta"><?= htmlspecialchars($row['brand'] ?? 'N/A') ?> &middot; <?= htmlspecialchars($row['category'] ?? 'Uncategorized') ?></div>
                     </div>
                     <div class="list-side">
-                        <div class="list-meta"><strong>रु <?= number_format($row['price'], 2) ?></strong></div>
+                        <div class="list-meta"><strong>NPR <?= number_format($row['price'], 2) ?></strong></div>
                         <?php if ($row['stock'] < 10): ?>
                             <span class="badge badge-danger"><?= $row['stock'] ?> &middot; Low</span>
                         <?php else: ?>
@@ -226,7 +226,7 @@ $trend_total   = number_format(array_sum($chart_revenue), 2);
                         <div class="list-meta"><?= htmlspecialchars($o['customer_name']) ?> &middot; <?= date('d M Y', strtotime($o['created_at'])) ?></div>
                     </div>
                     <div class="list-side">
-                        <div class="list-meta"><strong>रु <?= number_format($o['total_amount'], 2) ?></strong></div>
+                        <div class="list-meta"><strong>NPR <?= number_format($o['total_amount'], 2) ?></strong></div>
                         <?php
                         // Map each order status to the correct badge color.
                         $status_badge = [
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
             labels: <?= json_encode($chart_labels) ?>,
             datasets: [
                 {
-                    label: 'Revenue (रु)',
+                    label: 'Revenue (NPR)',
                     data: <?= json_encode($chart_revenue) ?>,
                     borderColor: '#06b6d4',
                     backgroundColor: 'rgba(6, 182, 212, 0.12)',
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     callbacks: {
                         label: function (ctx) {
                             if (ctx.datasetIndex === 0) {
-                                return ' Revenue: रु ' + Number(ctx.raw).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+                                return ' Revenue: NPR ' + Number(ctx.raw).toLocaleString('en-IN', { maximumFractionDigits: 0 });
                             }
                             return ' Orders: ' + ctx.raw;
                         }
