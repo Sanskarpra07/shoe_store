@@ -181,15 +181,15 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 
             <div class="mb-3">
                 <?php if ($row['discount_price']): ?>
-                    <span class="detail-price">रु <?= number_format($row['discount_price'], 2) ?></span>
-                    <span class="old-price ms-2 fs-5">रु <?= number_format($row['price'], 2) ?></span>
+                    <span class="detail-price">NPR <?= number_format($row['discount_price'], 2) ?></span>
+                    <span class="old-price ms-2 fs-5">NPR <?= number_format($row['price'], 2) ?></span>
                     <?php
                     $savings = $row['price'] - $row['discount_price'];
                     $percent = round(($savings / $row['price']) * 100);
                     ?>
                     <span class="badge bg-danger ms-2">Save <?= $percent ?>%</span>
                 <?php else: ?>
-                    <span class="detail-price">रु <?= number_format($row['price'], 2) ?></span>
+                    <span class="detail-price">NPR <?= number_format($row['price'], 2) ?></span>
                 <?php endif; ?>
             </div>
 
@@ -265,7 +265,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                     <div class="card-body d-flex flex-column">
                         <span class="badge text-bg-primary mb-2 align-self-start"><?= htmlspecialchars($u['brand_name'] ?? '') ?></span>
                         <h6 class="card-title fw-bold"><?= htmlspecialchars($u['product_name']) ?></h6>
-                        <span class="price text-primary fw-bold">रु <?= number_format($u['discount_price'] ?: $u['price'], 2) ?></span>
+                        <span class="price text-primary fw-bold">NPR <?= number_format($u['discount_price'] ?: $u['price'], 2) ?></span>
                         <a href="product.php?id=<?= $u['id'] ?>" class="btn btn-outline-primary btn-sm w-100 mt-auto add-to-cart">View Upgrade</a>
                     </div>
                 </div>
@@ -291,7 +291,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                     <div class="card-body d-flex flex-column">
                         <span class="badge badge-brand mb-2 align-self-start"><?= htmlspecialchars($r['brand_name'] ?? '') ?></span>
                         <h6 class="card-title fw-bold"><?= htmlspecialchars($r['product_name']) ?></h6>
-                        <span class="price">रु <?= number_format($r['discount_price'] ?: $r['price'], 2) ?></span>
+                        <span class="price">NPR <?= number_format($r['discount_price'] ?: $r['price'], 2) ?></span>
                         <a href="product.php?id=<?= $r['id'] ?>" class="btn btn-accent btn-sm w-100 mt-auto add-to-cart">View</a>
                     </div>
                 </div>
