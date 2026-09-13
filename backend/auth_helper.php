@@ -46,10 +46,10 @@ function get_cart_count() {
 /**
  * Format a price in Nepali Rupees.
  * @param float $price Raw numeric price.
- * @return string "रु 1,234.56" style label.
+ * @return string "NPR 1,234.56" style label.
  */
 function price_label($price) {
-    return 'रु ' . number_format($price, 2);
+    return 'NPR ' . number_format($price, 2);
 }
 
 /**
