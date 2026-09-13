@@ -150,8 +150,8 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                         <h6 class="card-title fw-bold mb-1"><?= htmlspecialchars($p['product_name']) ?></h6>
                         <small class="text-muted"><?= htmlspecialchars($p['category_name'] ?? '') ?></small>
                         <div class="mt-2">
-                            <span class="price">रु <?= number_format($p['discount_price'], 2) ?></span>
-                            <span class="old-price ms-2">रु <?= number_format($p['price'], 2) ?></span>
+                            <span class="price">NPR <?= number_format($p['discount_price'], 2) ?></span>
+                            <span class="old-price ms-2">NPR <?= number_format($p['price'], 2) ?></span>
                         </div>
                         <div class="mt-2 mb-3">
                             <?php if ($p['stock'] > 0): ?>
@@ -216,10 +216,10 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                         <small class="text-muted"><?= htmlspecialchars($p['category_name'] ?? '') ?></small>
                         <div class="mt-2">
                             <?php if ($p['discount_price']): ?>
-                                <span class="price">रु <?= number_format($p['discount_price'], 2) ?></span>
-                                <span class="old-price ms-2">रु <?= number_format($p['price'], 2) ?></span>
+                                <span class="price">NPR <?= number_format($p['discount_price'], 2) ?></span>
+                                <span class="old-price ms-2">NPR <?= number_format($p['price'], 2) ?></span>
                             <?php else: ?>
-                                <span class="price">रु <?= number_format($p['price'], 2) ?></span>
+                                <span class="price">NPR <?= number_format($p['price'], 2) ?></span>
                             <?php endif; ?>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
