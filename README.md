@@ -18,8 +18,9 @@ storefront and a full admin panel.
 7. [System Requirements](#7-system-requirements)
 8. [Installation / How to Run](#8-installation--how-to-run)
 9. [Default Accounts](#9-default-accounts)
-10. [Testing](#10-testing)
-11. [Conclusion and Future Enhancements](#11-conclusion-and-future-enhancements)
+10. [Project Structure](#10-project-structure)
+11. [Testing](#11-testing)
+12. [Conclusion and Future Enhancements](#12-conclusion-and-future-enhancements)
 
 ---
 
@@ -28,8 +29,9 @@ storefront and a full admin panel.
 **MegaFoot** is a web-based e-commerce system for buying and selling shoes online.
 Customers can browse shoes by category, brand or keyword, add items to a wishlist
 and shopping cart, place orders, and pay using **Cash on Delivery (COD)**, **eSewa**
-or **Khalti**. New accounts are verified with a **6-digit OTP sent to the email**,
-and passwords can be recovered through the same OTP mechanism.
+or **Khalti**. All prices are displayed in **Nepali Rupees (NPR)**. New accounts are
+verified with a **6-digit OTP sent to the email**, and passwords can be recovered
+through the same OTP mechanism.
 
 The system also has a secure **admin panel** where the administrator manages
 products, categories, brands, inventory (stock log), delivery slots, customer and
@@ -197,9 +199,9 @@ Copy the `shoe_store` folder into the web root:
 ### Step 3 — Create the database (choose one)
 
 **Option A — Import the ready-made dump (recommended):**
-Log in to **phpMyAdmin** → create a database named `shoe_store_db`
-(charset `utf8mb4`) → click **Import** → choose
-`database/shoe_store.sql` → Go. The dump creates the database if missing.
+Log in to **phpMyAdmin** → click **Import** → choose
+`database/setup.sql` → Go. The script creates the `shoe_store_db` database
+(if missing), all tables, and the seed data automatically.
 
 **Option B — Run the setup script (command line):**
 ```bash
@@ -311,7 +313,7 @@ shoe_store/
 └── .htaccess          # Security headers + storefront URL rewriting
 ```
 
-## 10. Testing
+## 11. Testing
 
 | Test Case                          | Expected Result                                        | Status |
 |------------------------------------|--------------------------------------------------------|--------|
@@ -330,7 +332,7 @@ shoe_store/
 
 ---
 
-## 11. Conclusion and Future Enhancements
+## 12. Conclusion and Future Enhancements
 
 ### Conclusion
 The project successfully fulfills its objectives: an online shoe store with email
@@ -344,5 +346,4 @@ and demonstrates the full MIS concepts of data collection, processing and report
 - **Fonepay** and other payment gateways.
 - **Stock-out notifications** and low-stock alerts.
 - **Coupons / discount codes** and shipping cost calculation.
-- **Charts and graphs** on the admin dashboard.
 - **Mobile app / responsive design improvements**.
