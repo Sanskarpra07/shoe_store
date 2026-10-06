@@ -199,17 +199,19 @@ Copy the `shoe_store` folder into the web root:
 ### Step 3 — Create the database (choose one)
 
 **Option A — Import the ready-made dump (recommended):**
-Log in to **phpMyAdmin** → click **Import** → choose
-`database/setup.sql` → Go. The script creates the `shoe_store_db` database
-(if missing), all tables, and the seed data automatically.
+Log in to **phpMyAdmin** → create/select a database (e.g. `shoe_store_db`) in
+the left sidebar → click **Import** → choose `database/setup.sql` → Go. The
+script creates all tables and the seed data inside the selected database.
 
 **Option B — Run the setup script (command line):**
 ```bash
 # Windows
-C:\xampp\mysql\bin\mysql.exe -u root < database\setup.sql
+C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS shoe_store_db"
+C:\xampp\mysql\bin\mysql.exe -u root shoe_store_db < database\setup.sql
 
 # Linux / macOS
-/opt/lampp/bin/mysql -u root < database/setup.sql
+/opt/lampp/bin/mysql -u root -e "CREATE DATABASE IF NOT EXISTS shoe_store_db"
+/opt/lampp/bin/mysql -u root shoe_store_db < database/setup.sql
 ```
 > Add `-p` and type the root password if your MySQL root user has one.
 

@@ -8,21 +8,33 @@
 # Disable directory listing
 Options -Indexes
 
-# Block access to sensitive files
-<FilesMatch "\.(sql|log|ini|bak|git)$">
-    Require all denied
-</FilesMatch>
+# Block access to sensitive files (env/config dumps, dotfiles, docs, dumps)
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.|\.(sql|log|ini|bak|md|json|lock|yml|yaml|dist)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
 
 # ---- Storefront URL rewriting ----
 # Serve the customer storefront from the project root so URLs never show the
 # frontend/ directory. Pages still live under frontend/ on disk.
+# No RewriteBase is used: the redirect target is derived from REQUEST_URI and
+# internal rewrites are relative, so this works at the domain root or inside
+# a sub folder (XAMPP, shared hosting, etc) unchanged.
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /shoe_store/
 
-    # Canonicalize legacy /frontend/*.php links to the root-level URL (301)
+    # Server-side only folders must never be reachable over HTTP
+    RewriteRule ^(backend|database|docs)/ - [F,L]
+
+    # Canonicalize legacy /frontend/*.php links to the root-level URL (301).
+    # %1 is the part of REQUEST_URI in front of /frontend/ (e.g. '' at the
+    # domain root or '/shoe_store' under XAMPP), so the URL stays portable.
+    # The REDIRECT_STATUS guard stops this firing on the internal rewrite
+    # pass (which would redirect a page to itself).
     RewriteCond %{ENV:REDIRECT_STATUS} !200
-    RewriteRule ^frontend/([A-Za-z0-9_]+\.php)$ /shoe_store/$1 [R=301,L]
+    RewriteCond %{REQUEST_URI} ^(.*)/frontend/([A-Za-z0-9_]+\.php)(\?.*)?$
+    RewriteRule ^frontend/([A-Za-z0-9_]+\.php)$ %1/%2 [R=301,L]
 
     # Internally map root-level storefront pages into the frontend/ directory
     RewriteCond %{ENV:REDIRECT_STATUS} !200

@@ -1,7 +1,11 @@
 -- setup.sql — Shoe Store Database Setup
-
-CREATE DATABASE IF NOT EXISTS shoe_store_db;
-USE shoe_store_db;
+--
+-- This file only creates tables + seed data, so it runs inside whichever
+-- database is currently selected. Pick/create the database first:
+--   phpMyAdmin: click the database in the left sidebar, then Import.
+--   MySQL CLI : mysql -u root shoe_store_db < database/setup.sql
+-- (CREATE DATABASE / USE were removed so the same file works on shared
+--  hosting, where the panel user may only use prefixed database names.)
 
 -- 1. Users table
 CREATE TABLE IF NOT EXISTS users (

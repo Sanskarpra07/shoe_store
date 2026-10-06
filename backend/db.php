@@ -27,7 +27,8 @@ if (!$conn) {
 function base_url($path = '') {
     // Detect HTTPS so we can build http:// vs https:// links.
     $https  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-        || (($_SERVER['SERVER_PORT'] ?? 80) == 443);
+        || (($_SERVER['SERVER_PORT'] ?? 80) == 443)
+        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
     $scheme = $https ? 'https' : 'http';
     $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
