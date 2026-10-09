@@ -141,17 +141,17 @@ CREATE TABLE IF NOT EXISTS reviews (
 );
 
 -- Sample Customers (password: customer123)
-INSERT INTO customers (id, full_name, email, phone, password_eg, is_verified, address, created_at) VALUES
+INSERT IGNORE INTO customers (id, full_name, email, phone, password_eg, is_verified, address, created_at) VALUES
     (11, 'Sita Sharma', 'sita@example.com', '9841000000', '$2y$10$fiAOWiQVUfx9LOjnQqyyIu1OVb03fwyNMUCKX8Qq3y8r5hvd9UDc6', 1, 'Baneshwor, Kathmandu', '2026-09-04 18:26:48'),
     (15, 'Sanskar Pradhan', 'pradhansanskar07@gmail.com', '9745967580', '$2y$10$QjmicbKw5D3g8sZD/K6UVezKVRAbW1tZTMy/yGm9AQbimhbZMZ21u', 1, NULL, '2026-09-07 13:50:57');
 
 -- Sample Users (password: password)
-INSERT INTO users (username, password_eg, role) VALUES
+INSERT IGNORE INTO users (username, password_eg, role) VALUES
     ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'),
     ('staff1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'staff');
 
 -- Sample Categories
-INSERT INTO categories (name, icon, description) VALUES
+INSERT IGNORE INTO categories (name, icon, description) VALUES
     ('Running', 'fa-solid fa-person-running', 'Running and jogging shoes'),
     ('Casual', 'fa-solid fa-bag-shopping', 'Everyday casual footwear'),
     ('Sports', 'fa-solid fa-trophy', 'Athletic and sports shoes'),
@@ -159,7 +159,7 @@ INSERT INTO categories (name, icon, description) VALUES
     ('Boots', 'fa-solid fa-boot', 'Boots and heavy-duty footwear');
 
 -- Sample Brands
-INSERT INTO brands (name, icon, description) VALUES
+INSERT IGNORE INTO brands (name, icon, description) VALUES
     ('Nike', 'fa-solid fa-bolt', 'Global leader in athletic footwear and apparel'),
     ('Adidas', 'fa-solid fa-bars-staggered', 'German multinational corporation designing shoes'),
     ('Puma', 'fa-solid fa-award', 'German multinational designing athletic and casual footwear'),
@@ -167,37 +167,37 @@ INSERT INTO brands (name, icon, description) VALUES
     ('New Balance', 'fa-solid fa-shield-halved', 'American sports footwear manufacturer');
 
 -- Sample Delivery Slots
-INSERT INTO delivery_slots (slot_name, slot_time, is_active) VALUES
-    ('Morning', '8 AM - 11 AM', 1),
-    ('Afternoon', '12 PM - 3 PM', 1),
-    ('Evening', '4 PM - 7 PM', 1);
+INSERT IGNORE INTO delivery_slots (id, slot_name, slot_time, is_active) VALUES
+    (1, 'Morning', '8 AM - 11 AM', 1),
+    (2, 'Afternoon', '12 PM - 3 PM', 1),
+    (3, 'Evening', '4 PM - 7 PM', 1);
 
 -- Sample Products
-INSERT INTO products (product_name, description, price, discount_price, stock, size, color, image, category_id, brand_id) VALUES
-    ('Nike Air Max 270', 'Comfortable running shoes with Air Max technology', 9.99, 7.99, 42, '8-12', 'Black', 'assets/img/nike_air_max_270.jpg', 1, 1),
-    ('Adidas Ultraboost 22', 'Premium running shoes with Boost cushioning', 10.00, NULL, 29, '7-11', 'White', 'assets/img/adidas_ultraboost.jpg', 1, 2),
-    ('Puma RS-X', 'Retro-inspired casual sneakers', 7.99, 5.99, 45, '8-12', 'Blue', 'assets/img/puma_rsx.jpg', 2, 3),
-    ('Nike Dunk Low', 'Classic casual lifestyle sneakers', 8.50, NULL, 25, '6-10', 'Red', 'assets/img/nike_dunk_low.jpg', 2, 1),
-    ('Adidas Stan Smith', 'Iconic casual leather sneakers', 6.99, 5.99, 55, '7-12', 'Green', 'assets/img/adidas_stan_smith.jpg', 2, 2),
-    ('Reebok Nano X', 'Cross-training sports shoes', 8.99, NULL, 20, '8-12', 'Black', 'assets/img/reebok_nano_x.jpg', 3, 4),
-    ('Nike React Infinity', 'High-performance running shoes', 9.99, 7.99, 15, '7-11', 'Grey', 'assets/img/nike_react_infinity.jpg', 1, 1),
-    ('New Balance 574', 'Classic casual running-inspired shoes', 6.50, NULL, 70, '6-12', 'Navy', 'assets/img/new_balance_574.jpg', 2, 5),
-    ('Puma Future Rider', 'Lightweight casual sneakers', 5.49, 4.49, 40, '7-11', 'White', 'assets/img/puma_future_rider.jpg', 2, 3),
-    ('Adidas Terrex', 'Outdoor trail boots', 9.50, NULL, 18, '8-13', 'Brown', 'assets/img/adidas_terrex.jpg', 5, 2),
-    ('Nike Air Force 1', 'Timeless casual basketball sneakers', 8.00, NULL, 80, '6-13', 'White', 'assets/img/nike_air_force_1.jpg', 2, 1),
-    ('Reebok Club C', 'Clean casual retro sneakers', 4.99, 3.99, 35, '7-12', 'Cream', 'assets/img/reebok_club_c.jpg', 2, 4);
+INSERT IGNORE INTO products (id, product_name, description, price, discount_price, stock, size, color, image, category_id, brand_id) VALUES
+    (1, 'Nike Air Max 270', 'Comfortable running shoes with Air Max technology', 9.99, 7.99, 42, '8-12', 'Black', 'assets/img/nike_air_max_270.jpg', 1, 1),
+    (2, 'Adidas Ultraboost 22', 'Premium running shoes with Boost cushioning', 10.00, NULL, 29, '7-11', 'White', 'assets/img/adidas_ultraboost.jpg', 1, 2),
+    (3, 'Puma RS-X', 'Retro-inspired casual sneakers', 7.99, 5.99, 45, '8-12', 'Blue', 'assets/img/puma_rsx.jpg', 2, 3),
+    (4, 'Nike Dunk Low', 'Classic casual lifestyle sneakers', 8.50, NULL, 25, '6-10', 'Red', 'assets/img/nike_dunk_low.jpg', 2, 1),
+    (5, 'Adidas Stan Smith', 'Iconic casual leather sneakers', 6.99, 5.99, 55, '7-12', 'Green', 'assets/img/adidas_stan_smith.jpg', 2, 2),
+    (6, 'Reebok Nano X', 'Cross-training sports shoes', 8.99, NULL, 20, '8-12', 'Black', 'assets/img/reebok_nano_x.jpg', 3, 4),
+    (7, 'Nike React Infinity', 'High-performance running shoes', 9.99, 7.99, 15, '7-11', 'Grey', 'assets/img/nike_react_infinity.jpg', 1, 1),
+    (8, 'New Balance 574', 'Classic casual running-inspired shoes', 6.50, NULL, 70, '6-12', 'Navy', 'assets/img/new_balance_574.jpg', 2, 5),
+    (9, 'Puma Future Rider', 'Lightweight casual sneakers', 5.49, 4.49, 40, '7-11', 'White', 'assets/img/puma_future_rider.jpg', 2, 3),
+    (10, 'Adidas Terrex', 'Outdoor trail boots', 9.50, NULL, 18, '8-13', 'Brown', 'assets/img/adidas_terrex.jpg', 5, 2),
+    (11, 'Nike Air Force 1', 'Timeless casual basketball sneakers', 8.00, NULL, 80, '6-13', 'White', 'assets/img/nike_air_force_1.jpg', 2, 1),
+    (12, 'Reebok Club C', 'Clean casual retro sneakers', 4.99, 3.99, 35, '7-12', 'Cream', 'assets/img/reebok_club_c.jpg', 2, 4);
 
 -- Sample Orders
-INSERT INTO orders (id, customer_id, customer_name, customer_email, customer_phone, customer_address, total_amount, payment_method, payment_status, status, delivery_slot, created_at) VALUES
+INSERT IGNORE INTO orders (id, customer_id, customer_name, customer_email, customer_phone, customer_address, total_amount, payment_method, payment_status, status, delivery_slot, created_at) VALUES
     (1, NULL, 'John Doe', 'john@test.com', '9841234567', 'Kathmandu Nepal', 269.97, 'cod', 'pending', 'pending', NULL, '2026-09-04 16:37:25'),
     (14, 15, 'Sanskar Pradhan', 'pradhansanskar07@gmail.com', '9745967580', 'Mangal Bazzar', 99.99, 'cod', 'completed', 'pending', '', '2026-09-07 14:12:05');
 
 -- Sample Order Items
-INSERT INTO order_items (id, order_id, product_id, quantity, price) VALUES
+INSERT IGNORE INTO order_items (id, order_id, product_id, quantity, price) VALUES
     (1, 1, 1, 2, 199.98),
     (2, 1, 3, 1, 69.99),
     (15, 14, 1, 1, 99.99);
 
 -- Sample Wishlists
-INSERT INTO wishlists (id, customer_id, product_id) VALUES
+INSERT IGNORE INTO wishlists (id, customer_id, product_id) VALUES
     (1, 11, 5);
